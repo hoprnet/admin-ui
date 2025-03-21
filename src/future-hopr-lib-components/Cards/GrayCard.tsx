@@ -82,7 +82,16 @@ const StyledChip = styled(Chip)<{ color: string }>`
   font-weight: 700;
 `;
 
-export const GrayCard = ({ id, title, value, valueTooltip, currency, chip, buttons, children }: GrayCardProps) => {
+export const GrayCard = ({
+id,
+title,
+value,
+valueTooltip,
+currency,
+chip,
+buttons,
+children,
+}: GrayCardProps) => {
   return (
     <StyledGrayCard id={id}>
       {(title || value || children) && (

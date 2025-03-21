@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Card, Chip } from '@mui/material';
+import {
+Accordion,
+AccordionDetails,
+AccordionSummary,
+Card,
+Chip,
+} from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import styled from '@emotion/styled';
 
@@ -108,7 +114,11 @@ type FaqProps = {
   }[];
 };
 
-export default function FAQ({ variant, label, data }: FaqProps) {
+export default function FAQ({
+variant,
+label,
+data,
+}: FaqProps) {
   const [expandedId, set_expandedId] = useState<number | false>(false);
 
   useEffect(() => {

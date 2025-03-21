@@ -29,9 +29,9 @@ export const OpenMultipleChannelsModal = () => {
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerIds);
 
   useEffect(() => {
-    window.addEventListener("keydown", handleEnter);
+    window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener("keydown", handleEnter);
+      window.removeEventListener('keydown', handleEnter);
     };
   }, [openChannelModal, loginData, peerIds, amount]);
 
@@ -180,13 +180,12 @@ export const OpenMultipleChannelsModal = () => {
     fileInputRef.current?.click();
   };
 
-  function handleEnter (event: any) {
+  function handleEnter(event: any) {
     if (openChannelModal && canOpen && event.key === 'Enter') {
       console.log('OpenMultipleChannelsModal event');
       handleAction();
     }
-  };
-
+  }
 
   return (
     <>

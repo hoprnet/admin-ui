@@ -34,12 +34,18 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   const aliasesArr = aliases ? Object.keys(aliases) : [];
   const aliasPeerIdsArr = aliases ? Object.values(aliases) : [];
   const aliasIncludesASpace = alias.includes(' ');
-  const canAddAlias = !(alias.length === 0 || peerId.length === 0 || duplicateAlias || duplicatePeerId || aliasIncludesASpace);
+  const canAddAlias = !(
+    alias.length === 0 ||
+    peerId.length === 0 ||
+    duplicateAlias ||
+    duplicatePeerId ||
+    aliasIncludesASpace
+  );
 
   useEffect(() => {
-    window.addEventListener("keydown", handleEnter);
+    window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener("keydown", handleEnter);
+      window.removeEventListener('keydown', handleEnter);
     };
   }, [loginData, alias, peerId]);
 
@@ -130,12 +136,12 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
     }
   };
 
-  function handleEnter (event: any) {
+  function handleEnter(event: any) {
     if (canAddAlias && event.key === 'Enter') {
       console.log('AddAliasModal event');
       handleAddAlias();
     }
-  };
+  }
 
   return (
     <>

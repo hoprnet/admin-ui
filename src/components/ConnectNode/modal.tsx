@@ -153,9 +153,9 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
   const canConnectToNode = apiEndpoint.length !== 0;
 
   useEffect(() => {
-    window.addEventListener("keydown", handleEnter);
+    window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener("keydown", handleEnter);
+      window.removeEventListener('keydown', handleEnter);
     };
   }, [apiToken, apiEndpoint, localName, jazzIcon, props.open]);
 
@@ -366,12 +366,12 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
     chosenNode.jazzIcon && set_jazzIcon(chosenNode.jazzIcon);
   };
 
-  function handleEnter (event: any) {
+  function handleEnter(event: any) {
     if (props.open && canConnectToNode && event.key === 'Enter') {
       console.log('ConnectNode event');
       useNode({});
     }
-  };
+  }
 
   return (
     <>

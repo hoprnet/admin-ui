@@ -34,12 +34,12 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const [openChannelModal, set_openChannelModal] = useState(false);
   const [amount, set_amount] = useState('');
   const [peerAddress, set_peerAddress] = useState(props.peerAddress ? props.peerAddress : '');
-  const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerAddress)
+  const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerAddress);
 
   useEffect(() => {
-    window.addEventListener("keydown", handleEnter);
+    window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener("keydown", handleEnter);
+      window.removeEventListener('keydown', handleEnter);
     };
   }, [openChannelModal, loginData, amount, peerAddress]);
 
@@ -108,12 +108,12 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
     );
   };
 
-  function handleEnter (event: any) {
+  function handleEnter(event: any) {
     if (openChannelModal && canOpen && event.key === 'Enter') {
       console.log('OpenChannelModal event');
       handleAction();
     }
-  };
+  }
 
   return (
     <>

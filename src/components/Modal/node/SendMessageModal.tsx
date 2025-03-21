@@ -117,8 +117,7 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
     selectedReceiver === null ||
     (sendMode !== 'directMessage' && sendMode !== 'automaticPath' && numberOfHops < 0 && path === '') ||
     message.length === 0 ||
-    ((sendMode === 'directMessage' || (sendMode !== 'path' && numberOfHops < 1)) &&
-      selectedReceiver === hoprAddress) ||
+    ((sendMode === 'directMessage' || (sendMode !== 'path' && numberOfHops < 1)) && selectedReceiver === hoprAddress) ||
     (sendMode === 'path' && path.length === 0)
   );
 
@@ -131,9 +130,9 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
   useEffect(setPropPeerId, [props.peerId]);
 
   useEffect(() => {
-    window.addEventListener("keydown", handleEnter);
+    window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener("keydown", handleEnter);
+      window.removeEventListener('keydown', handleEnter);
     };
   }, [loginData, message, selectedReceiver, sendMode]);
 
@@ -280,12 +279,12 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
     return receiver;
   };
 
-  function handleEnter (event: any) {
+  function handleEnter(event: any) {
     if (canSendMessage && (event as KeyboardEvent)?.key === 'Enter') {
       console.log('SendMessageModal event');
       handleSendMessage();
     }
-  };
+  }
 
   return (
     <>

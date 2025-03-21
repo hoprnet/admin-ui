@@ -54,11 +54,18 @@ function SettingsPage() {
   const [strategiesString, set_strategiesString] = useState<string | null>(null);
   const [configurationString, set_configurationString] = useState<string | null>(null);
   const [localNotificationSettings, set_localNotificationSettings] = useState<typeof prevNotificationSettings>();
+  const canSave = !(
+    localNotificationSettings?.channels === prevNotificationSettings.channels &&
+    localNotificationSettings?.message === prevNotificationSettings.message &&
+    localNotificationSettings?.nodeBalances === prevNotificationSettings.nodeBalances &&
+    localNotificationSettings?.nodeInfo === prevNotificationSettings.nodeInfo &&
+    localNotificationSettings?.pendingSafeTransaction === prevNotificationSettings.pendingSafeTransaction
+  );
 
   useEffect(() => {
-    window.addEventListener("keydown", handleEnter);
+    window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener("keydown", handleEnter);
+      window.removeEventListener('keydown', handleEnter);
     };
   }, [localNotificationSettings]);
 
@@ -118,17 +125,17 @@ function SettingsPage() {
     }
   }, [configuration]);
 
-  function handleSaveSettings () {
+  function handleSaveSettings() {
     if (localNotificationSettings) {
       dispatch(appActions.setNotificationSettings(localNotificationSettings));
     }
-  };
+  }
 
-  function handleEnter (event: any) {
-    if (event.key === 'Enter') {
+  function handleEnter(event: any) {
+    if (canSave && event.key === 'Enter') {
       handleSaveSettings();
     }
-  };
+  }
 
   return (
     <Section
@@ -158,10 +165,9 @@ function SettingsPage() {
                     <Switch
                       checked={localNotificationSettings?.channels}
                       onChange={() => {
-                        console.log('localNotificationSettings', localNotificationSettings)
+                        console.log('localNotificationSettings', localNotificationSettings);
                         if (localNotificationSettings) {
                           set_localNotificationSettings({
-
                             ...localNotificationSettings,
                             channels: !localNotificationSettings.channels,
                           });
@@ -226,13 +232,7 @@ function SettingsPage() {
                     float: 'right',
                   }}
                   onClick={handleSaveSettings}
-                  disabled={
-                    localNotificationSettings?.channels === prevNotificationSettings.channels &&
-                    localNotificationSettings?.message === prevNotificationSettings.message &&
-                    localNotificationSettings?.nodeBalances === prevNotificationSettings.nodeBalances &&
-                    localNotificationSettings?.nodeInfo === prevNotificationSettings.nodeInfo &&
-                    localNotificationSettings?.pendingSafeTransaction === prevNotificationSettings.pendingSafeTransaction
-                  }
+                  disabled={!canSave}
                 >
                   Save
                 </Button>

@@ -30,9 +30,9 @@ export const PingModal = (props: PingModalProps) => {
   const canPing = peerId.length !== 0;
 
   useEffect(() => {
-    window.addEventListener("keydown", handleEnter);
+    window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener("keydown", handleEnter);
+      window.removeEventListener('keydown', handleEnter);
     };
   }, [loginData, peerId]);
 

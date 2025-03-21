@@ -39,7 +39,7 @@ export const nodeActionsFetching = {
   setTransactionsFetching,
   setTicketPriceFetching,
   setRedeemAllTicketsFetching,
-  setResetTicketStatisticsFetching
+  setResetTicketStatisticsFetching,
 };
 
 export const createFetchingReducer = (builder: ActionReducerMapBuilder<typeof initialState>) => {
@@ -89,7 +89,7 @@ export const createFetchingReducer = (builder: ActionReducerMapBuilder<typeof in
     builder.addCase(setRedeemAllTicketsFetching, (state, action) => {
       state.redeemAllTickets.isFetching = action.payload;
     });
-    builder.addCase(setResetTicketStatisticsFetching, (state, action) => {
-      state.resetTicketStatistics.isFetching = action.payload;
-    });
+  builder.addCase(setResetTicketStatisticsFetching, (state, action) => {
+    state.resetTicketStatistics.isFetching = action.payload;
+  });
 };

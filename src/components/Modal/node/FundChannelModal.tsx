@@ -31,9 +31,9 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
   const canFund = !(!amount || parseFloat(amount) <= 0 || !channelId);
 
   useEffect(() => {
-    window.addEventListener("keydown", handleEnter);
+    window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener("keydown", handleEnter);
+      window.removeEventListener('keydown', handleEnter);
     };
   }, [openChannelModal, loginData, amount, channelId]);
 
@@ -110,13 +110,12 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
     );
   };
 
-
-  function handleEnter (event: any) {
+  function handleEnter(event: any) {
     if (openChannelModal && canFund && event.key === 'Enter') {
       console.log('FundChannelModal event');
       handleAction();
     }
-  };
+  }
 
   return (
     <>

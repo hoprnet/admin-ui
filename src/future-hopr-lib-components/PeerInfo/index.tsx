@@ -28,7 +28,11 @@ const Container = styled.div`
 `;
 
 const PeersInfo: React.FC<Props> = (props) => {
-  const { peerId, nodeAddress, ...rest } = props;
+  const {
+peerId,
+nodeAddress,
+...rest
+} = props;
   const aliases = useAppSelector((store) => store.node.aliases.data);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
 
