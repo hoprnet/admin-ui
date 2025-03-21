@@ -108,7 +108,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
     );
   };
 
-  function handleEnter(event: any) {
+  function handleEnter (event: KeyboardEvent) {
     if (openChannelModal && canOpen && event.key === 'Enter') {
       console.log('OpenChannelModal event');
       handleAction();

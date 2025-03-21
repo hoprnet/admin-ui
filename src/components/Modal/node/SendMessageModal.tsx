@@ -279,7 +279,7 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
     return receiver;
   };
 
-  function handleEnter(event: any) {
+  function handleEnter (event: KeyboardEvent) {
     if (canSendMessage && (event as KeyboardEvent)?.key === 'Enter') {
       console.log('SendMessageModal event');
       handleSendMessage();

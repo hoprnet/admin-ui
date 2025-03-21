@@ -180,7 +180,7 @@ export const OpenMultipleChannelsModal = () => {
     fileInputRef.current?.click();
   };
 
-  function handleEnter(event: any) {
+  function handleEnter (event: KeyboardEvent) {
     if (openChannelModal && canOpen && event.key === 'Enter') {
       console.log('OpenMultipleChannelsModal event');
       handleAction();

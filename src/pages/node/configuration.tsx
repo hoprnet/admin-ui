@@ -131,7 +131,7 @@ function SettingsPage() {
     }
   }
 
-  function handleEnter(event: any) {
+  function handleEnter (event: KeyboardEvent) {
     if (canSave && event.key === 'Enter') {
       handleSaveSettings();
     }

@@ -136,7 +136,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
     }
   };
 
-  function handleEnter(event: any) {
+  function handleEnter (event: KeyboardEvent) {
     if (canAddAlias && event.key === 'Enter') {
       console.log('AddAliasModal event');
       handleAddAlias();
