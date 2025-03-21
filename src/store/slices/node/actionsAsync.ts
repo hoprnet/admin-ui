@@ -78,7 +78,8 @@ const {
   peekAllMessages,
   deleteMessages,
   redeemChannelTickets,
-  redeemTickets,
+  redeemAllTickets,
+  resetTicketStatistics,
   removeAlias,
   sendMessage,
   setAlias,
@@ -532,7 +533,7 @@ const setAliasThunk = createAsyncThunk<
       const res = await setAlias(payload);
       if (res) {
         return {
-          peerId: payload.peerId,
+          peerId: payload.peerId as string,
           alias: payload.alias,
         };
       }
@@ -692,7 +693,7 @@ const redeemChannelTicketsThunk = createAsyncThunk<
 >(
   'node/redeemChannelTickets',
   async (payload, { rejectWithValue, dispatch }) => {
-    dispatch(nodeActionsFetching.setRedeemTicketsFetching(true));
+    dispatch(nodeActionsFetching.setRedeemAllTicketsFetching(true));
     try {
       const res = await redeemChannelTickets(payload);
       return res;
@@ -705,7 +706,7 @@ const redeemChannelTicketsThunk = createAsyncThunk<
   },
   {
     condition: (_payload, { getState }) => {
-      const isFetching = getState().node.redeemTickets.isFetching;
+      const isFetching = getState().node.redeemAllTickets.isFetching;
       if (isFetching) {
         return false;
       }
@@ -795,12 +796,12 @@ const pingNodeThunk = createAsyncThunk('node/pingNode', async (payload: PingPeer
   }
 });
 
-const redeemTicketsThunk = createAsyncThunk<boolean | undefined, BasePayloadType, { state: RootState }>(
-  'node/redeemTickets',
+const redeemAllTicketsThunk = createAsyncThunk<boolean | undefined, BasePayloadType, { state: RootState }>(
+  'node/redeemAllTickets',
   async (payload, { rejectWithValue, dispatch }) => {
-    dispatch(nodeActionsFetching.setRedeemTicketsFetching(true));
+    dispatch(nodeActionsFetching.setRedeemAllTicketsFetching(true));
     try {
-      const res = await redeemTickets(payload);
+      const res = await redeemAllTickets(payload);
       return res;
     } catch (e) {
       if (e instanceof sdkApiError) {
@@ -811,13 +812,38 @@ const redeemTicketsThunk = createAsyncThunk<boolean | undefined, BasePayloadType
   },
   {
     condition: (_payload, { getState }) => {
-      const isFetching = getState().node.redeemTickets.isFetching;
+      const isFetching = getState().node.redeemAllTickets.isFetching;
       if (isFetching) {
         return false;
       }
     },
   },
 );
+
+const resetTicketStatisticsThunk = createAsyncThunk<boolean | undefined, BasePayloadType, { state: RootState }>(
+  'node/resetTicketStatisticsThunk',
+  async (payload, { rejectWithValue, dispatch }) => {
+    dispatch(nodeActionsFetching.setResetTicketStatisticsFetching(true));
+    try {
+      const res = await resetTicketStatistics(payload);
+      return res;
+    } catch (e) {
+      if (e instanceof sdkApiError) {
+        return rejectWithValue(e);
+      }
+      return rejectWithValue({ status: JSON.stringify(e) });
+    }
+  },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().node.resetTicketStatistics.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
+  },
+);
+
 
 const createTokenThunk = createAsyncThunk<
   CreateTokenResponseType | undefined,
@@ -1134,16 +1160,19 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   //openChannel
   builder.addCase(openChannelThunk.pending, (state, action) => {
     const peerAddress = action.meta.arg.peerAddress;
+    if(!peerAddress) return;
     state.channels.parsed.outgoingOpening[peerAddress] = true;
   });
   builder.addCase(openChannelThunk.fulfilled, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
     const peerAddress = action.meta.arg.peerAddress;
+    if(!peerAddress) return;
     state.channels.parsed.outgoingOpening[peerAddress] = false;
   });
   builder.addCase(openChannelThunk.rejected, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
     const peerAddress = action.meta.arg.peerAddress;
+    if(!peerAddress) return;
     state.channels.parsed.outgoingOpening[peerAddress] = false;
   });
   //closeChannel
@@ -1225,21 +1254,29 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   builder.addCase(getPeerInfoThunk.rejected, (state) => {
     state.peerInfo.isFetching = false;
   });
-  // redeemTicketsThunk
-  builder.addCase(redeemTicketsThunk.fulfilled, (state) => {
-    state.redeemTickets.isFetching = false;
-    state.redeemTickets.error = undefined;
+  // redeemAllTicketsThunk
+  builder.addCase(redeemAllTicketsThunk.fulfilled, (state) => {
+    state.redeemAllTickets.isFetching = false;
+    state.redeemAllTickets.error = undefined;
   });
-  builder.addCase(redeemTicketsThunk.rejected, (state, action) => {
+  builder.addCase(redeemAllTicketsThunk.rejected, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    state.redeemTickets.isFetching = false;
+    state.redeemAllTickets.isFetching = false;
     // Assign the error to the errors state
-    state.redeemTickets.error = (
+    state.redeemAllTickets.error = (
       action.payload as {
         status: string | undefined;
         error: string | undefined;
       }
     ).error;
+  });
+  // resetTicketStatisticsThunk
+  builder.addCase(resetTicketStatisticsThunk.fulfilled, (state) => {
+    if (!state.statistics.data) return;
+    state.statistics.data.neglectedValue = "0";
+    state.statistics.data.redeemedValue = "0";
+    state.statistics.data.rejectedValue = "0";
+    state.statistics.data.winningCount = 0;
   });
   // getTokenThunk
   builder.addCase(getTokenThunk.fulfilled, (state, action) => {
@@ -1449,6 +1486,8 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
     if (action.payload) {
       const pingExists = state.pings.findIndex((ping) => ping.peerId === action.payload?.peerId);
 
+      if(!action.payload.peerId) return;
+
       if (pingExists) {
         state.pings[pingExists] = {
           latency: action.payload.latency,
@@ -1553,10 +1592,10 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   // redeemChannelTickets
   builder.addCase(redeemChannelTicketsThunk.fulfilled, (state) => {
-    state.redeemTickets.isFetching = false;
+    state.redeemAllTickets.isFetching = false;
   });
   builder.addCase(redeemChannelTicketsThunk.rejected, (state) => {
-    state.redeemTickets.isFetching = false;
+    state.redeemAllTickets.isFetching = false;
   });
   // getTicketPrice
   builder.addCase(getTicketPriceThunk.fulfilled, (state, action) => {
@@ -1596,7 +1635,8 @@ export const actionsAsync = {
   redeemChannelTicketsThunk,
   sendMessageThunk,
   pingNodeThunk,
-  redeemTicketsThunk,
+  redeemAllTicketsThunk,
+  resetTicketStatisticsThunk,
   getTicketPriceThunk,
   createTokenThunk,
   deleteTokenThunk,

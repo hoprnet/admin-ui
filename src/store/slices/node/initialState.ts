@@ -218,7 +218,11 @@ type InitialState = {
     blockNumber: number | null;
   };
   messagesWebsocketStatus: WebsocketConnectionStatus;
-  redeemTickets: {
+  redeemAllTickets: {
+    isFetching: boolean;
+    error: string | undefined;
+  };
+  resetTicketStatistics: {
     isFetching: boolean;
     error: string | undefined;
   };
@@ -363,7 +367,11 @@ export const initialState: InitialState = {
     blockNumber: null,
   },
   messagesWebsocketStatus: null,
-  redeemTickets: {
+  redeemAllTickets: {
+    isFetching: false,
+    error: undefined,
+  },
+  resetTicketStatistics: {
     isFetching: false,
     error: undefined,
   },

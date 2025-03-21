@@ -18,7 +18,8 @@ const setTokensFetching = createAction<boolean>('node/setTokensFetching');
 const setVersionFetching = createAction<boolean>('node/setVersionFetching');
 const setTransactionsFetching = createAction<boolean>('node/setTransactionsFetching');
 const setTicketPriceFetching = createAction<boolean>('node/setTicketPriceFetching');
-const setRedeemTicketsFetching = createAction<boolean>('node/setRedeemTicketsFetching');
+const setRedeemAllTicketsFetching = createAction<boolean>('node/setRedeemAllTicketsFetching');
+const setResetTicketStatisticsFetching = createAction<boolean>('node/setResetTicketStatisticsFetching');
 
 export const nodeActionsFetching = {
   setAliasesFetching,
@@ -37,7 +38,8 @@ export const nodeActionsFetching = {
   setVersionFetching,
   setTransactionsFetching,
   setTicketPriceFetching,
-  setRedeemTicketsFetching,
+  setRedeemAllTicketsFetching,
+  setResetTicketStatisticsFetching
 };
 
 export const createFetchingReducer = (builder: ActionReducerMapBuilder<typeof initialState>) => {
@@ -84,7 +86,10 @@ export const createFetchingReducer = (builder: ActionReducerMapBuilder<typeof in
     builder.addCase(setTicketPriceFetching, (state, action) => {
       state.ticketPrice.isFetching = action.payload;
     }),
-    builder.addCase(setRedeemTicketsFetching, (state, action) => {
-      state.redeemTickets.isFetching = action.payload;
+    builder.addCase(setRedeemAllTicketsFetching, (state, action) => {
+      state.redeemAllTickets.isFetching = action.payload;
+    });
+    builder.addCase(setResetTicketStatisticsFetching, (state, action) => {
+      state.resetTicketStatistics.isFetching = action.payload;
     });
 };

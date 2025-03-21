@@ -9,19 +9,21 @@ import { TableExtended } from '../../future-hopr-lib-components/Table/columed-da
 import { SubpageTitle } from '../../components/SubpageTitle';
 import Section from '../../future-hopr-lib-components/Section';
 import IconButton from '../../future-hopr-lib-components/Button/IconButton';
-import GetAppIcon from '@mui/icons-material/GetApp';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Tooltip from '../../future-hopr-lib-components/Tooltip/tooltip-fixed-width';
 
 // Mui
 import { Paper } from '@mui/material';
 
+// Icons
+import RotateLeftIcon from '@mui/icons-material/RotateLeft';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+
 function TicketsPage() {
   const dispatch = useAppDispatch();
   const statistics = useAppSelector((store) => store.node.statistics.data);
   const statisticsFetching = useAppSelector((store) => store.node.statistics.isFetching);
-  const redeemTicketsFetching = useAppSelector((store) => store.node.redeemTickets.isFetching);
-  const redeemTicketsErrors = useAppSelector((store) => store.node.redeemTickets.error);
+  const redeemAllTicketsFetching = useAppSelector((store) => store.node.redeemAllTickets.isFetching);
+  const redeemAllTicketsErrors = useAppSelector((store) => store.node.redeemAllTickets.error);
   const loginData = useAppSelector((store) => store.auth.loginData);
 
   useEffect(() => {
@@ -41,7 +43,20 @@ function TicketsPage() {
 
   const handleRedeemAllTickets = () => {
     dispatch(
-      actionsAsync.redeemTicketsThunk({
+      actionsAsync.redeemAllTicketsThunk({
+        apiEndpoint: loginData.apiEndpoint!,
+        apiToken: loginData.apiToken ? loginData.apiToken : '',
+      }),
+    )
+      .unwrap()
+      .then(() => {
+        handleRefresh();
+      });
+  };
+
+  const handleResetTicketsStatistics = () => {
+    dispatch(
+      actionsAsync.resetTicketStatisticsThunk({
         apiEndpoint: loginData.apiEndpoint!,
         apiToken: loginData.apiToken ? loginData.apiToken : '',
       }),
@@ -65,7 +80,7 @@ function TicketsPage() {
         reloading={statisticsFetching}
         actions={
           <>
-            {/* <IconButton
+            <IconButton
               iconComponent={<ExitToAppIcon />}
               tooltipText={
                 <span>
@@ -74,9 +89,21 @@ function TicketsPage() {
                   all tickets
                 </span>
               }
-              reloading={redeemTicketsFetching}
+              reloading={redeemAllTicketsFetching}
               onClick={handleRedeemAllTickets}
-            /> */}
+            />
+            <IconButton
+              iconComponent={<RotateLeftIcon />}
+              tooltipText={
+                <span>
+                  RESET
+                  <br />
+                  ticket statistics
+                </span>
+              }
+              reloading={redeemAllTicketsFetching}
+              onClick={handleResetTicketsStatistics}
+            />
           </>
         }
       />
