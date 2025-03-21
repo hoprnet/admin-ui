@@ -194,7 +194,7 @@ apiToken,
     }
   };
 
-  function handleEnter (event: KeyboardEvent) {
+  function handleEnter (event: any) {
     if (canWithdraw && (event as KeyboardEvent)?.key === 'Enter') {
       console.log('WithdrawModal event');
       handleWithdraw();

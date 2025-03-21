@@ -63,9 +63,9 @@ function SettingsPage() {
   );
 
   useEffect(() => {
-   window.addEventListener('keydown', handleEnter as EventListener);
+   window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener('keydown', handleEnter as EventListener);
+      window.removeEventListener('keydown', handleEnter);
     };
   }, [localNotificationSettings]);
 
@@ -131,8 +131,8 @@ function SettingsPage() {
     }
   }
 
-  function handleEnter (event: KeyboardEvent) {
-    if (canSave && event.key === 'Enter') {
+  function handleEnter (event: any) {
+    if (canSave && (event as KeyboardEvent).key === 'Enter') {
       handleSaveSettings();
     }
   }
