@@ -130,9 +130,9 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
   useEffect(setPropPeerId, [props.peerId]);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleEnter);
+   window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
-      window.removeEventListener('keydown', handleEnter);
+      window.removeEventListener('keydown', handleEnter as EventListener);
     };
   }, [loginData, message, selectedReceiver, sendMode]);
 

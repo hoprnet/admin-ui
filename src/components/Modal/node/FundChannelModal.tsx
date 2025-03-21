@@ -31,9 +31,9 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
   const canFund = !(!amount || parseFloat(amount) <= 0 || !channelId);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleEnter);
+   window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
-      window.removeEventListener('keydown', handleEnter);
+      window.removeEventListener('keydown', handleEnter as EventListener);
     };
   }, [openChannelModal, loginData, amount, channelId]);
 

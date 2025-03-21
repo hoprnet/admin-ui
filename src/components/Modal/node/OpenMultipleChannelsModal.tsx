@@ -29,9 +29,9 @@ export const OpenMultipleChannelsModal = () => {
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerIds);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleEnter);
+   window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
-      window.removeEventListener('keydown', handleEnter);
+      window.removeEventListener('keydown', handleEnter as EventListener);
     };
   }, [openChannelModal, loginData, peerIds, amount]);
 

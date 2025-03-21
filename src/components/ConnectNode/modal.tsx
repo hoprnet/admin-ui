@@ -153,9 +153,9 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
   const canConnectToNode = apiEndpoint.length !== 0;
 
   useEffect(() => {
-    window.addEventListener('keydown', handleEnter);
+    window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
-      window.removeEventListener('keydown', handleEnter);
+      window.removeEventListener('keydown', handleEnter as EventListener);
     };
   }, [apiToken, apiEndpoint, localName, jazzIcon, props.open]);
 

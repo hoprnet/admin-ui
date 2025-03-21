@@ -114,9 +114,9 @@ apiToken,
   }, [currency, nativeBalance.value]);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleEnter);
+   window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
-      window.removeEventListener('keydown', handleEnter);
+      window.removeEventListener('keydown', handleEnter as EventListener);
     };
   }, [recipient, amount, apiEndpoint, apiToken, currency, loginData]);
 

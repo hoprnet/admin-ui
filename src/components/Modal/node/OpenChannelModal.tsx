@@ -37,9 +37,9 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerAddress);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleEnter);
+   window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
-      window.removeEventListener('keydown', handleEnter);
+      window.removeEventListener('keydown', handleEnter as EventListener);
     };
   }, [openChannelModal, loginData, amount, peerAddress]);
 
