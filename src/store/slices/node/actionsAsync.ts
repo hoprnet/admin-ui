@@ -342,7 +342,6 @@ dispatch,
       const peers = await getPeers(payload);
       return peers;
     } catch (e) {
-      console.log('f', e);
       if (e instanceof sdkApiError) {
         return rejectWithValue(e);
       }
@@ -578,6 +577,7 @@ rejectWithValue,
 dispatch,
 }) => {
     try {
+
       const res = await setAlias(payload);
       if (res) {
         return {
