@@ -1,8 +1,9 @@
+import React, { useRef, KeyboardEvent } from 'react';
 import styled from '@emotion/styled';
 import { HOPR_TOKEN_USED } from '../../../../config';
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store';
-import { CircularProgress, DialogTitle, InputAdornment, MenuItem, Button as MuiButton, TextField } from '@mui/material';
+import { DialogTitle, InputAdornment, MenuItem, Button as MuiButton, TextField } from '@mui/material';
 import Button from '../../../future-hopr-lib-components/Button';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
@@ -91,12 +92,21 @@ const WithdrawModal = ({ initialCurrency }: WithdrawModalProps) => {
   const withdrawingZeroOrLess = amount ? parseEther(amount) <= parseEther('0') : false;
   const withdrawingMoreThanTheWallet = amount ? parseEther(amount) > parseEther(maxAmount) : false;
   const validatedEthAddress = isAddress(recipient);
+  const canWithdraw = !(!recipient || !amount || withdrawingZeroOrLess || withdrawingMoreThanTheWallet || !validatedEthAddress);
 
   useEffect(() => {
     setMaxAmount();
   }, [currency, nativeBalance.value]);
 
+  useEffect(() => {
+    window.addEventListener("keydown", handleEnter);
+    return () => {
+      window.removeEventListener("keydown", handleEnter);
+    };
+  }, [recipient, amount, apiEndpoint, apiToken, currency, loginData]);
+
   const handleOpenModal = () => {
+    (document.activeElement as HTMLInputElement).blur();
     set_openModal(true);
   };
 
@@ -121,6 +131,7 @@ const WithdrawModal = ({ initialCurrency }: WithdrawModalProps) => {
     }
   };
 
+  //TODO: add get balances after the call
   const handleWithdraw = async () => {
     if (recipient && amount && apiEndpoint) {
       set_isLoading(true);
@@ -165,6 +176,13 @@ const WithdrawModal = ({ initialCurrency }: WithdrawModalProps) => {
         .finally(() => {
           set_isLoading(false);
         });
+    }
+  };
+
+  function handleEnter (event: any) {
+    if (canWithdraw && (event as KeyboardEvent)?.key === 'Enter') {
+      console.log('WithdrawModal event');
+      handleWithdraw();
     }
   };
 
@@ -235,10 +253,12 @@ const WithdrawModal = ({ initialCurrency }: WithdrawModalProps) => {
                 ),
                 inputProps: { min: 0, step: 'any' },
               }}
+              autoFocus
             />
             <TextField
               type="text"
               label="Recipient"
+              onKeyDown={handleEnter}
               placeholder={
                 safeAddress ? `${safeAddress.substring(0, 6)}...${safeAddress.substring(38)}` : '0x4f5a...1728'
               }
@@ -251,9 +271,7 @@ const WithdrawModal = ({ initialCurrency }: WithdrawModalProps) => {
             <Button
               onClick={handleWithdraw}
               pending={isLoading}
-              disabled={
-                !recipient || !amount || withdrawingZeroOrLess || withdrawingMoreThanTheWallet || !validatedEthAddress
-              }
+              disabled={!canWithdraw}
             >
               Withdraw
             </Button>

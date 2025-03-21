@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DialogTitle, DialogActions, InputAdornment } from '@mui/material';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import STextField from '../../../future-hopr-lib-components/TextField';
@@ -26,6 +26,14 @@ export const OpenMultipleChannelsModal = () => {
   const [openChannelModal, set_openMultipleChannelsModal] = useState(false);
   const [amount, set_amount] = useState('');
   const [peerIds, set_peerIds] = useState<string[]>([]);
+  const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerIds);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleEnter);
+    return () => {
+      window.removeEventListener("keydown", handleEnter);
+    };
+  }, [openChannelModal, loginData, peerIds, amount]);
 
   const handleRefresh = () => {
     if (loginData.apiEndpoint) {
@@ -168,8 +176,17 @@ export const OpenMultipleChannelsModal = () => {
   };
 
   const handleImportClick = () => {
+    (document.activeElement as HTMLInputElement).blur();
     fileInputRef.current?.click();
   };
+
+  function handleEnter (event: any) {
+    if (openChannelModal && canOpen && event.key === 'Enter') {
+      console.log('OpenMultipleChannelsModal event');
+      handleAction();
+    }
+  };
+
 
   return (
     <>
@@ -225,12 +242,13 @@ export const OpenMultipleChannelsModal = () => {
             onChange={(e) => set_amount(e.target.value)}
             InputProps={{ endAdornment: <InputAdornment position="end">{HOPR_TOKEN_USED}</InputAdornment> }}
             sx={{ mt: '6px' }}
+            autoFocus
           />
         </SDialogContent>
         <DialogActions>
           <Button
             onClick={handleAction}
-            disabled={!amount || parseFloat(amount) <= 0 || !peerIds}
+            disabled={!canOpen}
             style={{
               marginRight: '16px',
               marginBottom: '6px',

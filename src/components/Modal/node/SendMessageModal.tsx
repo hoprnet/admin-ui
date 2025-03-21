@@ -113,6 +113,14 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
   const addresses = useAppSelector((store) => store.node.addresses.data);
   const sendMessageAddressBook = sortAddresses(peers, addresses, peerIdToAliasLink);
   const [selectedReceiver, set_selectedReceiver] = useState<string | null>(props.peerId ? props.peerId : null);
+  const canSendMessage = !(
+    selectedReceiver === null ||
+    (sendMode !== 'directMessage' && sendMode !== 'automaticPath' && numberOfHops < 0 && path === '') ||
+    message.length === 0 ||
+    ((sendMode === 'directMessage' || (sendMode !== 'path' && numberOfHops < 1)) &&
+      selectedReceiver === hoprAddress) ||
+    (sendMode === 'path' && path.length === 0)
+  );
 
   const maxLength = 500;
   const remainingChars = maxLength - message.length;
@@ -121,6 +129,13 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
     if (props.peerId) set_selectedReceiver(props.peerId);
   };
   useEffect(setPropPeerId, [props.peerId]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleEnter);
+    return () => {
+      window.removeEventListener("keydown", handleEnter);
+    };
+  }, [loginData, message, selectedReceiver, sendMode]);
 
   useEffect(() => {
     switch (sendMode) {
@@ -215,6 +230,7 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
   };
 
   const handleOpenModal = () => {
+    (document.activeElement as HTMLInputElement).blur();
     set_openModal(true);
   };
 
@@ -262,6 +278,13 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
       return aliases[receiver];
     }
     return receiver;
+  };
+
+  function handleEnter (event: any) {
+    if (canSendMessage && (event as KeyboardEvent)?.key === 'Enter') {
+      console.log('SendMessageModal event');
+      handleSendMessage();
+    }
   };
 
   return (
@@ -330,6 +353,7 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
             helperText={`${remainingChars} characters remaining`}
             required
             fullWidth
+            autoFocus={!!selectedReceiver}
           />
           <span style={{ margin: '0px 0px -2px' }}>Send mode:</span>
           <PathOrHops className={sendMode === 'numberOfHops' ? 'numerOfHopsSelected' : 'noNumberOfHopsSelected'}>
@@ -377,14 +401,7 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
           <Button
             onClick={handleSendMessage}
             pending={loader}
-            disabled={
-              selectedReceiver === null ||
-              (sendMode !== 'directMessage' && sendMode !== 'automaticPath' && numberOfHops < 0 && path === '') ||
-              message.length === 0 ||
-              ((sendMode === 'directMessage' || (sendMode !== 'path' && numberOfHops < 1)) &&
-                selectedReceiver === hoprAddress) ||
-              (sendMode === 'path' && path.length === 0)
-            }
+            disabled={!canSendMessage}
             style={{
               width: '100%',
               marginTop: '8px',

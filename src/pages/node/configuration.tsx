@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, KeyboardEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { formatEther } from 'viem';
 import { rounder, rounder2 } from '../../utils/functions';
@@ -56,6 +56,13 @@ function SettingsPage() {
   const [localNotificationSettings, set_localNotificationSettings] = useState<typeof prevNotificationSettings>();
 
   useEffect(() => {
+    window.addEventListener("keydown", handleEnter);
+    return () => {
+      window.removeEventListener("keydown", handleEnter);
+    };
+  }, [localNotificationSettings]);
+
+  useEffect(() => {
     if (prevNotificationSettings) {
       set_localNotificationSettings(prevNotificationSettings);
     }
@@ -111,9 +118,15 @@ function SettingsPage() {
     }
   }, [configuration]);
 
-  const handleSaveSettings = async () => {
+  function handleSaveSettings () {
     if (localNotificationSettings) {
       dispatch(appActions.setNotificationSettings(localNotificationSettings));
+    }
+  };
+
+  function handleEnter (event: any) {
+    if (event.key === 'Enter') {
+      handleSaveSettings();
     }
   };
 
@@ -145,8 +158,10 @@ function SettingsPage() {
                     <Switch
                       checked={localNotificationSettings?.channels}
                       onChange={() => {
+                        console.log('localNotificationSettings', localNotificationSettings)
                         if (localNotificationSettings) {
                           set_localNotificationSettings({
+
                             ...localNotificationSettings,
                             channels: !localNotificationSettings.channels,
                           });
@@ -211,6 +226,13 @@ function SettingsPage() {
                     float: 'right',
                   }}
                   onClick={handleSaveSettings}
+                  disabled={
+                    localNotificationSettings?.channels === prevNotificationSettings.channels &&
+                    localNotificationSettings?.message === prevNotificationSettings.message &&
+                    localNotificationSettings?.nodeBalances === prevNotificationSettings.nodeBalances &&
+                    localNotificationSettings?.nodeInfo === prevNotificationSettings.nodeInfo &&
+                    localNotificationSettings?.pendingSafeTransaction === prevNotificationSettings.pendingSafeTransaction
+                  }
                 >
                   Save
                 </Button>
