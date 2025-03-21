@@ -150,6 +150,14 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
   const [nodesSavedLocallyChosenIndex, set_nodesSavedLocallyChosenIndex] = useState('' as string);
   const [forceLogin, set_forceLogin] = useState(false);
   const [apiEndpointError, set_apiEndpointError] = useState<string | null>(null);
+  const canConnectToNode = apiEndpoint.length !== 0;
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleEnter as EventListener);
+    return () => {
+      window.removeEventListener('keydown', handleEnter as EventListener);
+    };
+  }, [apiToken, apiEndpoint, localName, jazzIcon, props.open]);
 
   useEffect(() => {
     const parsed = nodesSavedLocally.map((node, index) => {
@@ -358,6 +366,13 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
     chosenNode.jazzIcon && set_jazzIcon(chosenNode.jazzIcon);
   };
 
+  function handleEnter (event: KeyboardEvent) {
+    if (props.open && canConnectToNode && event.key === 'Enter') {
+      console.log('ConnectNode event');
+      useNode({});
+    }
+  }
+
   return (
     <>
       <SModal
@@ -439,7 +454,7 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
         <ConnectContainer>
           <Button
             onClick={() => useNode({})}
-            disabled={apiEndpoint.length === 0}
+            disabled={!canConnectToNode}
             pending={loginPending}
           >
             Connect to the node

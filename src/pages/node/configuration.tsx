@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, KeyboardEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { formatEther } from 'viem';
 import { rounder, rounder2 } from '../../utils/functions';
@@ -54,6 +54,20 @@ function SettingsPage() {
   const [strategiesString, set_strategiesString] = useState<string | null>(null);
   const [configurationString, set_configurationString] = useState<string | null>(null);
   const [localNotificationSettings, set_localNotificationSettings] = useState<typeof prevNotificationSettings>();
+  const canSave = !(
+    localNotificationSettings?.channels === prevNotificationSettings.channels &&
+    localNotificationSettings?.message === prevNotificationSettings.message &&
+    localNotificationSettings?.nodeBalances === prevNotificationSettings.nodeBalances &&
+    localNotificationSettings?.nodeInfo === prevNotificationSettings.nodeInfo &&
+    localNotificationSettings?.pendingSafeTransaction === prevNotificationSettings.pendingSafeTransaction
+  );
+
+  useEffect(() => {
+   window.addEventListener('keydown', handleEnter as EventListener);
+    return () => {
+      window.removeEventListener('keydown', handleEnter as EventListener);
+    };
+  }, [localNotificationSettings]);
 
   useEffect(() => {
     if (prevNotificationSettings) {
@@ -111,11 +125,17 @@ function SettingsPage() {
     }
   }, [configuration]);
 
-  const handleSaveSettings = async () => {
+  function handleSaveSettings() {
     if (localNotificationSettings) {
       dispatch(appActions.setNotificationSettings(localNotificationSettings));
     }
-  };
+  }
+
+  function handleEnter (event: KeyboardEvent) {
+    if (canSave && event.key === 'Enter') {
+      handleSaveSettings();
+    }
+  }
 
   return (
     <Section
@@ -145,6 +165,7 @@ function SettingsPage() {
                     <Switch
                       checked={localNotificationSettings?.channels}
                       onChange={() => {
+                        console.log('localNotificationSettings', localNotificationSettings);
                         if (localNotificationSettings) {
                           set_localNotificationSettings({
                             ...localNotificationSettings,
@@ -211,6 +232,7 @@ function SettingsPage() {
                     float: 'right',
                   }}
                   onClick={handleSaveSettings}
+                  disabled={!canSave}
                 >
                   Save
                 </Button>

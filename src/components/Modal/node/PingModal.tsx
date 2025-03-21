@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, KeyboardEvent } from 'react';
 import { DialogTitle, TextField, DialogActions, Alert } from '@mui/material';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import { useAppDispatch, useAppSelector } from '../../../store';
@@ -27,6 +27,14 @@ export const PingModal = (props: PingModalProps) => {
   const [peerId, set_peerId] = useState<string>(props.peerId ? props.peerId : '');
   const [openModal, set_OpenModal] = useState(false);
   const [disableButton, set_disableButton] = useState(false);
+  const canPing = peerId.length !== 0;
+
+  useEffect(() => {
+   window.addEventListener('keydown', handleEnter as EventListener);
+    return () => {
+      window.removeEventListener('keydown', handleEnter as EventListener);
+    };
+  }, [loginData, peerId]);
 
   const getAliasByPeerId = (peerId: string): string => {
     if (aliases && peerId && peerIdToAliasLink[peerId]) return `${peerIdToAliasLink[peerId]} (${peerId})`;
@@ -43,6 +51,7 @@ export const PingModal = (props: PingModalProps) => {
   useEffect(setPropPeerId, [props.peerId]);
 
   const handleOpenModal = () => {
+    (document.activeElement as HTMLInputElement).blur();
     set_OpenModal(true);
   };
 
@@ -107,6 +116,13 @@ export const PingModal = (props: PingModalProps) => {
     }
   };
 
+  const handleEnter = (event: any) => {
+    if (canPing && openModal && (event as KeyboardEvent)?.key === 'Enter') {
+      console.log('PingModal event');
+      handlePing();
+    }
+  };
+
   return (
     <>
       <IconButton
@@ -148,11 +164,12 @@ export const PingModal = (props: PingModalProps) => {
             placeholder="12D3Ko...Z3rz5F"
             onChange={handleChange}
             value={peerId}
+            autoFocus
           />
         </SDialogContent>
         <DialogActions>
           <Button
-            disabled={peerId.length === 0}
+            disabled={!canPing}
             pending={disableButton}
             onClick={handlePing}
             style={{

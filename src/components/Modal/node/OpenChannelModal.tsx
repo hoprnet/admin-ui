@@ -1,6 +1,6 @@
+import React, { useState, useEffect } from 'react';
 import { DialogActions, DialogTitle, InputAdornment, TextField } from '@mui/material';
 import { ethers } from 'ethers';
-import { useState } from 'react';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
@@ -34,6 +34,14 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const [openChannelModal, set_openChannelModal] = useState(false);
   const [amount, set_amount] = useState('');
   const [peerAddress, set_peerAddress] = useState(props.peerAddress ? props.peerAddress : '');
+  const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerAddress);
+
+  useEffect(() => {
+   window.addEventListener('keydown', handleEnter as EventListener);
+    return () => {
+      window.removeEventListener('keydown', handleEnter as EventListener);
+    };
+  }, [openChannelModal, loginData, amount, peerAddress]);
 
   const getAliasByPeerId = (peerId: string): string => {
     if (aliases && peerId && peerIdToAliasLink[peerId]) return `${peerIdToAliasLink[peerId]} (${peerId})`;
@@ -41,6 +49,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   };
 
   const handleOpenChannelDialog = () => {
+    (document.activeElement as HTMLInputElement).blur();
     set_openChannelModal(true);
   };
 
@@ -99,6 +108,13 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
     );
   };
 
+  function handleEnter (event: KeyboardEvent) {
+    if (openChannelModal && canOpen && event.key === 'Enter') {
+      console.log('OpenChannelModal event');
+      handleAction();
+    }
+  }
+
   return (
     <>
       <IconButton
@@ -139,6 +155,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
             placeholder="0x4f5a...1728"
             onChange={(e) => set_peerAddress(e.target.value)}
             sx={{ mt: '6px' }}
+            autoFocus={peerAddress === ''}
           />
           <TextField
             label="Amount"
@@ -148,12 +165,13 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
             onChange={(e) => set_amount(e.target.value)}
             InputProps={{ endAdornment: <InputAdornment position="end">{HOPR_TOKEN_USED}</InputAdornment> }}
             sx={{ mt: '6px' }}
+            autoFocus={peerAddress !== ''}
           />
         </SDialogContent>
         <DialogActions>
           <Button
             onClick={handleAction}
-            disabled={!amount || parseFloat(amount) <= 0 || !peerAddress}
+            disabled={!canOpen}
             style={{
               marginRight: '16px',
               marginBottom: '6px',

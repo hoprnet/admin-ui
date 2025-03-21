@@ -34,6 +34,20 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   const aliasesArr = aliases ? Object.keys(aliases) : [];
   const aliasPeerIdsArr = aliases ? Object.values(aliases) : [];
   const aliasIncludesASpace = alias.includes(' ');
+  const canAddAlias = !(
+    alias.length === 0 ||
+    peerId.length === 0 ||
+    duplicateAlias ||
+    duplicatePeerId ||
+    aliasIncludesASpace
+  );
+
+  useEffect(() => {
+   window.addEventListener('keydown', handleEnter as EventListener);
+    return () => {
+      window.removeEventListener('keydown', handleEnter as EventListener);
+    };
+  }, [loginData, alias, peerId]);
 
   const setPropPeerId = () => {
     if (props.peerId) set_peerId(props.peerId);
@@ -59,6 +73,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   };
 
   const handleOpenModal = () => {
+    (document.activeElement as HTMLInputElement).blur();
     setOpenModal(true);
   };
 
@@ -121,6 +136,13 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
     }
   };
 
+  function handleEnter (event: KeyboardEvent) {
+    if (canAddAlias && event.key === 'Enter') {
+      console.log('AddAliasModal event');
+      handleAddAlias();
+    }
+  }
+
   return (
     <>
       <IconButton
@@ -164,6 +186,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
             error={duplicatePeerId}
             helperText={duplicatePeerId ? 'This Peer Id already has an alias!' : ''}
             style={{ minHeight: '79px' }}
+            autoFocus={peerId === ''}
           />
           <TextField
             type="text"
@@ -181,13 +204,12 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
                 : ''
             }
             style={{ minHeight: '79px' }}
+            autoFocus={peerId !== ''}
           />
         </SDialogContent>
         <DialogActions>
           <Button
-            disabled={
-              alias.length === 0 || peerId.length === 0 || duplicateAlias || duplicatePeerId || aliasIncludesASpace
-            }
+            disabled={!canAddAlias}
             onClick={handleAddAlias}
             style={{
               marginRight: '16px',

@@ -1,6 +1,6 @@
+import React, { useState, useEffect } from 'react';
 import { DialogActions, DialogTitle, InputAdornment, TextField } from '@mui/material';
 import { ethers } from 'ethers';
-import { useState } from 'react';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
@@ -28,8 +28,17 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
   const [openChannelModal, set_openChannelModal] = useState(false);
   const [amount, set_amount] = useState('');
   const [channelId, set_channelId] = useState(props.channelId ? props.channelId : '');
+  const canFund = !(!amount || parseFloat(amount) <= 0 || !channelId);
+
+  useEffect(() => {
+   window.addEventListener('keydown', handleEnter as EventListener);
+    return () => {
+      window.removeEventListener('keydown', handleEnter as EventListener);
+    };
+  }, [openChannelModal, loginData, amount, channelId]);
 
   const handleOpenChannelDialog = () => {
+    (document.activeElement as HTMLInputElement).blur();
     set_openChannelModal(true);
   };
 
@@ -101,6 +110,13 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
     );
   };
 
+  function handleEnter(event: any) {
+    if (openChannelModal && canFund && event.key === 'Enter') {
+      console.log('FundChannelModal event');
+      handleAction();
+    }
+  }
+
   return (
     <>
       <IconButton
@@ -136,6 +152,7 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
             placeholder="0x4f5a...1728"
             onChange={(e) => set_channelId(e.target.value)}
             sx={{ mt: '6px' }}
+            autoFocus={channelId === ''}
           />
           <TextField
             label="Amount"
@@ -145,12 +162,13 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
             onChange={(e) => set_amount(e.target.value)}
             InputProps={{ endAdornment: <InputAdornment position="end">{HOPR_TOKEN_USED}</InputAdornment> }}
             sx={{ mt: '6px' }}
+            autoFocus={channelId !== ''}
           />
         </SDialogContent>
         <DialogActions>
           <Button
             onClick={handleAction}
-            disabled={!amount || parseFloat(amount) <= 0 || !channelId}
+            disabled={!canFund}
             style={{
               marginRight: '16px',
               marginBottom: '6px',
