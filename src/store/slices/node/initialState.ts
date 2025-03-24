@@ -9,6 +9,7 @@ import type {
   PingPeerResponseType,
   GetConfigurationResponseType,
   GetMinimumNetworkProbabilityResponseType,
+  GetSessionsResponseType
 } from '@hoprnet/hopr-sdk';
 
 export type Message = {
@@ -232,6 +233,12 @@ type InitialState = {
     data: string | null;
     isFetching: boolean;
   };
+  sessions: {
+    data: GetSessionsResponseType | null;
+    opening: string[],
+    closing: string[],
+    isFetching: boolean;
+  };
   apiEndpoint: string | null;
   nodeIsReady: {
     data: boolean | null;
@@ -380,6 +387,12 @@ export const initialState: InitialState = {
   },
   ticketPrice: {
     data: null,
+    isFetching: false,
+  },
+  sessions: {
+    data: null,
+    opening: [],
+    closing: [],
     isFetching: false,
   },
   links: {

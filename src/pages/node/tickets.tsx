@@ -117,36 +117,6 @@ function TicketsPage() {
         }}
       >
         <TableExtended
-          title="Ticket properties"
-          style={{ marginBottom: '42px' }}
-        >
-          <tbody>
-            <tr>
-              <th>
-                <Tooltip
-                  title="The current price of a single ticket"
-                  notWide
-                >
-                  <span>Current ticket price</span>
-                </Tooltip>
-              </th>
-              <td>{ticketPrice ? formatEther(BigInt(ticketPrice as string)) : '-'} wxHOPR</td>
-            </tr>
-            <tr>
-              <th>
-                <Tooltip
-                  title={`Minimum allowed winning probability of the ticket as defined in the ${info?.network} network`}
-                  notWide
-                >
-                  <span>Minimum ticket winning probability</span>
-                </Tooltip>
-              </th>
-              <td>{minimumNetworkProbability ? minimumNetworkProbability.toFixed(9) : '-'}</td>
-            </tr>
-          </tbody>
-        </TableExtended>
-
-        <TableExtended
           title="Ticket statistics"
           style={{ marginBottom: '32px' }}
         >
@@ -202,6 +172,36 @@ function TicketsPage() {
               <td>
                 {statistics?.redeemedValue ? formatEther(BigInt(statistics?.redeemedValue as string)) : '-'} wxHOPR
               </td>
+            </tr>
+          </tbody>
+        </TableExtended>
+
+        <TableExtended
+          title="Ticket properties"
+          style={{ marginBottom: '42px' }}
+        >
+          <tbody>
+            <tr>
+              <th>
+                <Tooltip
+                  title="The current price of a single ticket"
+                  notWide
+                >
+                  <span>Current ticket price</span>
+                </Tooltip>
+              </th>
+              <td>{ticketPrice ? formatEther(BigInt(ticketPrice as string)) : '-'} wxHOPR</td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
+                  title={`Minimum allowed winning probability of the ticket as defined in the ${info?.network} network`}
+                  notWide
+                >
+                  <span>Minimum ticket winning probability</span>
+                </Tooltip>
+              </th>
+              <td>{minimumNetworkProbability ? minimumNetworkProbability.toFixed(9) : '-'}</td>
             </tr>
           </tbody>
         </TableExtended>

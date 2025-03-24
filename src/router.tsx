@@ -26,6 +26,7 @@ import ChannelsPageIncoming from './pages/node/channelsIncoming';
 import ChannelsPageOutgoing from './pages/node/channelsOutgoing';
 import MetricsPage from './pages/node/metrics';
 import ConfigurationPage from './pages/node/configuration';
+import SessionsPage from './pages/node/sessions'
 
 // Layout
 import Layout from './future-hopr-lib-components/Layout';
@@ -54,6 +55,8 @@ import IncomingChannelsIcon from './future-hopr-lib-components/Icons/channelsIn'
 import OutgoingChannelsIcon from './future-hopr-lib-components/Icons/channelsOut';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyNotice from './pages/PrivacyNotice';
+import SettingsPhoneIcon from '@mui/icons-material/SettingsPhone';
+
 import { trackGoal } from 'fathom-client';
 
 export type ApplicationMapType = {
@@ -155,6 +158,14 @@ export const applicationMapNode: ApplicationMapType = [
         element: <ChannelsPageOutgoing />,
         loginNeeded: 'node',
         numberKey: 'numberOfChannelsOut',
+      },
+      {
+        name: 'SESSIONS',
+        path: 'sessions',
+        icon: <SettingsPhoneIcon />,
+        element: <SessionsPage />,
+        loginNeeded: 'node',
+        numberKey: 'numberSessions',
       },
     ],
   },
@@ -327,6 +338,20 @@ const LayoutEnhanced = () => {
             nodeActionsAsync.getMinimumNetworkProbabilityThunk({
               apiEndpoint,
               apiToken: apiToken ? apiToken : '',
+            }),
+          );
+          dispatch(
+            nodeActionsAsync.getSessionsThunk({
+              apiEndpoint,
+              apiToken: apiToken ? apiToken : '',
+              protocol: 'udp'
+            }),
+          )
+          dispatch(
+            nodeActionsAsync.getSessionsThunk({
+              apiEndpoint,
+              apiToken: apiToken ? apiToken : '',
+              protocol: 'tcp'
             }),
           );
         }

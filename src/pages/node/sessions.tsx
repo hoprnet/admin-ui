@@ -4,8 +4,9 @@ import { actionsAsync } from '../../store/slices/node/actionsAsync';
 import { useNavigate } from 'react-router-dom';
 import { exportToCsv } from '../../utils/helpers';
 import { utils } from 'ethers';
-import { sendNotification } from '../../hooks/useWatcher/notifications';
 import { HOPR_TOKEN_USED } from '../../../config';
+import { sendNotification } from '../../hooks/useWatcher/notifications';
+import { formatEther } from 'viem';
 import { utils as hoprdUtils } from '@hoprnet/hopr-sdk';
 const { sdkApiError } = hoprdUtils;
 
@@ -13,55 +14,55 @@ const { sdkApiError } = hoprdUtils;
 import Section from '../../future-hopr-lib-components/Section';
 import { SubpageTitle } from '../../components/SubpageTitle';
 import IconButton from '../../future-hopr-lib-components/Button/IconButton';
-import CloseChannelIcon from '../../future-hopr-lib-components/Icons/CloseChannel';
 import TablePro from '../../future-hopr-lib-components/Table/table-pro';
+import CloseChannelIcon from '../../future-hopr-lib-components/Icons/CloseChannel';
 import PeersInfo from '../../future-hopr-lib-components/PeerInfo';
 
 // Modals
-import { OpenMultipleChannelsModal } from '../../components/Modal/node/OpenMultipleChannelsModal';
 import { PingModal } from '../../components/Modal/node/PingModal';
 import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
-import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
-
-import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
+import { CreateAliasModal } from '../../components/Modal/node/AddAliasModal';
 import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
 
 // Mui
 import GetAppIcon from '@mui/icons-material/GetApp';
+import { truncateEthereumAddress } from '../../utils/blockchain';
 
 function ChannelsPage() {
   const dispatch = useAppDispatch();
   const channels = useAppSelector((store) => store.node.channels.data);
-  const channelsOutgoingObject = useAppSelector((store) => store.node.channels.parsed.outgoing);
-  const channelsOutgoing = useAppSelector((store) => store.node.channels.data?.outgoing);
+  const channelsIncoming = useAppSelector((store) => store.node.channels.data?.incoming);
+  const sessions = useAppSelector((store) => store.node.sessions.data);
+  const channelsIncomingObject = useAppSelector((store) => store.node.channels.parsed.incoming);
   const channelsFetching = useAppSelector((store) => store.node.channels.isFetching);
   const aliases = useAppSelector((store) => store.node.aliases.data);
-  const loginData = useAppSelector((store) => store.auth.loginData);
   const currentApiEndpoint = useAppSelector((store) => store.node.apiEndpoint);
+  const loginData = useAppSelector((store) => store.auth.loginData);
+  const apiEndpoint = loginData.apiEndpoint;
+  const apiToken = loginData.apiToken;
   const nodeAddressToPeerIdLink = useAppSelector((store) => store.node.links.nodeAddressToPeerId);
+  const nodeAddressToOutgoingChannelLink = useAppSelector((store) => store.node.links.nodeAddressToOutgoingChannel);
+  const tickets = useAppSelector((store) => store.node.metricsParsed.tickets.incoming);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
-  const tabLabel = 'outgoing';
-  const channelsData = channels?.outgoing;
+  const tabLabel = 'incoming';
+  const channelsData = channels?.incoming;
 
   const handleRefresh = () => {
-    if (!loginData.apiEndpoint) return;
+    if (!apiEndpoint) return;
+
     dispatch(
-      actionsAsync.getChannelsThunk({
-        apiEndpoint: loginData.apiEndpoint!,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
+      actionsAsync.getSessionsThunk({
+        apiEndpoint,
+        apiToken: apiToken ? apiToken : '',
+        protocol: 'udp'
       }),
-    );
+    )
     dispatch(
-      actionsAsync.getAliasesThunk({
-        apiEndpoint: loginData.apiEndpoint!,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
-      }),
-    );
-    dispatch(
-      actionsAsync.getPeersThunk({
-        apiEndpoint: loginData.apiEndpoint!,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
+      actionsAsync.getSessionsThunk({
+        apiEndpoint,
+        apiToken: apiToken ? apiToken : '',
+        protocol: 'tcp'
       }),
     );
   };
@@ -91,13 +92,73 @@ function ChannelsPage() {
     }
   };
 
-  const handleCloseChannels = (channelId: string) => {
+  const headerIncoming = [
+    {
+      key: 'id',
+      name: '#',
+    },
+    {
+      key: 'node',
+      name: 'Node',
+      maxWidth: '568px',
+    },
+    {
+      key: 'peerAddress',
+      name: 'Node Address',
+      search: true,
+      copy: true,
+      hidden: true,
+    },
+    {
+      key: 'peerId',
+      name: 'Peer Id',
+      search: true,
+      hidden: true,
+    },
+    {
+      key: 'status',
+      name: 'Status',
+      search: true,
+      maxWidth: '368px',
+      tooltip: true,
+    },
+    {
+      key: 'funds',
+      name: 'Dedicated Funds',
+      maxWidth: '68px',
+      tooltip: true,
+    },
+    {
+      key: 'tickets',
+      name: 'Unredeemed',
+      maxWidth: '140px',
+      tooltipHeader: (
+        <>
+          Unredeemed value of tickets per channel in wxHOPR.
+          <br />
+          <br />
+          Value is reset on node restart.
+        </>
+      ),
+      tooltip: true,
+    },
+    {
+      key: 'actions',
+      name: 'Actions',
+      search: false,
+      width: '188px',
+      maxWidth: '188px',
+    },
+  ];
+
+  const handleCloseChannel = (channelId: string) => {
+    console.log('handleCloseChannel', channelId);
     dispatch(
       actionsAsync.closeChannelThunk({
         apiEndpoint: loginData.apiEndpoint!,
         apiToken: loginData.apiToken ? loginData.apiToken : '',
         channelId: channelId,
-        timeout: 5 * 60_000,
+        timeout: 120_000, //TODO: put those values as default to HOPRd SDK, average is 50s
       }),
     )
       .unwrap()
@@ -110,25 +171,7 @@ function ChannelsPage() {
         ).unwrap();
         if (!isCurrentApiEndpointTheSame) return;
 
-        if (
-          e instanceof sdkApiError &&
-          e.hoprdErrorPayload?.error?.includes('channel closure time has not elapsed yet, remaining')
-        ) {
-          const errMsg = `Closing of outgoing channel ${channelId} halted. C${e.hoprdErrorPayload?.error.substring(1)}`;
-          sendNotification({
-            notificationPayload: {
-              source: 'node',
-              name: errMsg,
-              url: null,
-              timeout: null,
-            },
-            toastPayload: { message: errMsg },
-            dispatch,
-          });
-          return;
-        }
-
-        let errMsg = `Closing of outgoing channel ${channelId} failed`;
+        let errMsg = `Closing of incoming channel ${channelId} failed`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
           errMsg = errMsg + `.\n${e.hoprdErrorPayload.status}`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.error) errMsg = errMsg + `.\n${e.hoprdErrorPayload.error}`;
@@ -146,51 +189,7 @@ function ChannelsPage() {
       });
   };
 
-  const header = [
-    {
-      key: 'id',
-      name: '#',
-    },
-    {
-      key: 'node',
-      name: 'Node',
-      maxWidth: '500px',
-    },
-    {
-      key: 'peerAddress',
-      name: 'Node Address',
-      search: true,
-      hidden: true,
-    },
-    {
-      key: 'peerId',
-      name: 'Peer Id',
-      search: true,
-      hidden: true,
-    },
-    {
-      key: 'status',
-      name: 'Status',
-      search: true,
-      tooltip: true,
-      maxWidth: '80px',
-    },
-    {
-      key: 'funds',
-      name: 'Dedicated Funds',
-      tooltip: true,
-      maxWidth: '45px',
-    },
-    {
-      key: 'actions',
-      name: 'Actions',
-      search: false,
-      width: '225px',
-      maxWidth: '225px',
-    },
-  ];
-
-  const peersWithAliases = (channelsOutgoing || []).filter(
+  const peersWithAliases = (channelsIncoming || []).filter(
     (peer) => aliases && peer.peerAddress && getAliasByPeerAddress(peer.peerAddress) !== peer.peerAddress,
   );
   const peersWithAliasesSorted = peersWithAliases.sort((a, b) => {
@@ -202,7 +201,7 @@ function ChannelsPage() {
     }
     return 0;
   });
-  const peersWithoutAliases = (channelsOutgoing || []).filter(
+  const peersWithoutAliases = (channelsIncoming || []).filter(
     (peer) => aliases && peer.peerAddress && getAliasByPeerAddress(peer.peerAddress) === peer.peerAddress,
   );
   const peersWithoutAliasesSorted = peersWithoutAliases.sort((a, b) => {
@@ -221,14 +220,24 @@ function ChannelsPage() {
     .map((channel, index) => {
       const id = channel.id;
       if (
-        !channelsOutgoingObject[id].peerAddress ||
-        !channelsOutgoingObject[id].balance ||
-        !channelsOutgoingObject[id].status
+        !channelsIncomingObject[id].peerAddress ||
+        !channelsIncomingObject[id].balance ||
+        !channelsIncomingObject[id].status
       )
         return;
+      const outgoingChannelOpened = !!(
+        channelsIncomingObject[id].peerAddress &&
+        // @ts-ignore: check was done in line above
+        !!nodeAddressToOutgoingChannelLink[channelsIncomingObject[id].peerAddress]
+      );
+      const peerId = getPeerIdFromPeerAddress(channelsIncomingObject[id].peerAddress as string);
+      const peerAddress = channelsIncomingObject[id].peerAddress;
 
-      const peerAddress = channelsOutgoingObject[id].peerAddress;
-      const peerId = getPeerIdFromPeerAddress(peerAddress as string);
+      const totalTicketsPerChannel = `${formatEther(
+        BigInt(tickets?.redeemed[id]?.value || '0') + BigInt(tickets?.unredeemed[id]?.value || '0'),
+      )}`;
+      const unredeemedTicketsPerChannel = `${formatEther(BigInt(tickets?.unredeemed[id]?.value || '0'))}`;
+      const ticketsPerChannel = `${formatEther(BigInt(tickets?.redeemed[id]?.value || '0'))}/${totalTicketsPerChannel}`;
 
       return {
         id: (index + 1).toString(),
@@ -242,8 +251,9 @@ function ChannelsPage() {
         ),
         peerAddress: getAliasByPeerAddress(peerAddress as string),
         peerId: peerId,
-        status: channelsOutgoingObject[id].status as string,
-        funds: `${utils.formatEther(channelsOutgoingObject[id].balance as string)} ${HOPR_TOKEN_USED}`,
+        status: channelsIncomingObject[id].status,
+        funds: `${utils.formatEther(channelsIncomingObject[id].balance as string)} ${HOPR_TOKEN_USED}`,
+        tickets: unredeemedTicketsPerChannel,
         actions: (
           <>
             <PingModal
@@ -277,21 +287,22 @@ function ChannelsPage() {
                 ) : undefined
               }
             />
-            <FundChannelModal channelId={id} />
+            {outgoingChannelOpened ? (
+              <FundChannelModal channelId={id} />
+            ) : (
+              <OpenChannelModal peerAddress={channelsIncomingObject[id].peerAddress} />
+            )}
             <IconButton
               iconComponent={<CloseChannelIcon />}
-              pending={channelsOutgoingObject[id]?.isClosing}
+              pending={channelsIncomingObject[id]?.isClosing}
               tooltipText={
                 <span>
                   CLOSE
                   <br />
-                  outgoing channel
+                  incoming channel
                 </span>
               }
-              onClick={() => handleCloseChannels(id)}
-            />
-            <OpenSessionModal
-
+              onClick={() => handleCloseChannel(id)}
             />
             <SendMessageModal
               peerId={peerId}
@@ -317,6 +328,7 @@ function ChannelsPage() {
     key: string;
     peerAddress: string;
     status: 'Open' | 'PendingToClose' | 'Closed';
+    tickets: string;
     funds: string;
     actions: JSX.Element;
   }[];
@@ -329,14 +341,11 @@ function ChannelsPage() {
       yellow
     >
       <SubpageTitle
-        title={`OUTGOING CHANNELS (${channelsData ? channelsData.length : '-'})`}
+        title={`SESSIONS (${channelsData ? channelsData.length : '-'})`}
         refreshFunction={handleRefresh}
         reloading={channelsFetching}
         actions={
           <>
-            <OpenChannelModal />
-            <OpenMultipleChannelsModal />
-            <FundChannelModal />
             <IconButton
               iconComponent={<GetAppIcon />}
               tooltipText={
@@ -352,10 +361,11 @@ function ChannelsPage() {
           </>
         }
       />
+      {JSON.stringify(sessions)}
       <TablePro
         data={parsedTableData}
-        id={'node-channels-out-table'}
-        header={header}
+        id={'node-channels-in-table'}
+        header={headerIncoming}
         search
         loading={parsedTableData.length === 0 && channelsFetching}
         orderByDefault="number"

@@ -40,6 +40,8 @@ import {
   type GetPeerResponseType,
   type GetBalancesResponseType,
   type GetTicketPricePayloadType,
+  type GetSessionsPayloadType,
+  type GetSessionsResponseType,
   type GetTicketPriceResponseType,
   type GetMinimumNetworkProbabilityResponseType,
 } from '@hoprnet/hopr-sdk';
@@ -72,6 +74,7 @@ const {
   getToken,
   getTicketPrice,
   getMinimumTicketProbability,
+  getSessions,
   fundChannel,
   getVersion,
   openChannel,
@@ -821,7 +824,11 @@ const redeemAllTicketsThunk = createAsyncThunk<boolean | undefined, BasePayloadT
   },
 );
 
-const resetTicketStatisticsThunk = createAsyncThunk<boolean | undefined, BasePayloadType, { state: RootState }>(
+const resetTicketStatisticsThunk = createAsyncThunk<
+  boolean | undefined,
+  BasePayloadType,
+{ state: RootState }
+>(
   'node/resetTicketStatisticsThunk',
   async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setResetTicketStatisticsFetching(true));
@@ -963,7 +970,7 @@ const getMinimumNetworkProbabilityThunk = createAsyncThunk<
 >(
   'node/getMinimumTicketProbability',
   async (payload, { rejectWithValue, dispatch }) => {
-    dispatch(nodeActionsFetching.setTicketPriceFetching(true));
+    dispatch(nodeActionsFetching.setMinimumTicketProbabilityFetching(true));
     try {
       const res = await getMinimumTicketProbability(payload);
       return res;
@@ -983,6 +990,35 @@ const getMinimumNetworkProbabilityThunk = createAsyncThunk<
     },
   },
 );
+
+const getSessionsThunk = createAsyncThunk<
+  GetSessionsResponseType | undefined,
+  GetSessionsPayloadType,
+  { state: RootState }
+>(
+  'node/getSessionsThunk',
+  async (payload, { rejectWithValue, dispatch }) => {
+    dispatch(nodeActionsFetching.setSessionsFetching(true));
+    try {
+      const res = await getSessions(payload);
+      return res;
+    } catch (e) {
+      if (e instanceof sdkApiError) {
+        return rejectWithValue(e);
+      }
+      return rejectWithValue({ status: JSON.stringify(e) });
+    }
+  },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().node.sessions.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
+  },
+);
+
 
 const isCurrentApiEndpointTheSame = createAsyncThunk<boolean, string, { state: RootState }>(
   'node/isCurrentApiEndpointTheSame',
@@ -1643,6 +1679,15 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   builder.addCase(getMinimumNetworkProbabilityThunk.rejected, (state) => {
     state.probability.isFetching = false;
   });
+  // getSessionsThunk
+  builder.addCase(getSessionsThunk.fulfilled, (state, action) => {
+    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
+    state.sessions.data = action.payload || null;
+    state.sessions.isFetching = false;
+  });
+  builder.addCase(getSessionsThunk.rejected, (state) => {
+    state.sessions.isFetching = false;
+  });
 };
 
 export const actionsAsync = {
@@ -1676,6 +1721,7 @@ export const actionsAsync = {
   resetTicketStatisticsThunk,
   getTicketPriceThunk,
   getMinimumNetworkProbabilityThunk,
+  getSessionsThunk,
   createTokenThunk,
   deleteTokenThunk,
   getPrometheusMetricsThunk,
