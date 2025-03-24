@@ -8,6 +8,7 @@ import type {
   GetEntryNodesResponseType,
   PingPeerResponseType,
   GetConfigurationResponseType,
+  GetMinimumNetworkProbabilityResponseType
 } from '@hoprnet/hopr-sdk';
 
 export type Message = {
@@ -167,6 +168,7 @@ type InitialState = {
     isFetching: boolean;
     alreadyFetched: boolean;
   };
+  probability: { data: number | null; isFetching: boolean };
   entryNodes: { data: GetEntryNodesResponseType | null; isFetching: boolean };
   peerInfo: {
     data: {
@@ -326,6 +328,7 @@ export const initialState: InitialState = {
     },
     isFetching: false,
   },
+  probability: { data: null, isFetching: false },
   entryNodes: {
     data: null,
     isFetching: false,

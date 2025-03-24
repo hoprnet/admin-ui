@@ -25,6 +25,10 @@ function TicketsPage() {
   const redeemAllTicketsFetching = useAppSelector((store) => store.node.redeemAllTickets.isFetching);
   const redeemAllTicketsErrors = useAppSelector((store) => store.node.redeemAllTickets.error);
   const loginData = useAppSelector((store) => store.auth.loginData);
+  const info = useAppSelector((store) => store.node.info.data);
+  const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
+  const minimumNetworkProbability = useAppSelector((store) => store.node.probability.data);
+
 
   useEffect(() => {
     handleRefresh();
@@ -113,6 +117,38 @@ function TicketsPage() {
           width: 'calc( 100% - 48px )',
         }}
       >
+                <TableExtended
+          title="Ticket properties"
+          style={{ marginBottom: '42px' }}
+        >
+          <tbody>
+            <tr>
+              <th>
+                <Tooltip
+                  title="The current price of a single ticket"
+                  notWide
+                >
+                  <span>Current ticket price</span>
+                </Tooltip>
+              </th>
+              <td>{ticketPrice ? formatEther(BigInt(ticketPrice as string)) : '-'} wxHOPR</td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
+                  title={`Minimum allowed winning probability of the ticket as defined in the ${info?.network} network`}
+                  notWide
+                >
+                  <span>Minimum ticket winning probability</span>
+                </Tooltip>
+              </th>
+              <td>
+                {minimumNetworkProbability ? minimumNetworkProbability.toFixed(9): '-'}
+              </td>
+            </tr>
+          </tbody>
+        </TableExtended>
+
         <TableExtended
           title="Ticket statistics"
           style={{ marginBottom: '32px' }}

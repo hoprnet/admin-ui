@@ -41,6 +41,7 @@ import {
   type GetBalancesResponseType,
   type GetTicketPricePayloadType,
   type GetTicketPriceResponseType,
+  type GetMinimumNetworkProbabilityResponseType
 } from '@hoprnet/hopr-sdk';
 import { parseMetrics } from '../../../utils/metrics';
 import { RootState } from '../..';
@@ -70,6 +71,7 @@ const {
   getTicketStatistics,
   getToken,
   getTicketPrice,
+  getMinimumTicketProbability,
   fundChannel,
   getVersion,
   openChannel,
@@ -1030,6 +1032,38 @@ dispatch,
   },
 );
 
+const getMinimumNetworkProbabilityThunk = createAsyncThunk<
+  GetMinimumNetworkProbabilityResponseType | undefined,
+  BasePayloadType,
+  { state: RootState }
+>(
+  'node/getMinimumTicketProbability',
+  async (payload, {
+rejectWithValue,
+dispatch,
+}) => {
+    dispatch(nodeActionsFetching.setTicketPriceFetching(true));
+    try {
+      const res = await getMinimumTicketProbability(payload);
+      return res;
+    } catch (e) {
+      if (e instanceof sdkApiError) {
+        return rejectWithValue(e);
+      }
+      return rejectWithValue({ status: JSON.stringify(e) });
+    }
+  },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().node.probability.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
+  },
+);
+
+
 const isCurrentApiEndpointTheSame = createAsyncThunk<boolean, string, { state: RootState }>(
   'node/isCurrentApiEndpointTheSame',
   async (payload, { getState }) => {
@@ -1680,6 +1714,15 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   builder.addCase(getTicketPriceThunk.rejected, (state) => {
     state.ticketPrice.isFetching = false;
   });
+  // getMinimumNetworkProbability
+  builder.addCase(getMinimumNetworkProbabilityThunk.fulfilled, (state, action) => {
+    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
+    state.probability.data = action.payload?.probability || null;
+    state.probability.isFetching = false;
+  });
+  builder.addCase(getMinimumNetworkProbabilityThunk.rejected, (state) => {
+    state.probability.isFetching = false;
+  });
 };
 
 export const actionsAsync = {
@@ -1712,6 +1755,7 @@ export const actionsAsync = {
   redeemAllTicketsThunk,
   resetTicketStatisticsThunk,
   getTicketPriceThunk,
+  getMinimumNetworkProbabilityThunk,
   createTokenThunk,
   deleteTokenThunk,
   getPrometheusMetricsThunk,

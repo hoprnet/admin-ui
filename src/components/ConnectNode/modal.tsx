@@ -319,6 +319,12 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
             apiEndpoint,
           }),
         );
+        dispatch(
+          nodeActionsAsync.getMinimumNetworkProbabilityThunk({
+            apiEndpoint,
+            apiToken: apiToken ? apiToken : '',
+          }),
+        );
         dispatch(nodeActions.setInfo(loginInfo));
         if (!apiToken || apiToken === '') {
           navigate(`/node/info?apiEndpoint=${formattedApiEndpoint}`);

@@ -64,6 +64,7 @@ apiToken,
   const indexerLastLogBlock = useAppSelector((store) => store.node.info.data?.indexerLastLogBlock); // >=2.2.0
   const indexerLastLogChecksum = useAppSelector((store) => store.node.info.data?.indexerLastLogChecksum); // >=2.2.0
   const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
+  const minimumNetworkProbability = useAppSelector((store) => store.node.probability.data);
 
   useEffect(() => {
     fetchInfoData();
@@ -452,6 +453,14 @@ apiToken,
                 wxHOPR
               </td>
             </tr>
+          </tbody>
+        </TableExtended>
+
+        <TableExtended
+          title="Ticket properties"
+          style={{ marginBottom: '42px' }}
+        >
+          <tbody>
             <tr>
               <th>
                 <Tooltip
@@ -462,6 +471,19 @@ apiToken,
                 </Tooltip>
               </th>
               <td>{ticketPrice ? formatEther(BigInt(ticketPrice as string)) : '-'} wxHOPR</td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
+                  title={`Minimum allowed winning probability of the ticket as defined in the ${info?.network} network`}
+                  notWide
+                >
+                  <span>Minimum ticket winning probability</span>
+                </Tooltip>
+              </th>
+              <td>
+                {minimumNetworkProbability ? minimumNetworkProbability.toFixed(9): '-'}
+              </td>
             </tr>
           </tbody>
         </TableExtended>
