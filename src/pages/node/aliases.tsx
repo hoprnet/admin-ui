@@ -90,15 +90,14 @@ function AliasesPage() {
     if (!loginData.apiEndpoint) return;
     for (const data of parsedData) {
       if (data.alias && data.peerId) {
-
-        if(peerIdsWithAliases.includes(data.peerId)) {
-          console.log(peerIdToAliasLink, data.peerId, peerIdToAliasLink[data.peerId])
+        if (peerIdsWithAliases.includes(data.peerId)) {
+          console.log(peerIdToAliasLink, data.peerId, peerIdToAliasLink[data.peerId]);
           await dispatch(
             actionsAsync.removeAliasThunk({
               alias: peerIdToAliasLink[data.peerId],
               apiEndpoint: loginData.apiEndpoint,
               apiToken: loginData.apiToken ? loginData.apiToken : '',
-            })
+            }),
           );
         }
 
@@ -108,7 +107,7 @@ function AliasesPage() {
             peerId: String(data.peerId),
             apiEndpoint: loginData.apiEndpoint,
             apiToken: loginData.apiToken ? loginData.apiToken : '',
-          })
+          }),
         )
           .unwrap()
           .then(() => {
@@ -354,10 +353,7 @@ function CreateAliasForm() {
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-name,
-value,
-} = event.target;
+    const { name, value } = event.target;
     set_form({
       ...form,
       [name]: value,

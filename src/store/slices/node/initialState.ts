@@ -8,7 +8,7 @@ import type {
   GetEntryNodesResponseType,
   PingPeerResponseType,
   GetConfigurationResponseType,
-  GetMinimumNetworkProbabilityResponseType
+  GetMinimumNetworkProbabilityResponseType,
 } from '@hoprnet/hopr-sdk';
 
 export type Message = {

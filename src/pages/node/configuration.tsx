@@ -63,7 +63,7 @@ function SettingsPage() {
   );
 
   useEffect(() => {
-   window.addEventListener('keydown', handleEnter);
+    window.addEventListener('keydown', handleEnter);
     return () => {
       window.removeEventListener('keydown', handleEnter);
     };
@@ -131,7 +131,7 @@ function SettingsPage() {
     }
   }
 
-  function handleEnter (event: any) {
+  function handleEnter(event: any) {
     if (canSave && (event as KeyboardEvent).key === 'Enter') {
       handleSaveSettings();
     }

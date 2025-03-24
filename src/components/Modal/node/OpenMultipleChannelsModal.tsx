@@ -29,7 +29,7 @@ export const OpenMultipleChannelsModal = () => {
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerIds);
 
   useEffect(() => {
-   window.addEventListener('keydown', handleEnter as EventListener);
+    window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
@@ -180,7 +180,7 @@ export const OpenMultipleChannelsModal = () => {
     fileInputRef.current?.click();
   };
 
-  function handleEnter (event: KeyboardEvent) {
+  function handleEnter(event: KeyboardEvent) {
     if (openChannelModal && canOpen && event.key === 'Enter') {
       console.log('OpenMultipleChannelsModal event');
       handleAction();

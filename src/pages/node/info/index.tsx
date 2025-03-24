@@ -36,10 +36,7 @@ const TdActionIcons = styled.td`
 
 function InfoPage() {
   const dispatch = useAppDispatch();
-  const {
-apiEndpoint,
-apiToken,
-} = useAppSelector((store) => store.auth.loginData);
+  const { apiEndpoint, apiToken } = useAppSelector((store) => store.auth.loginData);
   const balances = useAppSelector((store) => store.node.balances.data);
   const balancesFetching = useAppSelector((store) => store.node.balances.isFetching);
   const addresses = useAppSelector((store) => store.node.addresses.data);
@@ -358,7 +355,11 @@ apiToken,
                   title="Last indexed block from the chain which contains HOPR data"
                   notWide
                 >
-                  <span>Last indexed<br/>log at block</span>
+                  <span>
+                    Last indexed
+                    <br />
+                    log at block
+                  </span>
                 </Tooltip>
               </th>
               <td>{indexerLastLogBlock ? indexerLastLogBlock : '-'}</td>
@@ -369,7 +370,11 @@ apiToken,
                   title="The latest hash of the node database"
                   notWide
                 >
-                  <span>Last indexed<br/>log checksum</span>
+                  <span>
+                    Last indexed
+                    <br />
+                    log checksum
+                  </span>
                 </Tooltip>
               </th>
               <td>{indexerLastLogChecksum ? indexerLastLogChecksum : '-'}</td>
@@ -481,9 +486,7 @@ apiToken,
                   <span>Minimum ticket winning probability</span>
                 </Tooltip>
               </th>
-              <td>
-                {minimumNetworkProbability ? minimumNetworkProbability.toFixed(9): '-'}
-              </td>
+              <td>{minimumNetworkProbability ? minimumNetworkProbability.toFixed(9) : '-'}</td>
             </tr>
           </tbody>
         </TableExtended>

@@ -156,10 +156,7 @@ function MetricsPage() {
   const metrics = useAppSelector((store) => store.node.metrics.data);
   const metricsFetching = useAppSelector((store) => store.node.metrics.isFetching);
   const loginData = useAppSelector((store) => store.auth.loginData);
-  const {
-apiEndpoint,
-apiToken,
-} = loginData;
+  const { apiEndpoint, apiToken } = loginData;
 
   const dispatch = useAppDispatch();
 

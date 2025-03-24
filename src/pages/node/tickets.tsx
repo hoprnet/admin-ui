@@ -29,7 +29,6 @@ function TicketsPage() {
   const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
   const minimumNetworkProbability = useAppSelector((store) => store.node.probability.data);
 
-
   useEffect(() => {
     handleRefresh();
   }, [loginData, dispatch]);
@@ -117,7 +116,7 @@ function TicketsPage() {
           width: 'calc( 100% - 48px )',
         }}
       >
-                <TableExtended
+        <TableExtended
           title="Ticket properties"
           style={{ marginBottom: '42px' }}
         >
@@ -142,9 +141,7 @@ function TicketsPage() {
                   <span>Minimum ticket winning probability</span>
                 </Tooltip>
               </th>
-              <td>
-                {minimumNetworkProbability ? minimumNetworkProbability.toFixed(9): '-'}
-              </td>
+              <td>{minimumNetworkProbability ? minimumNetworkProbability.toFixed(9) : '-'}</td>
             </tr>
           </tbody>
         </TableExtended>

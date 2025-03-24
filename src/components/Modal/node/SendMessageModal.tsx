@@ -130,7 +130,7 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
   useEffect(setPropPeerId, [props.peerId]);
 
   useEffect(() => {
-   window.addEventListener('keydown', handleEnter as EventListener);
+    window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
@@ -279,7 +279,7 @@ export const SendMessageModal = (props: SendMessageModalProps) => {
     return receiver;
   };
 
-  function handleEnter (event: KeyboardEvent) {
+  function handleEnter(event: KeyboardEvent) {
     if (canSendMessage && (event as KeyboardEvent)?.key === 'Enter') {
       console.log('SendMessageModal event');
       handleSendMessage();

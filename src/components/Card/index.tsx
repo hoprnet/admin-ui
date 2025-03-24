@@ -53,13 +53,7 @@ type CardProps = {
   children?: JSX.Element;
 };
 
-const Card = ({
-image,
-title,
-description,
-descriptionLeft,
-children,
-}: CardProps) => {
+const Card = ({ image, title, description, descriptionLeft, children }: CardProps) => {
   return (
     <SPaper className={'SPaper'}>
       {image && (
