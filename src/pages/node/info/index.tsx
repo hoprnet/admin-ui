@@ -60,21 +60,9 @@ apiToken,
       ? new Date(nodeStartedEpoch * 1000).toJSON().replace('T', ' ').replace('Z', ' UTC')
       : '-';
   const nodeSync = useAppSelector((store) => store.node.metricsParsed.nodeSync);
-  const blockNumberFromMetrics = useAppSelector((store) => store.node.metricsParsed.blockNumber); // <2.1.2
-  const blockNumberCheckSumFromMetrics = useAppSelector((store) => store.node.metricsParsed.checksum); // <2.1.2
-  const blockNumberFromInfo = useAppSelector((store) => store.node.info.data?.indexerBlock); // >=2.1.3
-  const blockNumberCheckSumFromInfo = useAppSelector((store) => store.node.info.data?.indexerChecksum); // >=2.1.3
-  const blockNumberPrevIndexedWithHOPRdata = useAppSelector((store) => store.node.info.data?.indexBlockPrevChecksum); // >=2.1.4
-  const blockNumberIndexedWithHOPRdata =
-    blockNumberPrevIndexedWithHOPRdata && blockNumberFromInfo !== blockNumberPrevIndexedWithHOPRdata
-      ? blockNumberPrevIndexedWithHOPRdata + 1
-      : null;
-  const blockNumber = blockNumberFromInfo ?? blockNumberFromMetrics;
-  const blockNumberCheckSum =
-    (blockNumberCheckSumFromInfo ?? blockNumberCheckSumFromMetrics) !==
-    '0x0000000000000000000000000000000000000000000000000000000000000000'
-      ? blockNumberCheckSumFromInfo ?? blockNumberCheckSumFromMetrics
-      : null;
+  const blockNumberFromInfo = useAppSelector((store) => store.node.info.data?.indexerBlock); // >=2.2.0
+  const indexerLastLogBlock = useAppSelector((store) => store.node.info.data?.indexerLastLogBlock); // >=2.2.0
+  const indexerLastLogChecksum = useAppSelector((store) => store.node.info.data?.indexerLastLogChecksum); // >=2.2.0
   const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
 
   useEffect(() => {
@@ -344,41 +332,47 @@ apiToken,
             <tr>
               <th>
                 <Tooltip
+                  title="The RPC provider address your node uses sync"
+                  notWide
+                >
+                  <span>Provider address</span>
+                </Tooltip>
+              </th>
+              <td>{info?.provider}</td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
                   title="Last block that the node got from the RPC"
                   notWide
                 >
                   <span>Current block</span>
                 </Tooltip>
               </th>
-              <td>{blockNumber ? blockNumber : '-'}</td>
+              <td>{blockNumberFromInfo ? blockNumberFromInfo : '-'}</td>
             </tr>
-            {(blockNumberIndexedWithHOPRdata || blockNumberCheckSum) && (
-              <>
-                <tr>
-                  <th>
-                    <Tooltip
-                      title="Last indexed block from the chain which contains HOPR data"
-                      notWide
-                    >
-                      <span>Last indexed block</span>
-                    </Tooltip>
-                  </th>
-                  <td>{blockNumberIndexedWithHOPRdata ? blockNumberIndexedWithHOPRdata : '-'}</td>
-                </tr>
-
-                <tr>
-                  <th>
-                    <Tooltip
-                      title="The latest hash of the node database"
-                      notWide
-                    >
-                      <span>Block checksum</span>
-                    </Tooltip>
-                  </th>
-                  <td>{blockNumberCheckSum ? blockNumberCheckSum : '-'}</td>
-                </tr>
-              </>
-            )}
+            <tr>
+              <th>
+                <Tooltip
+                  title="Last indexed block from the chain which contains HOPR data"
+                  notWide
+                >
+                  <span>Last indexed<br/>log at block</span>
+                </Tooltip>
+              </th>
+              <td>{indexerLastLogBlock ? indexerLastLogBlock : '-'}</td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
+                  title="The latest hash of the node database"
+                  notWide
+                >
+                  <span>Last indexed<br/>log checksum</span>
+                </Tooltip>
+              </th>
+              <td>{indexerLastLogChecksum ? indexerLastLogChecksum : '-'}</td>
+            </tr>
           </tbody>
         </TableExtended>
 
