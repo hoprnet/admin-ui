@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { utils as hoprdUtils } from '@hoprnet/hopr-sdk';
 const { sdkApiError } = hoprdUtils;
+import { v4 as uuidv4 } from 'uuid';
 
 // HOPR Components
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
@@ -137,7 +138,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const [sendMode, set_sendMode] = useState<'path' | 'automaticPath' | 'numberOfHops' | 'directMessage'>(
     'numberOfHops',
   );
-  const [intermediatePath, set_intermediatePath] = useState<(string)[]>(['']);
+
   const [message, set_message] = useState<string>('');
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
@@ -147,31 +148,58 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const peers = useAppSelector((store) => store.node.peers.data);
   const addresses = useAppSelector((store) => store.node.addresses.data);
   const sendMessageAddressBook = sortAddresses(peers, addresses, peerIdToAliasLink);
-  const [selectedReceiver, set_selectedReceiver] = useState<string | null>(props.peerId ? props.peerId : null);
+  const [destination, set_destination] = useState<string | null>(props.peerId ? props.peerId : null);
   const [listenHost, set_listenHost] = useState<string>('');
   const [sessionTarget, set_sessionTarget] = useState<string>('');
-  const canSendMessage = !(
-    selectedReceiver === null ||
-    (sendMode !== 'directMessage' && sendMode !== 'automaticPath' && numberOfHops < 0 && path === '') ||
-    message.length === 0 ||
-    ((sendMode === 'directMessage' || (sendMode !== 'path' && numberOfHops < 1)) && selectedReceiver === hoprAddress) ||
-    (sendMode === 'path' && path.length === 0)
+  const [intermediatePath, set_intermediatePath] = useState<(string|null)[]>([null]);
+  const fullPath = [...intermediatePath, destination];
+
+
+
+  const destinationMissing = !destination || (!!destination && destination.length === 0);
+  const listenHostMissing = listenHost.length === 0;
+  const sessionTargetMissing = sessionTarget.length === 0;
+  const intermediatePathError = fullPath.findIndex(
+    (elem, index)=>{
+      elem === fullPath[index+1]
+    }
+  ) !== -1;
+  const intermediatePathEmptyLink = !(sendMode === 'path' && !intermediatePath.includes(null));
+
+  const canOpenSession = (
+    !destinationMissing &&
+    !listenHostMissing &&
+    !sessionTargetMissing &&
+    !intermediatePathError &&
+    !intermediatePathEmptyLink
   );
 
-  const maxLength = 500;
-  const remainingChars = maxLength - message.length;
-
   const setPropPeerId = () => {
-    if (props.peerId) set_selectedReceiver(props.peerId);
+    if (props.peerId) set_destination(props.peerId);
   };
   useEffect(setPropPeerId, [props.peerId]);
+
+  // useEffect(()=>{
+  //   console.log(fullPath)
+  //   console.log(fullPath.findIndex(
+  //     (elem, index)=>{
+  //       console.log(elem, fullPath[index+1])
+  //       return elem === fullPath[index+1]
+  //     }
+  //   ) !== -1)
+  // }, [fullPath]);
+
+
+  // useEffect(()=>{
+  //   console.log(intermediatePathError)
+  // }, [intermediatePathError]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
-  }, [loginData, message, selectedReceiver, sendMode]);
+  }, [loginData, message, destination, sendMode]);
 
   useEffect(() => {
     switch (sendMode) {
@@ -190,17 +218,17 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
     }
   }, [sendMode]);
 
-  const handleSendMessage = () => {
-    if (!loginData.apiEndpoint || !selectedReceiver) return;
+  const handleOpenSession = () => {
+    if (!loginData.apiEndpoint || !destination) return;
     set_error(null);
     set_loader(true);
-    //const validatedReceiver = validatePeerId(selectedReceiver);
+    //const validatedReceiver = validatePeerId(destination);
 
     const messagePayload: SendMessagePayloadType = {
       apiToken: loginData.apiToken ? loginData.apiToken : '',
       apiEndpoint: loginData.apiEndpoint,
       body: message,
-      peerId: selectedReceiver,
+      peerId: destination,
       tag: 4677,
     };
     if (sendMode === 'automaticPath') {
@@ -274,33 +302,10 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
     set_sendMode('directMessage');
     set_numberOfHops(0);
     set_message('');
-    set_selectedReceiver(props.peerId ? props.peerId : null);
+    set_destination(props.peerId ? props.peerId : null);
     set_path('');
     set_openModal(false);
     set_error(null);
-  };
-
-  const handlePathKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === ' ' || e.key === 'Spacebar') {
-      e.preventDefault(); // Prevent space key from inserting a space
-      const input = e.target as HTMLInputElement;
-      // These are always a number... never null
-      const start = input.selectionStart!;
-      const end = input.selectionEnd!;
-      set_path((prevPath) => prevPath.substring(0, start) + '\n' + prevPath.substring(end));
-      setTimeout(() => {
-        input.setSelectionRange(start + 1, start + 1);
-      }, 0);
-    } else if (e.key === ',') {
-      e.preventDefault(); // Prevent space key from inserting a space
-      const input = e.target as HTMLInputElement;
-      const start = input.selectionStart!;
-      const end = input.selectionEnd!;
-      set_path((prevPath) => prevPath.substring(0, start) + ',\n' + prevPath.substring(end));
-      setTimeout(() => {
-        input.setSelectionRange(start + 2, start + 2);
-      }, 0);
-    }
   };
 
   const isAlias = (alias: string) => {
@@ -317,9 +322,9 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   };
 
   function handleEnter(event: KeyboardEvent) {
-    if (canSendMessage && (event as KeyboardEvent)?.key === 'Enter') {
-      console.log('SendMessageModal event');
-      handleSendMessage();
+    if (canOpenSession && (event as KeyboardEvent)?.key === 'Enter') {
+      console.log('OpenSessionModal event');
+      handleOpenSession();
     }
   }
 
@@ -359,9 +364,9 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
         </TopBar>
         <SDialogContent>
           <Autocomplete
-            value={selectedReceiver}
+            value={destination}
             onChange={(event, newValue) => {
-              set_selectedReceiver(newValue);
+              set_destination(newValue);
             }}
             options={sendMessageAddressBook}
             getOptionLabel={(peerId) =>
@@ -372,7 +377,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
               <TextField
                 {...params}
                 label="Destination"
-                placeholder="Select Receiver"
+                placeholder="Select Destination"
                 fullWidth
               />
             )}
@@ -393,7 +398,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
           />
           <TextField
             label="Session Target"
-            placeholder={'localhost:8080'}
+            placeholder={'127.0.0.1:8080'}
             value={sessionTarget}
             onChange={(event) => { set_sessionTarget(event?.target?.value) }}
             fullWidth
@@ -438,11 +443,12 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
                     key={`path-node-${pathIndex}`}
                   >
                     <Autocomplete
+                    //  key={`path-node-${pathIndex}-Autocomplete`}
                       value={pathNode}
                       onChange={(event, newValue) => {
-                        set_intermediatePath(path => { 
-                          let tmp = path;
-                          tmp[pathIndex] = newValue || '';
+                        set_intermediatePath(path => {
+                          let tmp = [...path];
+                          tmp[pathIndex] = newValue;
                           return tmp;
                         })
                       }}
@@ -474,24 +480,25 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
               }
               <Button
                 outlined
-                onClick={() => { set_intermediatePath(path => { return [...path, ''] }) }}
-                // style={{
-                //   marginTop: '8px',
-                //   marginBottom: '8px',
-                // }}
+                onClick={() => { set_intermediatePath(path => { return [...path, null] }) }}
+                style={{
+                  marginTop: '8px',
+                  width: '258px',
+                  margin: 'auto',
+                }}
                 startIcon={<AddCircleIcon />}
-                style={{ width: '248px', margin: 'auto' }}
+                disabled={intermediatePath.length > 10}
               >
-                Add node to path
+                Add a node to path
               </Button>
             </>
           )}
         </SDialogContent>
         <DialogActions>
           <Button
-            onClick={handleSendMessage}
+            onClick={handleOpenSession}
             pending={loader}
-            disabled={!canSendMessage}
+            disabled={!canOpenSession}
             style={{
               width: '100%',
               marginTop: '8px',
@@ -501,6 +508,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
             Send
           </Button>
         </DialogActions>
+
         {error && (
           <StatusContainer>
             <TopBar>
