@@ -23,7 +23,6 @@ import { PingModal } from '../../components/Modal/node/PingModal';
 import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
 import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
-
 import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
 import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
 
@@ -291,7 +290,7 @@ function ChannelsPage() {
               onClick={() => handleCloseChannels(id)}
             />
             <OpenSessionModal
-
+              peerId={peerId}
             />
             <SendMessageModal
               peerId={peerId}

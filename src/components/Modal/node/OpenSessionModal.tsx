@@ -94,15 +94,8 @@ const PathNode = styled.div`
   .MuiAutocomplete-root {
     flex-grow: 1;
   }
-  .MuiButtonBase-root {
+  > .MuiButtonBase-root {
     width: 55px;
-  }
-`
-
-const AddNode = styled.div`
-  display: flex;
-  div.label {
-      white-space: nowrap;
   }
 `
 
@@ -131,18 +124,16 @@ function sortAddresses(
 
 export const OpenSessionModal = (props: SendMessageModalProps) => {
   const dispatch = useAppDispatch();
-  const [path, set_path] = useState<string>('');
+
   const [loader, set_loader] = useState<boolean>(false);
   const [error, set_error] = useState<string | null>(null);
-  const [numberOfHops, set_numberOfHops] = useState<number>(0);
-  const [sendMode, set_sendMode] = useState<'path' | 'automaticPath' | 'numberOfHops' | 'directMessage'>(
+  const [numberOfHops, set_numberOfHops] = useState<number>(1);
+  const [sendMode, set_sendMode] = useState<'path' | 'numberOfHops' >(
     'numberOfHops',
   );
 
-  const [message, set_message] = useState<string>('');
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
-  const hoprAddress = useAppSelector((store) => store.node.addresses.data.hopr);
   const aliases = useAppSelector((store) => store.node.aliases.data);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
   const peers = useAppSelector((store) => store.node.peers.data);
@@ -155,13 +146,13 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const fullPath = [...intermediatePath, destination];
 
 
-
+  // Errors
   const destinationMissing = !destination || (!!destination && destination.length === 0);
   const listenHostMissing = listenHost.length === 0;
   const sessionTargetMissing = sessionTarget.length === 0;
   const intermediatePathError = fullPath.findIndex(
     (elem, index)=>{
-      elem === fullPath[index+1]
+      return elem === fullPath[index+1]
     }
   ) !== -1;
   const intermediatePathEmptyLink = !(sendMode === 'path' && !intermediatePath.includes(null));
@@ -179,42 +170,24 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   };
   useEffect(setPropPeerId, [props.peerId]);
 
-  // useEffect(()=>{
-  //   console.log(fullPath)
-  //   console.log(fullPath.findIndex(
-  //     (elem, index)=>{
-  //       console.log(elem, fullPath[index+1])
-  //       return elem === fullPath[index+1]
-  //     }
-  //   ) !== -1)
-  // }, [fullPath]);
-
-
-  // useEffect(()=>{
-  //   console.log(intermediatePathError)
-  // }, [intermediatePathError]);
+  useEffect(()=>{
+    console.log(intermediatePathError)
+  }, [intermediatePathError]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
-  }, [loginData, message, destination, sendMode]);
+  }, [loginData, destination, sendMode]);
 
   useEffect(() => {
     switch (sendMode) {
-      case 'automaticPath':
-        set_numberOfHops(1);
-        break;
       case 'path':
         set_numberOfHops(0);
         break;
       case 'numberOfHops':
-        set_path('');
         break;
-      default: //anything that is not a custom route
-        set_numberOfHops(0);
-        set_path('');
     }
   }, [sendMode]);
 
@@ -227,16 +200,10 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
     const messagePayload: SendMessagePayloadType = {
       apiToken: loginData.apiToken ? loginData.apiToken : '',
       apiEndpoint: loginData.apiEndpoint,
-      body: message,
+      body: 'message',
       peerId: destination,
       tag: 4677,
     };
-    if (sendMode === 'automaticPath') {
-      messagePayload.hops = 1;
-    }
-    if (sendMode === 'directMessage') {
-      messagePayload.path = [];
-    }
     if (sendMode === 'numberOfHops') {
       if (numberOfHops === 0) {
         messagePayload.path = [];
@@ -246,7 +213,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
     }
     if (sendMode == 'path') {
       const pathElements: string[] = [];
-      const lines = path.split('\n');
+      const lines = ''.split('\n');
       for (const line of lines) {
         const elements = line
           .split(',')
@@ -279,12 +246,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   };
 
   const handleSendModeChange = (event: SelectChangeEvent) => {
-    set_sendMode(event.target.value as 'path' | 'numberOfHops' | 'automaticPath' | 'directMessage');
-  };
-
-  const handlePath = (event: React.ChangeEvent<HTMLInputElement>) => {
-    set_sendMode('path');
-    set_path(event.target.value);
+    set_sendMode(event.target.value as 'path' | 'numberOfHops');
   };
 
   const handleNumberOfHops = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -299,11 +261,9 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   };
 
   const handleCloseModal = () => {
-    set_sendMode('directMessage');
+    set_sendMode('numberOfHops');
     set_numberOfHops(0);
-    set_message('');
     set_destination(props.peerId ? props.peerId : null);
-    set_path('');
     set_openModal(false);
     set_error(null);
   };
@@ -505,7 +465,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
               marginBottom: '8px',
             }}
           >
-            Send
+            Open
           </Button>
         </DialogActions>
 

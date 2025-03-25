@@ -19,6 +19,7 @@ import { PingModal } from '../../components/Modal/node/PingModal';
 import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
 import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
+import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
 
 //Mui
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -181,6 +182,9 @@ function AliasesPage() {
               tooltip={peerId === hoprAddress ? `You can't open a channel to yourself` : undefined}
             />
           )}
+          <OpenSessionModal
+            peerId={peerId}
+          />
           <SendMessageModal peerId={peerId} />
           <DeleteAliasButton
             onSuccess={() => {

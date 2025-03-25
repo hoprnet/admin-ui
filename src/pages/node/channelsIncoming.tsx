@@ -23,6 +23,7 @@ import { PingModal } from '../../components/Modal/node/PingModal';
 import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
 import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
+import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
 import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
 
 // Mui
@@ -138,7 +139,7 @@ function ChannelsPage() {
     {
       key: 'tickets',
       name: 'Unredeemed',
-      maxWidth: '140px',
+      maxWidth: '130px',
       tooltipHeader: (
         <>
           Unredeemed value of tickets per channel in wxHOPR.
@@ -153,8 +154,8 @@ function ChannelsPage() {
       key: 'actions',
       name: 'Actions',
       search: false,
-      width: '188px',
-      maxWidth: '188px',
+      width: '225px',
+      maxWidth: '225px',
     },
   ];
 
@@ -310,6 +311,9 @@ function ChannelsPage() {
                 </span>
               }
               onClick={() => handleCloseChannel(id)}
+            />
+            <OpenSessionModal
+              peerId={peerId}
             />
             <SendMessageModal
               peerId={peerId}
