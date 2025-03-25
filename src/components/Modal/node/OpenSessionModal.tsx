@@ -7,6 +7,7 @@ const { sdkApiError } = hoprdUtils;
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
 import Button from '../../../future-hopr-lib-components/Button';
+import PeersInfo from '../../../future-hopr-lib-components/PeerInfo';
 
 // Mui
 import {
@@ -18,7 +19,16 @@ import {
   Select,
   MenuItem,
   Autocomplete,
+  Tooltip,
+  IconButton as IconButtonMui
 } from '@mui/material';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+
+// Icons
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 import { SendMessagePayloadType } from '@hoprnet/hopr-sdk';
 import CloseIcon from '@mui/icons-material/Close';
@@ -72,6 +82,29 @@ type SendMessageModalProps = {
   tooltip?: JSX.Element | string;
 };
 
+const SFormGroup = styled(FormGroup)`
+  flex-direction: row;
+`
+
+const PathNode = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  .MuiAutocomplete-root {
+    flex-grow: 1;
+  }
+  .MuiButtonBase-root {
+    width: 55px;
+  }
+`
+
+const AddNode = styled.div`
+  display: flex;
+  div.label {
+      white-space: nowrap;
+  }
+`
+
 // order of peers: me, aliases (sorted by aliases), peers (sorted by peersIds)
 function sortAddresses(
   peers: GetPeersResponseType | null,
@@ -102,8 +135,9 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const [error, set_error] = useState<string | null>(null);
   const [numberOfHops, set_numberOfHops] = useState<number>(0);
   const [sendMode, set_sendMode] = useState<'path' | 'automaticPath' | 'numberOfHops' | 'directMessage'>(
-    'directMessage',
+    'numberOfHops',
   );
+  const [intermediatePath, set_intermediatePath] = useState<(string)[]>(['']);
   const [message, set_message] = useState<string>('');
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
@@ -114,6 +148,8 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const addresses = useAppSelector((store) => store.node.addresses.data);
   const sendMessageAddressBook = sortAddresses(peers, addresses, peerIdToAliasLink);
   const [selectedReceiver, set_selectedReceiver] = useState<string | null>(props.peerId ? props.peerId : null);
+  const [listenHost, set_listenHost] = useState<string>('');
+  const [sessionTarget, set_sessionTarget] = useState<string>('');
   const canSendMessage = !(
     selectedReceiver === null ||
     (sendMode !== 'directMessage' && sendMode !== 'automaticPath' && numberOfHops < 0 && path === '') ||
@@ -335,37 +371,47 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Receiver (PeerId or Alias)"
+                label="Destination"
                 placeholder="Select Receiver"
                 fullWidth
               />
             )}
+          // renderOption={(option)=>{
+          //   return (
+          //     <span>
+          //       {JSON.stringify(option)}
+          //     </span>
+          //   )
+          // }}
           />
-
           <TextField
-            label="Message"
-            placeholder="Hello Node..."
-            multiline
-            rows={4}
-            value={message}
-            onChange={(e) => set_message(e.target.value)}
-            inputProps={{ maxLength: maxLength }}
-            helperText={`${remainingChars} characters remaining`}
-            required
+            label="Listen host"
+            placeholder={'127.0.0.1:10000'}
+            value={listenHost}
+            onChange={(event) => { set_listenHost(event?.target?.value) }}
             fullWidth
-            autoFocus={!!selectedReceiver}
           />
-          <span style={{ margin: '0px 0px -2px' }}>Send mode:</span>
+          <TextField
+            label="Session Target"
+            placeholder={'localhost:8080'}
+            value={sessionTarget}
+            onChange={(event) => { set_sessionTarget(event?.target?.value) }}
+            fullWidth
+          />
+          <span style={{ margin: '0px 0px -2px' }}>Capabilities:</span>
+          <SFormGroup>
+            <FormControlLabel control={<Checkbox defaultChecked />} label="Retransmission" />
+            <FormControlLabel control={<Checkbox defaultChecked />} label="Segmentation" />
+          </SFormGroup>
+          <span style={{ margin: '0px 0px -2px' }}>Path:</span>
           <PathOrHops className={sendMode === 'numberOfHops' ? 'numerOfHopsSelected' : 'noNumberOfHopsSelected'}>
             <Select
               value={sendMode}
               onChange={handleSendModeChange}
               className={sendMode === 'numberOfHops' ? 'numerOfHops' : 'noNumberOfHops'}
             >
-              <MenuItem value="directMessage">Direct Message</MenuItem>
-              <MenuItem value="automaticPath">Automatic Path</MenuItem>
               <MenuItem value="numberOfHops">Number of Hops</MenuItem>
-              <MenuItem value="path">Path (PeerIds or Aliases)</MenuItem>
+              <MenuItem value="path">Intermediate Path</MenuItem>
             </Select>
             {sendMode === 'numberOfHops' && (
               <TextField
@@ -385,16 +431,60 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
             )}
           </PathOrHops>
           {sendMode === 'path' && (
-            <TextField
-              label="Path (PeerIds or Aliases)"
-              placeholder={'12D3Ko...Z3rz5F,\n12D3Ko...wxd4zv,\nAlan,\n12D3Ko...zF8c7u'}
-              value={path}
-              onChange={handlePath}
-              onKeyDown={handlePathKeyDown}
-              multiline
-              rows={4}
-              fullWidth
-            />
+            <>
+              {
+                intermediatePath.map((pathNode, pathIndex) =>
+                  <PathNode
+                    key={`path-node-${pathIndex}`}
+                  >
+                    <Autocomplete
+                      value={pathNode}
+                      onChange={(event, newValue) => {
+                        set_intermediatePath(path => { 
+                          let tmp = path;
+                          tmp[pathIndex] = newValue || '';
+                          return tmp;
+                        })
+                      }}
+                      options={sendMessageAddressBook}
+                      getOptionLabel={(peerId) =>
+                        peerIdToAliasLink[peerId] ? `${peerIdToAliasLink[peerId]} (${peerId})` : peerId
+                      }
+                      autoSelect
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Path node"
+                          placeholder="Select node"
+                          fullWidth
+                        />
+                      )}
+                    />
+                    <IconButtonMui
+                      aria-label="delete node from path"
+                      onClick={() => {
+                        set_intermediatePath(path => { return path.filter((elem, index) => index !== pathIndex) })
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButtonMui>
+                  </PathNode>
+
+                )
+              }
+              <Button
+                outlined
+                onClick={() => { set_intermediatePath(path => { return [...path, ''] }) }}
+                // style={{
+                //   marginTop: '8px',
+                //   marginBottom: '8px',
+                // }}
+                startIcon={<AddCircleIcon />}
+                style={{ width: '248px', margin: 'auto' }}
+              >
+                Add node to path
+              </Button>
+            </>
           )}
         </SDialogContent>
         <DialogActions>
