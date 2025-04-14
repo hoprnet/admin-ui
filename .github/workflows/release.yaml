@@ -97,7 +97,7 @@ jobs:
           email: ${{ secrets.ZULIP_EMAIL }}
           organization-url: 'https://hopr.zulipchat.com'
           type: 'stream'
-          to: 'Releases'
-          topic: 'main'
+          to: 'Products'
+          topic: 'admin-ui'
           content: |
             I'm thrilled to inform the new **${{ vars.DOCKER_IMAGE_NAME }}** version **${{ steps.environment.outputs.release_version }}** has been released.
