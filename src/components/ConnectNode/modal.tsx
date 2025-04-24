@@ -329,16 +329,8 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
           nodeActionsAsync.getSessionsThunk({
             apiEndpoint,
             apiToken: apiToken ? apiToken : '',
-            protocol: 'udp'
           }),
         )
-        dispatch(
-          nodeActionsAsync.getSessionsThunk({
-            apiEndpoint,
-            apiToken: apiToken ? apiToken : '',
-            protocol: 'tcp'
-          }),
-        );
         dispatch(nodeActions.setInfo(loginInfo));
         if (!apiToken || apiToken === '') {
           navigate(`/node/info?apiEndpoint=${formattedApiEndpoint}`);

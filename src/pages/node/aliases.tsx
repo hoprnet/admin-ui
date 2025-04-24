@@ -244,8 +244,8 @@ function AliasesPage() {
       key: 'actions',
       name: 'Actions',
       search: false,
-      width: '168px',
-      maxWidth: '168px',
+      width: '190px',
+      maxWidth: '190px',
     },
   ];
 

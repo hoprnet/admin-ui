@@ -42,8 +42,10 @@ import {
   type GetTicketPricePayloadType,
   type GetSessionsPayloadType,
   type GetSessionsResponseType,
+  type OpenSessionPayload,
   type GetTicketPriceResponseType,
   type GetMinimumNetworkProbabilityResponseType,
+  OpenSessionPayloadType,
 } from '@hoprnet/hopr-sdk';
 import { parseMetrics } from '../../../utils/metrics';
 import { RootState } from '../..';
@@ -75,6 +77,7 @@ const {
   getTicketPrice,
   getMinimumTicketProbability,
   getSessions,
+  openSession,
   fundChannel,
   getVersion,
   openChannel,
@@ -993,14 +996,27 @@ const getMinimumNetworkProbabilityThunk = createAsyncThunk<
 
 const getSessionsThunk = createAsyncThunk<
   GetSessionsResponseType | undefined,
-  GetSessionsPayloadType,
+  BasePayloadType,
   { state: RootState }
 >(
   'node/getSessionsThunk',
   async (payload, { rejectWithValue, dispatch }) => {
-    dispatch(nodeActionsFetching.setSessionsFetching(true));
+    dispatch(nodeActionsFetching.openSessionsFetching(true));
     try {
-      const res = await getSessions(payload);
+      const bothRes = await Promise.all([
+        getSessions({
+          ...payload,
+          protocol: 'tcp'
+        }),
+        getSessions({
+          ...payload,
+          protocol: 'udp'
+        }),
+      ])
+      const res = [
+        ...bothRes[0],
+        ...bothRes[1]
+      ];
       return res;
     } catch (e) {
       if (e instanceof sdkApiError) {
@@ -1019,6 +1035,20 @@ const getSessionsThunk = createAsyncThunk<
   },
 );
 
+const openSessionThunk = createAsyncThunk(
+  'node/openSession',
+  async (payload: OpenSessionPayloadType, { rejectWithValue }) => {
+    try {
+      const res = await openSession(payload);
+      return res;
+    } catch (e) {
+      if (e instanceof sdkApiError) {
+        return rejectWithValue(e);
+      }
+      return rejectWithValue({ status: JSON.stringify(e) });
+    }
+  },
+);
 
 const isCurrentApiEndpointTheSame = createAsyncThunk<boolean, string, { state: RootState }>(
   'node/isCurrentApiEndpointTheSame',
@@ -1722,6 +1752,7 @@ export const actionsAsync = {
   getTicketPriceThunk,
   getMinimumNetworkProbabilityThunk,
   getSessionsThunk,
+  openSessionThunk,
   createTokenThunk,
   deleteTokenThunk,
   getPrometheusMetricsThunk,

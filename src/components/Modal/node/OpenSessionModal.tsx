@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
+
+// HOPRd SDK
+import { SendMessagePayloadType } from '@hoprnet/hopr-sdk';
 import { utils as hoprdUtils } from '@hoprnet/hopr-sdk';
+import type { GetPeersResponseType, GetAliasesResponseType, OpenSessionPayloadType } from '@hoprnet/hopr-sdk';
 const { sdkApiError } = hoprdUtils;
-import { v4 as uuidv4 } from 'uuid';
 
 // HOPR Components
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
@@ -30,17 +33,12 @@ import Checkbox from '@mui/material/Checkbox';
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-
-import { SendMessagePayloadType } from '@hoprnet/hopr-sdk';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcCallIcon from '@mui/icons-material/AddIcCall';
-import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 
 // Store
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
-
-import type { GetPeersResponseType, GetAliasesResponseType } from '@hoprnet/hopr-sdk';
 import type { AddressesType } from '../../../store/slices/node/initialState';
 
 const PathOrHops = styled.div`
@@ -98,6 +96,13 @@ const PathNode = styled.div`
     width: 55px;
   }
 `
+const Splitscreen = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  flex-direction: row;
+  justify-content: space-between;
+`
 
 // order of peers: me, aliases (sorted by aliases), peers (sorted by peersIds)
 function sortAddresses(
@@ -131,7 +136,9 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const [sendMode, set_sendMode] = useState<'path' | 'numberOfHops' >(
     'numberOfHops',
   );
-
+  const [protocol, set_protocol] = useState<'udp' | 'tcp' >(
+    'udp',
+  );
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const aliases = useAppSelector((store) => store.node.aliases.data);
@@ -161,8 +168,16 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
     !destinationMissing &&
     !listenHostMissing &&
     !sessionTargetMissing &&
-    !intermediatePathError &&
-    !intermediatePathEmptyLink
+    (
+      (
+        sendMode === 'path' &&
+        !intermediatePathError &&
+        !intermediatePathEmptyLink  &&
+        intermediatePath.length > 0
+      )
+      ||
+      sendMode === 'numberOfHops'
+    )
   );
 
   const setPropPeerId = () => {
@@ -171,7 +186,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   useEffect(setPropPeerId, [props.peerId]);
 
   useEffect(()=>{
-    console.log(intermediatePathError)
+    console.log('intermediatePathError', intermediatePathError)
   }, [intermediatePathError]);
 
   useEffect(() => {
@@ -197,18 +212,24 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
     set_loader(true);
     //const validatedReceiver = validatePeerId(destination);
 
-    const messagePayload: SendMessagePayloadType = {
+    const sessionPayload: OpenSessionPayloadType = {
       apiToken: loginData.apiToken ? loginData.apiToken : '',
       apiEndpoint: loginData.apiEndpoint,
-      body: 'message',
-      peerId: destination,
-      tag: 4677,
+      path: {
+        Hops: 0,
+      },
+      destination,
+      capabilities: ["Retransmission", "Segmentation"],
+      protocol: "udp",
+      target: {
+        Plain: 'string',
+      },
+      listenHost: 'string',
     };
+
     if (sendMode === 'numberOfHops') {
-      if (numberOfHops === 0) {
-        messagePayload.path = [];
-      } else {
-        messagePayload.hops = numberOfHops;
+      sessionPayload.path = {
+        Hops: numberOfHops,
       }
     }
     if (sendMode == 'path') {
@@ -223,18 +244,20 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
       }
 
       const validatedPath = pathElements.map((element) => validatePeerId(element));
-      messagePayload.path = validatedPath;
+      sessionPayload.path = {
+        IntermediatePath: validatedPath
+      };
     }
 
-    dispatch(actionsAsync.sendMessageThunk(messagePayload))
+    dispatch(actionsAsync.openSessionThunk(sessionPayload))
       .unwrap()
       .then((res) => {
-        console.log('@message: ', res?.challenge);
+        console.log('@session: ', res);
         handleCloseModal();
       })
       .catch((e) => {
-        console.log('@message err:', e);
-        let errMsg = `Sending message failed`;
+        console.log('@session err:', e);
+        let errMsg = `Opening session failed`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
           errMsg = errMsg + `.\n${e.hoprdErrorPayload.status}`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.error) errMsg = errMsg + `.\n${e.hoprdErrorPayload.error}`;
@@ -363,11 +386,22 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
             onChange={(event) => { set_sessionTarget(event?.target?.value) }}
             fullWidth
           />
-          <span style={{ margin: '0px 0px -2px' }}>Capabilities:</span>
-          <SFormGroup>
-            <FormControlLabel control={<Checkbox defaultChecked />} label="Retransmission" />
-            <FormControlLabel control={<Checkbox defaultChecked />} label="Segmentation" />
-          </SFormGroup>
+          <Splitscreen>
+            <div>
+              <span style={{ margin: '0px 0px -2px' }}>Capabilities:</span>
+              <SFormGroup>
+                <FormControlLabel control={<Checkbox defaultChecked />} label="Retransmission" />
+                <FormControlLabel control={<Checkbox defaultChecked />} label="Segmentation" />
+              </SFormGroup>
+            </div>
+            <div>
+              <span style={{ margin: '0px 0px -2px' }}>Protocol:</span>
+              <SFormGroup>
+                <FormControlLabel control={<Checkbox defaultChecked />} label="UDP" />
+                <FormControlLabel control={<Checkbox />} label="TCP" />
+              </SFormGroup>
+            </div>
+          </Splitscreen>
           <span style={{ margin: '0px 0px -2px' }}>Path:</span>
           <PathOrHops className={sendMode === 'numberOfHops' ? 'numerOfHopsSelected' : 'noNumberOfHopsSelected'}>
             <Select

@@ -42,7 +42,7 @@ const SFormControl = styled(FormControl)`
   }
 `;
 
-interface Props extends SelectMuiProps {
+type Props = SelectMuiProps & {
   removeValue?: (value: number) => void;
   removeValueTooltip?: string;
   showJazzIcon?: boolean;

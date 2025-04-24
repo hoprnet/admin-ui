@@ -21,7 +21,7 @@ const setTicketPriceFetching = createAction<boolean>('node/setTicketPriceFetchin
 const setMinimumTicketProbabilityFetching = createAction<boolean>('node/setMinimumTicketProbabilityFetching');
 const setRedeemAllTicketsFetching = createAction<boolean>('node/setRedeemAllTicketsFetching');
 const setResetTicketStatisticsFetching = createAction<boolean>('node/setResetTicketStatisticsFetching');
-const setSessionsFetching = createAction<boolean>('node/setSessionsFetching');
+const openSessionsFetching = createAction<boolean>('node/openSessionsFetching');
 
 export const nodeActionsFetching = {
   setAliasesFetching,
@@ -43,7 +43,7 @@ export const nodeActionsFetching = {
   setRedeemAllTicketsFetching,
   setResetTicketStatisticsFetching,
   setMinimumTicketProbabilityFetching,
-  setSessionsFetching,
+  openSessionsFetching,
 };
 
 export const createFetchingReducer = (builder: ActionReducerMapBuilder<typeof initialState>) => {
@@ -99,7 +99,7 @@ export const createFetchingReducer = (builder: ActionReducerMapBuilder<typeof in
     builder.addCase(setMinimumTicketProbabilityFetching, (state, action) => {
       state.probability.isFetching = action.payload;
     });
-    builder.addCase(setSessionsFetching, (state, action) => {
+    builder.addCase(openSessionsFetching, (state, action) => {
       state.sessions.isFetching = action.payload;
     });
 };

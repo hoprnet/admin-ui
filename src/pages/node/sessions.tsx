@@ -24,6 +24,7 @@ import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
 import { CreateAliasModal } from '../../components/Modal/node/AddAliasModal';
 import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
+import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
 
 // Mui
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -54,17 +55,9 @@ function ChannelsPage() {
     dispatch(
       actionsAsync.getSessionsThunk({
         apiEndpoint,
-        apiToken: apiToken ? apiToken : '',
-        protocol: 'udp'
+        apiToken: apiToken ? apiToken : ''
       }),
     )
-    dispatch(
-      actionsAsync.getSessionsThunk({
-        apiEndpoint,
-        apiToken: apiToken ? apiToken : '',
-        protocol: 'tcp'
-      }),
-    );
   };
 
   const getPeerIdFromPeerAddress = (nodeAddress: string): string => {
@@ -358,6 +351,7 @@ function ChannelsPage() {
               disabled={!channelsData || Object.keys(channelsData).length === 0}
               onClick={handleExport}
             />
+            <OpenSessionModal/>
           </>
         }
       />

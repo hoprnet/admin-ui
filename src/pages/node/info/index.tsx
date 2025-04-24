@@ -726,7 +726,7 @@ function InfoPage() {
                   <span>Incoming</span>
                 </Tooltip>
               </th>
-              <td>{channels?.incoming.filter((channel) => channel.status === 'Open').length}</td>
+              <td>{channels?.incoming.length}</td>
             </tr>
             <tr>
               <th>
@@ -737,7 +737,7 @@ function InfoPage() {
                   <span>Outgoing</span>
                 </Tooltip>
               </th>
-              <td>{channels?.outgoing.filter((channel) => channel.status === 'Open').length}</td>
+              <td>{channels?.outgoing.length}</td>
             </tr>
           </tbody>
         </TableExtended>

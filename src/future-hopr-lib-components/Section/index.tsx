@@ -59,7 +59,7 @@ const SSection = styled.section`
 `;
 
 const Content = styled.div`
-  max-width: 1198px;
+  max-width: 1500px;
   margin: auto;
   display: flex;
   flex-direction: column;

@@ -165,7 +165,7 @@ export const applicationMapNode: ApplicationMapType = [
         icon: <SettingsPhoneIcon />,
         element: <SessionsPage />,
         loginNeeded: 'node',
-        numberKey: 'numberSessions',
+        numberKey: 'numberOfSessions',
       },
     ],
   },
@@ -344,16 +344,8 @@ const LayoutEnhanced = () => {
             nodeActionsAsync.getSessionsThunk({
               apiEndpoint,
               apiToken: apiToken ? apiToken : '',
-              protocol: 'udp'
             }),
           )
-          dispatch(
-            nodeActionsAsync.getSessionsThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-              protocol: 'tcp'
-            }),
-          );
         }
       } catch (e) {
         trackGoal('ZUIBL4M8', 1); // FAILED_CONNECT_TO_NODE_BY_URL
