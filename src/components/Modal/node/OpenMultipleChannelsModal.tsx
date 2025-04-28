@@ -23,19 +23,17 @@ type OpenMultipleChannelsModalProps = {};
 export const OpenMultipleChannelsModal = () => {
   const dispatch = useAppDispatch();
   const loginData = useAppSelector((selector) => selector.auth.loginData);
-  const [openSessionModal, set_openSessionModal] = useState(false);
+  const [openChannelModal, set_openMultipleChannelsModal] = useState(false);
   const [amount, set_amount] = useState('');
   const [peerIds, set_peerIds] = useState<string[]>([]);
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerIds);
 
   useEffect(() => {
-    if (openSessionModal) {
-      window.addEventListener('keydown', handleEnter as EventListener);
-    }
+    window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
-  }, [openSessionModal, loginData, peerIds, amount]);
+  }, [openChannelModal, loginData, peerIds, amount]);
 
   const handleRefresh = () => {
     if (loginData.apiEndpoint) {
@@ -49,7 +47,7 @@ export const OpenMultipleChannelsModal = () => {
   };
 
   const handleCloseModal = () => {
-    set_openSessionModal(false);
+    set_openMultipleChannelsModal(false);
     set_amount('');
     set_peerIds([]);
   };
@@ -117,7 +115,7 @@ export const OpenMultipleChannelsModal = () => {
         const parsedData = parseUploadedCSV(contents);
         if (parsedData.length > 0) {
           set_peerIds(parsedData);
-          set_openSessionModal(true);
+          set_openMultipleChannelsModal(true);
         } else {
           const msg = 'Failed parsing .csv to open multiple channels.';
           sendNotification({
@@ -183,7 +181,7 @@ export const OpenMultipleChannelsModal = () => {
   };
 
   function handleEnter(event: KeyboardEvent) {
-    if (openSessionModal && canOpen && event.key === 'Enter') {
+    if (openChannelModal && canOpen && event.key === 'Enter') {
       console.log('OpenMultipleChannelsModal event');
       handleAction();
     }
@@ -211,7 +209,7 @@ export const OpenMultipleChannelsModal = () => {
         placeholder="import"
       />
       <SDialog
-        open={openSessionModal}
+        open={openChannelModal}
         onClose={handleCloseModal}
         disableScrollLock={true}
       >

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
+import { sendNotification } from '../../../hooks/useWatcher/notifications';
 
 // HOPRd SDK
 import { SendMessagePayloadType } from '@hoprnet/hopr-sdk';
@@ -249,8 +250,19 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
       .then((res) => {
         console.log('@session: ', res);
         handleCloseModal();
-      })
-      .catch((e) => {
+      }).then(() => {
+        const msg = `Session (${protocol}) to ${sessionTarget} is opened`;
+        sendNotification({
+          notificationPayload: {
+            source: 'node',
+            name: msg,
+            url: null,
+            timeout: null,
+          },
+          toastPayload: { message: msg },
+          dispatch,
+        });
+      }).catch((e) => {
         console.log('@session err:', e);
         let errMsg = `Opening session failed`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
