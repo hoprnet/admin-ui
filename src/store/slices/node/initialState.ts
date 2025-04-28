@@ -318,10 +318,7 @@ export const initialState: InitialState = {
   messagesSent: [],
   signedMessages: [],
   peers: {
-    data: {
-      connected: [],
-      announced: [],
-    },
+    data: null,
     parsed: {
       connected: {},
     },

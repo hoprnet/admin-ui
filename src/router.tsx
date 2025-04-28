@@ -75,6 +75,7 @@ export type ApplicationMapType = {
     onClick?: () => void;
     mobileOnly?: boolean | null;
     numberKey?: string;
+    fetchingKey?: string;
   }[];
 }[];
 
@@ -126,6 +127,7 @@ export const applicationMapNode: ApplicationMapType = [
         element: <PeersPage />,
         loginNeeded: 'node',
         numberKey: 'numberOfPeers',
+        fetchingKey: 'fetchingPeers',
       },
       {
         name: 'ALIASES',
@@ -150,6 +152,7 @@ export const applicationMapNode: ApplicationMapType = [
         element: <ChannelsPageIncoming />,
         loginNeeded: 'node',
         numberKey: 'numberOfChannelsIn',
+        fetchingKey: 'fetchingChannels',
       },
       {
         name: 'CHANNELS: OUT',
@@ -158,6 +161,7 @@ export const applicationMapNode: ApplicationMapType = [
         element: <ChannelsPageOutgoing />,
         loginNeeded: 'node',
         numberKey: 'numberOfChannelsOut',
+        fetchingKey: 'fetchingChannels',
       },
       {
         name: 'SESSIONS',
@@ -166,6 +170,7 @@ export const applicationMapNode: ApplicationMapType = [
         element: <SessionsPage />,
         loginNeeded: 'node',
         numberKey: 'numberOfSessions',
+        fetchingKey: 'fetchingSessions',
       },
     ],
   },
@@ -221,12 +226,17 @@ const LayoutEnhanced = () => {
   const apiToken = searchParams.get('apiToken');
 
   const numberOfPeers = useAppSelector((store) => store.node.peers.data?.connected.length);
+  const fetchingPeers = useAppSelector((store) => store.node.peers.isFetching);
   const numberOfAliases = useAppSelector(
     (store) => store.node.aliases?.data && Object.keys(store.node.aliases?.data).length,
   );
+  const fetchingAliases = useAppSelector((store) => store.node.aliases.isFetching);
   const numberOfMessagesReceived = useAppSelector((store) => store.node.messages.data.length);
   const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
   const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
+  const fetchingChannels = useAppSelector((store) => store.node.channels.isFetching);
+  const numberOfSessions = useAppSelector((store) => store.node.sessions.data?.length);
+  const fetchingSessions = useAppSelector((store) => store.node.sessions.isFetching);
 
   const numberForDrawer = {
     numberOfPeers,
@@ -234,6 +244,14 @@ const LayoutEnhanced = () => {
     numberOfMessagesReceived,
     numberOfChannelsIn,
     numberOfChannelsOut,
+    numberOfSessions
+  };
+
+  const drawerNumbersLoading = {
+    fetchingPeers,
+    fetchingAliases,
+    fetchingChannels,
+    fetchingSessions,
   };
 
   useEffect(() => {
@@ -366,6 +384,7 @@ const LayoutEnhanced = () => {
       drawerItems={applicationMap}
       drawerFunctionItems={undefined}
       drawerNumbers={numberForDrawer}
+      drawerNumbersLoading={drawerNumbersLoading}
       drawerLoginState={{ node: nodeConnected }}
       className={environment}
       drawerType={undefined}

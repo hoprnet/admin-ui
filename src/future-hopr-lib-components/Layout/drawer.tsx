@@ -16,6 +16,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ApplicationMapType } from '../../router';
 import Details from '../../components/InfoBar/details';
 import { rounder2 } from '../../utils/functions';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const drawerWidth = 240;
 const minDrawerWidth = 56;
@@ -130,6 +131,19 @@ const Numbers = styled.div`
   padding: 3px;
 `;
 
+const NumbersLoading = styled.div`
+  height: 18px;
+  width: 18px;
+  background-color: #ddeaff;
+  padding: 2px;
+  svg {
+    animation: rotation 2s infinite linear;
+    height: 16px;
+    width: 16px;
+  }
+
+`;
+
 type DrawerProps = {
   drawerItems: ApplicationMapType;
   drawerFunctionItems?: ApplicationMapType;
@@ -140,6 +154,9 @@ type DrawerProps = {
   };
   drawerNumbers?: {
     [key: string]: number | string | undefined | null;
+  };
+  drawerNumbersLoading?: {
+    [key: string]: boolean;
   };
   openedNavigationDrawer: boolean;
   drawerType?: 'blue' | 'white' | false;
@@ -154,6 +171,7 @@ const Drawer = ({
   drawerType,
   drawerFunctionItems,
   drawerNumbers,
+  drawerNumbersLoading
 }: DrawerProps) => {
   const location = useLocation();
   const searchParams = location.search;
@@ -248,13 +266,33 @@ const Drawer = ({
                         >
                           <SListItemIcon className="SListItemIcon">{item.icon}</SListItemIcon>
                           <ListItemText className="ListItemText">{item.name}</ListItemText>
-                          {item.numberKey &&
+                          {
+                            item.numberKey &&
+                            item.fetchingKey &&
+                            drawerNumbers &&
+                            drawerNumbersLoading &&
+                            openedNavigationDrawer &&
+                            item.loginNeeded &&
+                            drawerLoginState?.[item.loginNeeded] &&
+                            typeof drawerNumbers[item.numberKey] !== 'number' &&
+                            drawerNumbersLoading[item.fetchingKey] &&
+                              (
+                                <NumbersLoading>
+                                  <RefreshIcon/>
+                                </NumbersLoading>
+                              )
+                          }
+                          {
+                            item.numberKey &&
                             drawerNumbers &&
                             openedNavigationDrawer &&
                             item.loginNeeded &&
-                            drawerLoginState?.[item.loginNeeded] && (
+                            drawerLoginState?.[item.loginNeeded] &&
+                            typeof drawerNumbers[item.numberKey] === 'number' &&
+                            (
                               <Numbers>{rounder2(drawerNumbers[item.numberKey])}</Numbers>
-                            )}
+                            )
+                          }
                         </StyledListItemButton>
                       </Tooltip>
                     ),

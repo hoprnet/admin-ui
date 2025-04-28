@@ -132,13 +132,15 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
 
   const [loader, set_loader] = useState<boolean>(false);
   const [error, set_error] = useState<string | null>(null);
-  const [numberOfHops, set_numberOfHops] = useState<number>(1);
+  const [numberOfHops, set_numberOfHops] = useState<number>(0);
   const [sendMode, set_sendMode] = useState<'path' | 'numberOfHops' >(
     'numberOfHops',
   );
   const [protocol, set_protocol] = useState<'udp' | 'tcp' >(
     'udp',
   );
+  const [retransmission, set_retransmission] = useState<boolean>(true);
+  const [segmentation, set_segmentation] = useState<boolean>(true);
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const aliases = useAppSelector((store) => store.node.aliases.data);
@@ -147,8 +149,8 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const addresses = useAppSelector((store) => store.node.addresses.data);
   const sendMessageAddressBook = sortAddresses(peers, addresses, peerIdToAliasLink);
   const [destination, set_destination] = useState<string | null>(props.peerId ? props.peerId : null);
-  const [listenHost, set_listenHost] = useState<string>('');
-  const [sessionTarget, set_sessionTarget] = useState<string>('');
+  const [listenHost, set_listenHost] = useState<string>('127.0.0.1:10000');
+  const [sessionTarget, set_sessionTarget] = useState<string>('127.0.0.1:8080');
   const [intermediatePath, set_intermediatePath] = useState<(string|null)[]>([null]);
   const fullPath = [...intermediatePath, destination];
 
@@ -215,16 +217,14 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
     const sessionPayload: OpenSessionPayloadType = {
       apiToken: loginData.apiToken ? loginData.apiToken : '',
       apiEndpoint: loginData.apiEndpoint,
-      path: {
-        Hops: 0,
-      },
       destination,
-      capabilities: ["Retransmission", "Segmentation"],
-      protocol: "udp",
+      listenHost,
       target: {
-        Plain: 'string',
+        Plain: sessionTarget,
       },
-      listenHost: 'string',
+      capabilities: [],
+      protocol,
+      path: {},
     };
 
     if (sendMode === 'numberOfHops') {
@@ -232,21 +232,16 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
         Hops: numberOfHops,
       }
     }
-    if (sendMode == 'path') {
-      const pathElements: string[] = [];
-      const lines = ''.split('\n');
-      for (const line of lines) {
-        const elements = line
-          .split(',')
-          .map((element) => element.trim())
-          .filter((element) => element !== '');
-        pathElements.push(...elements);
-      }
-
-      const validatedPath = pathElements.map((element) => validatePeerId(element));
+    if (sendMode == 'path' && intermediatePath.length > 0 && !intermediatePath.includes(null)) {
       sessionPayload.path = {
-        IntermediatePath: validatedPath
+        IntermediatePath: intermediatePath as string[],
       };
+    }
+    if (retransmission) {
+      sessionPayload.capabilities.push('Retransmission');
+    }
+    if (segmentation) {
+      sessionPayload.capabilities.push('Segmentation');
     }
 
     dispatch(actionsAsync.openSessionThunk(sessionPayload))
@@ -390,15 +385,55 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
             <div>
               <span style={{ margin: '0px 0px -2px' }}>Capabilities:</span>
               <SFormGroup>
-                <FormControlLabel control={<Checkbox defaultChecked />} label="Retransmission" />
-                <FormControlLabel control={<Checkbox defaultChecked />} label="Segmentation" />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={retransmission}
+                    />
+                  }
+                  label="Retransmission"
+                  onChange={() => {
+                    set_retransmission(retransmission=> {return !retransmission})
+                  }}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={segmentation}
+                    />
+                  }
+                  label="Segmentation"
+                  onChange={() => {
+                    set_segmentation(segmentation => {return !segmentation})
+                  }}
+                />
               </SFormGroup>
             </div>
             <div>
               <span style={{ margin: '0px 0px -2px' }}>Protocol:</span>
               <SFormGroup>
-                <FormControlLabel control={<Checkbox defaultChecked />} label="UDP" />
-                <FormControlLabel control={<Checkbox />} label="TCP" />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={protocol === "udp"}
+                    />
+                  }
+                  label="UDP"
+                  onChange={() => {
+                    set_protocol("udp")
+                  }}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={protocol === "tcp"}
+                    />
+                  }
+                  label="TCP"
+                  onChange={() => {
+                    set_protocol("tcp")
+                  }}
+                />
               </SFormGroup>
             </div>
           </Splitscreen>
