@@ -1377,6 +1377,10 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
     state.statistics.data.redeemedValue = '0';
     state.statistics.data.rejectedValue = '0';
     state.statistics.data.winningCount = 0;
+    state.resetTicketStatistics.isFetching = false;
+  });
+  builder.addCase(resetTicketStatisticsThunk.rejected, (state) => {
+    state.resetTicketStatistics.isFetching = false;
   });
   // getTokenThunk
   builder.addCase(getTokenThunk.fulfilled, (state, action) => {
