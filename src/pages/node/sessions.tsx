@@ -140,7 +140,7 @@ function SessionsPage() {
         target: session.target,
         path:
         <span style={{whiteSpace: "break-spaces"}}>
-          {JSON.stringify(session.path).replace(/{|}|\[|\]|"/g, '').replace('IntermediatePath:', 'IntermediatePath:\n').replaceAll(/,/g, ' ')}
+          {JSON.stringify(session.path).replace(/{|}|\[|\]|"/g, '').replace('IntermediatePath:', 'IntermediatePath:\n').replace(/,/g, ' ')}
         </span>,
         actions: (
           <>
