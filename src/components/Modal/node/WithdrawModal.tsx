@@ -1,4 +1,4 @@
-import React, { useRef, KeyboardEvent } from 'react';
+import React, { useRef, KeyboardEvent, Key } from 'react';
 import styled from '@emotion/styled';
 import { HOPR_TOKEN_USED } from '../../../../config';
 import { useEffect, useState } from 'react';
@@ -114,9 +114,9 @@ apiToken,
   }, [currency, nativeBalance.value]);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleEnter as EventListener);
+    window.addEventListener('keydown', handleEnter as unknown as EventListener);
     return () => {
-      window.removeEventListener('keydown', handleEnter as EventListener);
+      window.removeEventListener('keydown', handleEnter as unknown as EventListener);
     };
   }, [recipient, amount, apiEndpoint, apiToken, currency, loginData]);
 
@@ -195,7 +195,7 @@ apiToken,
   };
 
   function handleEnter (event: KeyboardEvent) {
-    if (canWithdraw && (event as KeyboardEvent)?.key === 'Enter') {
+    if (canWithdraw && event.key === 'Enter') {
       console.log('WithdrawModal event');
       handleWithdraw();
     }
