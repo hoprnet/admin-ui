@@ -36,7 +36,7 @@ function SessionsPage() {
     dispatch(
       actionsAsync.getSessionsThunk({
         apiEndpoint,
-        apiToken: apiToken ? apiToken : ''
+        apiToken: apiToken ? apiToken : '',
       }),
     )
   };
