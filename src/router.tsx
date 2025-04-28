@@ -26,7 +26,7 @@ import ChannelsPageIncoming from './pages/node/channelsIncoming';
 import ChannelsPageOutgoing from './pages/node/channelsOutgoing';
 import MetricsPage from './pages/node/metrics';
 import ConfigurationPage from './pages/node/configuration';
-import SessionsPage from './pages/node/sessions'
+import SessionsPage from './pages/node/sessions';
 
 // Layout
 import Layout from './future-hopr-lib-components/Layout';
@@ -244,7 +244,7 @@ const LayoutEnhanced = () => {
     numberOfMessagesReceived,
     numberOfChannelsIn,
     numberOfChannelsOut,
-    numberOfSessions
+    numberOfSessions,
   };
 
   const drawerNumbersLoading = {
@@ -363,7 +363,7 @@ const LayoutEnhanced = () => {
               apiEndpoint,
               apiToken: apiToken ? apiToken : '',
             }),
-          )
+          );
         }
       } catch (e) {
         trackGoal('ZUIBL4M8', 1); // FAILED_CONNECT_TO_NODE_BY_URL

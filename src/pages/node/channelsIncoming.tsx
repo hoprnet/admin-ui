@@ -312,9 +312,7 @@ function ChannelsPage() {
               }
               onClick={() => handleCloseChannel(id)}
             />
-            <OpenSessionModal
-              peerId={peerId}
-            />
+            <OpenSessionModal peerId={peerId} />
             <SendMessageModal
               peerId={peerId}
               disabled={!peerId}

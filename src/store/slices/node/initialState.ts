@@ -9,7 +9,7 @@ import type {
   PingPeerResponseType,
   GetConfigurationResponseType,
   GetMinimumNetworkProbabilityResponseType,
-  GetSessionsResponseType
+  GetSessionsResponseType,
 } from '@hoprnet/hopr-sdk';
 
 export type Message = {
@@ -235,8 +235,8 @@ type InitialState = {
   };
   sessions: {
     data: GetSessionsResponseType | null;
-    opening: string[],
-    closing: string[],
+    opening: string[];
+    closing: string[];
     isFetching: boolean;
   };
   apiEndpoint: string | null;

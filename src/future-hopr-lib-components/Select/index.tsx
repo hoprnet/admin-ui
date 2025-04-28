@@ -54,7 +54,7 @@ type Props = SelectMuiProps & {
     disabled?: boolean;
   }[];
   native?: boolean;
-}
+};
 
 const Select: React.FC<Props> = (props) => {
   console.log('props.values', props.values);

@@ -182,9 +182,7 @@ function AliasesPage() {
               tooltip={peerId === hoprAddress ? `You can't open a channel to yourself` : undefined}
             />
           )}
-          <OpenSessionModal
-            peerId={peerId}
-          />
+          <OpenSessionModal peerId={peerId} />
           <SendMessageModal peerId={peerId} />
           <DeleteAliasButton
             onSuccess={() => {
@@ -357,10 +355,7 @@ function CreateAliasForm() {
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-name,
-value,
-} = event.target;
+    const { name, value } = event.target;
     set_form({
       ...form,
       [name]: value,

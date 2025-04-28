@@ -8,11 +8,7 @@ type CodeCopyBoxProps = {
   breakSpaces?: boolean;
 };
 
-const CodeCopyBox = ({
-code,
-copy: copyText,
-breakSpaces,
-}: CodeCopyBoxProps) => {
+const CodeCopyBox = ({ code, copy: copyText, breakSpaces }: CodeCopyBoxProps) => {
   const [copied, setCopied] = useState(false);
 
   const copy = (copyText: string) => {

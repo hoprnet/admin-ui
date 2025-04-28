@@ -186,9 +186,7 @@ function PeersPage() {
           ) : (
             <OpenChannelModal peerAddress={peer.peerAddress} />
           )}
-          <OpenSessionModal
-            peerId={peer.peerId}
-          />
+          <OpenSessionModal peerId={peer.peerId} />
           <SendMessageModal peerId={peer.peerId} />
         </>
       ),

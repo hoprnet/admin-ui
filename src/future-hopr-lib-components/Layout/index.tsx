@@ -74,7 +74,7 @@ const Layout: React.FC<{
   drawerFunctionItems?: ApplicationMapType;
   drawerRight?: React.ReactNode;
   drawerNumbers?: {
-    [key: string]: number | string  | undefined | null;
+    [key: string]: number | string | undefined | null;
   };
   drawerNumbersLoading?: {
     [key: string]: boolean;

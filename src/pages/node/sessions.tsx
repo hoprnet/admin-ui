@@ -38,7 +38,7 @@ function SessionsPage() {
         apiEndpoint,
         apiToken: apiToken ? apiToken : '',
       }),
-    )
+    );
   };
 
   const handleExport = () => {
@@ -124,42 +124,46 @@ function SessionsPage() {
           toastPayload: { message: errMsg },
           dispatch,
         });
-      }).finally(() => {
+      })
+      .finally(() => {
         handleRefresh();
       });
   };
 
-  const parsedTableData = sessions
-    .map((session, index) => {
-      return {
-        id: (index + 1).toString(),
-        key: session.target + index,
-        ip: session.ip,
-        port: session.port,
-        protocol: session.protocol,
-        target: session.target,
-        path:
-        <span style={{whiteSpace: "break-spaces"}}>
-          {JSON.stringify(session.path).replace(/{|}|\[|\]|"/g, '').replace('IntermediatePath:', 'IntermediatePath:\n').replace(/,/g, ' ')}
-        </span>,
-        actions: (
-          <>
-            <IconButton
-              iconComponent={<PhoneDisabledIcon />}
-              //  pending={channelsOutgoingObject[id]?.isClosing} //to be added when sessions will get targets
-              tooltipText={
-                <span>
-                  CLOSE
-                  <br />
-                  session
-                </span>
-              }
-              onClick={() => handleCloseSession(session.protocol, session.ip, session.port)}
-            />
-          </>
-        ),
-      };
-    });
+  const parsedTableData = sessions.map((session, index) => {
+    return {
+      id: (index + 1).toString(),
+      key: session.target + index,
+      ip: session.ip,
+      port: session.port,
+      protocol: session.protocol,
+      target: session.target,
+      path: (
+        <span style={{ whiteSpace: 'break-spaces' }}>
+          {JSON.stringify(session.path)
+            .replace(/{|}|\[|\]|"/g, '')
+            .replace('IntermediatePath:', 'IntermediatePath:\n')
+            .replace(/,/g, ' ')}
+        </span>
+      ),
+      actions: (
+        <>
+          <IconButton
+            iconComponent={<PhoneDisabledIcon />}
+            //  pending={channelsOutgoingObject[id]?.isClosing} //to be added when sessions will get targets
+            tooltipText={
+              <span>
+                CLOSE
+                <br />
+                session
+              </span>
+            }
+            onClick={() => handleCloseSession(session.protocol, session.ip, session.port)}
+          />
+        </>
+      ),
+    };
+  });
 
   return (
     <Section
@@ -186,7 +190,7 @@ function SessionsPage() {
               disabled={!sessions || Object.keys(sessions).length === 0}
               onClick={handleExport}
             />
-            <OpenSessionModal/>
+            <OpenSessionModal />
           </>
         }
       />

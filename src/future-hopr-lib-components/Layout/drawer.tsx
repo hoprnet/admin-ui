@@ -141,7 +141,6 @@ const NumbersLoading = styled.div`
     height: 16px;
     width: 16px;
   }
-
 `;
 
 type DrawerProps = {
@@ -171,7 +170,7 @@ const Drawer = ({
   drawerType,
   drawerFunctionItems,
   drawerNumbers,
-  drawerNumbersLoading
+  drawerNumbersLoading,
 }: DrawerProps) => {
   const location = useLocation();
   const searchParams = location.search;
@@ -266,8 +265,7 @@ const Drawer = ({
                         >
                           <SListItemIcon className="SListItemIcon">{item.icon}</SListItemIcon>
                           <ListItemText className="ListItemText">{item.name}</ListItemText>
-                          {
-                            item.numberKey &&
+                          {item.numberKey &&
                             item.fetchingKey &&
                             drawerNumbers &&
                             drawerNumbersLoading &&
@@ -275,24 +273,19 @@ const Drawer = ({
                             item.loginNeeded &&
                             drawerLoginState?.[item.loginNeeded] &&
                             typeof drawerNumbers[item.numberKey] !== 'number' &&
-                            drawerNumbersLoading[item.fetchingKey] &&
-                              (
-                                <NumbersLoading>
-                                  <RefreshIcon/>
-                                </NumbersLoading>
-                              )
-                          }
-                          {
-                            item.numberKey &&
+                            drawerNumbersLoading[item.fetchingKey] && (
+                              <NumbersLoading>
+                                <RefreshIcon />
+                              </NumbersLoading>
+                            )}
+                          {item.numberKey &&
                             drawerNumbers &&
                             openedNavigationDrawer &&
                             item.loginNeeded &&
                             drawerLoginState?.[item.loginNeeded] &&
-                            typeof drawerNumbers[item.numberKey] === 'number' &&
-                            (
+                            typeof drawerNumbers[item.numberKey] === 'number' && (
                               <Numbers>{rounder2(drawerNumbers[item.numberKey])}</Numbers>
-                            )
-                          }
+                            )}
                         </StyledListItemButton>
                       </Tooltip>
                     ),

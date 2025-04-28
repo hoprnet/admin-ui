@@ -25,7 +25,7 @@ import {
   MenuItem,
   Autocomplete,
   Tooltip,
-  IconButton as IconButtonMui
+  IconButton as IconButtonMui,
 } from '@mui/material';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -84,7 +84,7 @@ type SendMessageModalProps = {
 
 const SFormGroup = styled(FormGroup)`
   flex-direction: row;
-`
+`;
 
 const PathNode = styled.div`
   width: 100%;
@@ -96,14 +96,14 @@ const PathNode = styled.div`
   > .MuiButtonBase-root {
     width: 55px;
   }
-`
+`;
 const Splitscreen = styled.div`
   width: 100%;
   display: flex;
   gap: 8px;
   flex-direction: row;
   justify-content: space-between;
-`
+`;
 
 // order of peers: me, aliases (sorted by aliases), peers (sorted by peersIds)
 function sortAddresses(
@@ -134,12 +134,8 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const [loader, set_loader] = useState<boolean>(false);
   const [error, set_error] = useState<string | null>(null);
   const [numberOfHops, set_numberOfHops] = useState<number>(0);
-  const [sendMode, set_sendMode] = useState<'path' | 'numberOfHops' >(
-    'numberOfHops',
-  );
-  const [protocol, set_protocol] = useState<'udp' | 'tcp' >(
-    'udp',
-  );
+  const [sendMode, set_sendMode] = useState<'path' | 'numberOfHops'>('numberOfHops');
+  const [protocol, set_protocol] = useState<'udp' | 'tcp'>('udp');
   const [retransmission, set_retransmission] = useState<boolean>(true);
   const [segmentation, set_segmentation] = useState<boolean>(true);
   const [openModal, set_openModal] = useState<boolean>(false);
@@ -152,44 +148,33 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const [destination, set_destination] = useState<string | null>(props.peerId ? props.peerId : null);
   const [listenHost, set_listenHost] = useState<string>('');
   const [sessionTarget, set_sessionTarget] = useState<string>('');
-  const [intermediatePath, set_intermediatePath] = useState<(string|null)[]>([null]);
+  const [intermediatePath, set_intermediatePath] = useState<(string | null)[]>([null]);
   const fullPath = [...intermediatePath, destination];
-
 
   // Errors
   const destinationMissing = !destination || (!!destination && destination.length === 0);
   const listenHostMissing = listenHost.length === 0;
   const sessionTargetMissing = sessionTarget.length === 0;
-  const intermediatePathError = fullPath.findIndex(
-    (elem, index)=>{
-      return elem === fullPath[index+1]
-    }
-  ) !== -1;
+  const intermediatePathError =
+    fullPath.findIndex((elem, index) => {
+      return elem === fullPath[index + 1];
+    }) !== -1;
   const intermediatePathEmptyLink = !(sendMode === 'path' && !intermediatePath.includes(null));
 
-  const canOpenSession = (
+  const canOpenSession =
     !destinationMissing &&
     !listenHostMissing &&
     !sessionTargetMissing &&
-    (
-      (
-        sendMode === 'path' &&
-        !intermediatePathError &&
-        !intermediatePathEmptyLink  &&
-        intermediatePath.length > 0
-      )
-      ||
-      sendMode === 'numberOfHops'
-    )
-  );
+    ((sendMode === 'path' && !intermediatePathError && !intermediatePathEmptyLink && intermediatePath.length > 0) ||
+      sendMode === 'numberOfHops');
 
   const setPropPeerId = () => {
     if (props.peerId) set_destination(props.peerId);
   };
   useEffect(setPropPeerId, [props.peerId]);
 
-  useEffect(()=>{
-    console.log('intermediatePathError', intermediatePathError)
+  useEffect(() => {
+    console.log('intermediatePathError', intermediatePathError);
   }, [intermediatePathError]);
 
   useEffect(() => {
@@ -231,7 +216,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
     if (sendMode === 'numberOfHops') {
       sessionPayload.path = {
         Hops: numberOfHops,
-      }
+      };
     }
     if (sendMode == 'path' && intermediatePath.length > 0 && !intermediatePath.includes(null)) {
       sessionPayload.path = {
@@ -250,7 +235,8 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
       .then((res) => {
         console.log('@session: ', res);
         handleCloseModal();
-      }).then(() => {
+      })
+      .then(() => {
         const msg = `Session (${protocol}) to ${sessionTarget} is opened`;
         sendNotification({
           notificationPayload: {
@@ -262,7 +248,8 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
           toastPayload: { message: msg },
           dispatch,
         });
-      }).catch((e) => {
+      })
+      .catch((e) => {
         console.log('@session err:', e);
         let errMsg = `Opening session failed`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
@@ -272,8 +259,13 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
       })
       .finally(() => {
         set_loader(false);
-        if (loginData.apiEndpoint){
-          dispatch(actionsAsync.getSessionsThunk({ apiToken: loginData.apiToken ? loginData.apiToken : '', apiEndpoint: loginData.apiEndpoint }));
+        if (loginData.apiEndpoint) {
+          dispatch(
+            actionsAsync.getSessionsThunk({
+              apiToken: loginData.apiToken ? loginData.apiToken : '',
+              apiEndpoint: loginData.apiEndpoint,
+            }),
+          );
         }
       });
   };
@@ -374,26 +366,30 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
                 fullWidth
               />
             )}
-          // renderOption={(option)=>{
-          //   return (
-          //     <span>
-          //       {JSON.stringify(option)}
-          //     </span>
-          //   )
-          // }}
+            // renderOption={(option)=>{
+            //   return (
+            //     <span>
+            //       {JSON.stringify(option)}
+            //     </span>
+            //   )
+            // }}
           />
           <TextField
             label="Listen host"
             placeholder={'127.0.0.1:10000'}
             value={listenHost}
-            onChange={(event) => { set_listenHost(event?.target?.value) }}
+            onChange={(event) => {
+              set_listenHost(event?.target?.value);
+            }}
             fullWidth
           />
           <TextField
             label="Session Target"
             placeholder={'127.0.0.1:8080'}
             value={sessionTarget}
-            onChange={(event) => { set_sessionTarget(event?.target?.value) }}
+            onChange={(event) => {
+              set_sessionTarget(event?.target?.value);
+            }}
             fullWidth
           />
           <Splitscreen>
@@ -401,25 +397,21 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
               <span style={{ margin: '0px 0px -2px' }}>Capabilities:</span>
               <SFormGroup>
                 <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={retransmission}
-                    />
-                  }
+                  control={<Checkbox checked={retransmission} />}
                   label="Retransmission"
                   onChange={() => {
-                    set_retransmission(retransmission=> {return !retransmission})
+                    set_retransmission((retransmission) => {
+                      return !retransmission;
+                    });
                   }}
                 />
                 <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={segmentation}
-                    />
-                  }
+                  control={<Checkbox checked={segmentation} />}
                   label="Segmentation"
                   onChange={() => {
-                    set_segmentation(segmentation => {return !segmentation})
+                    set_segmentation((segmentation) => {
+                      return !segmentation;
+                    });
                   }}
                 />
               </SFormGroup>
@@ -428,25 +420,17 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
               <span style={{ margin: '0px 0px -2px' }}>Protocol:</span>
               <SFormGroup>
                 <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={protocol === "udp"}
-                    />
-                  }
+                  control={<Checkbox checked={protocol === 'udp'} />}
                   label="UDP"
                   onChange={() => {
-                    set_protocol("udp")
+                    set_protocol('udp');
                   }}
                 />
                 <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={protocol === "tcp"}
-                    />
-                  }
+                  control={<Checkbox checked={protocol === 'tcp'} />}
                   label="TCP"
                   onChange={() => {
-                    set_protocol("tcp")
+                    set_protocol('tcp');
                   }}
                 />
               </SFormGroup>
@@ -481,50 +465,51 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
           </PathOrHops>
           {sendMode === 'path' && (
             <>
-              {
-                intermediatePath.map((pathNode, pathIndex) =>
-                  <PathNode
-                    key={`path-node-${pathIndex}`}
-                  >
-                    <Autocomplete
+              {intermediatePath.map((pathNode, pathIndex) => (
+                <PathNode key={`path-node-${pathIndex}`}>
+                  <Autocomplete
                     //  key={`path-node-${pathIndex}-Autocomplete`}
-                      value={pathNode}
-                      onChange={(event, newValue) => {
-                        set_intermediatePath(path => {
-                          let tmp = [...path];
-                          tmp[pathIndex] = newValue;
-                          return tmp;
-                        })
-                      }}
-                      options={sendMessageAddressBook}
-                      getOptionLabel={(peerId) =>
-                        peerIdToAliasLink[peerId] ? `${peerIdToAliasLink[peerId]} (${peerId})` : peerId
-                      }
-                      autoSelect
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Path node"
-                          placeholder="Select node"
-                          fullWidth
-                        />
-                      )}
-                    />
-                    <IconButtonMui
-                      aria-label="delete node from path"
-                      onClick={() => {
-                        set_intermediatePath(path => { return path.filter((elem, index) => index !== pathIndex) })
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButtonMui>
-                  </PathNode>
-
-                )
-              }
+                    value={pathNode}
+                    onChange={(event, newValue) => {
+                      set_intermediatePath((path) => {
+                        const tmp = [...path];
+                        tmp[pathIndex] = newValue;
+                        return tmp;
+                      });
+                    }}
+                    options={sendMessageAddressBook}
+                    getOptionLabel={(peerId) =>
+                      peerIdToAliasLink[peerId] ? `${peerIdToAliasLink[peerId]} (${peerId})` : peerId
+                    }
+                    autoSelect
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Path node"
+                        placeholder="Select node"
+                        fullWidth
+                      />
+                    )}
+                  />
+                  <IconButtonMui
+                    aria-label="delete node from path"
+                    onClick={() => {
+                      set_intermediatePath((path) => {
+                        return path.filter((elem, index) => index !== pathIndex);
+                      });
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButtonMui>
+                </PathNode>
+              ))}
               <Button
                 outlined
-                onClick={() => { set_intermediatePath(path => { return [...path, null] }) }}
+                onClick={() => {
+                  set_intermediatePath((path) => {
+                    return [...path, null];
+                  });
+                }}
                 style={{
                   marginTop: '8px',
                   width: '258px',

@@ -8,10 +8,7 @@ import { Row } from '../Atoms/row';
 
 import CloseIcon from '@mui/icons-material/Close';
 
-const SDialog = styled(({
-maxWidthCss,
-...rest
-}: PropsStyled) => <Dialog {...rest} />)`
+const SDialog = styled(({ maxWidthCss, ...rest }: PropsStyled) => <Dialog {...rest} />)`
   .MuiPaper-root {
     max-width: ${(props) => (props.maxWidthCss ? props.maxWidthCss : '395px')};
     width: 100%;
@@ -37,15 +34,7 @@ interface Props extends Omit<DialogProps, 'maxWidth'> {
 }
 
 const Modal: React.FC<Props> = (props) => {
-  const {
-onClose,
-selectedValue,
-open,
-title,
-children,
-maxWidth,
-disableScrollLock,
-} = props;
+  const { onClose, selectedValue, open, title, children, maxWidth, disableScrollLock } = props;
 
   const handleClose = (event: {}) => {
     // @ts-ignore
