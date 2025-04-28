@@ -357,7 +357,10 @@ function CreateAliasForm() {
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
+    const {
+name,
+value,
+} = event.target;
     set_form({
       ...form,
       [name]: value,

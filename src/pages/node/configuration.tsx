@@ -65,7 +65,7 @@ function SettingsPage() {
   useEffect(() => {
     window.addEventListener('keydown', handleEnter);
     return () => {
-      window.removeEventListener('keydown', handleEnter);
+      window.removeEventListener('keydown', handleEnter as EventListener);
     };
   }, [localNotificationSettings]);
 

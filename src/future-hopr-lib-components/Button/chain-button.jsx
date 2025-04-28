@@ -23,7 +23,11 @@ const SButton = styled(MuiButton)`
 `;
 
 export default function ChainButton(props) {
-  const { connected, chainId, ...rest } = props;
+  const {
+connected,
+chainId,
+...rest
+} = props;
 
   const switchChain = async () => {
     if (!window.ethereum) return;

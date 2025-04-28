@@ -378,7 +378,7 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
     chosenNode.jazzIcon && set_jazzIcon(chosenNode.jazzIcon);
   };
 
-  function handleEnter(event: KeyboardEvent) {
+  function handleEnter (event: KeyboardEvent) {
     if (props.open && canConnectToNode && event.key === 'Enter') {
       console.log('ConnectNode event');
       useNode({});
