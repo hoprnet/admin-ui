@@ -106,6 +106,16 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
       });
     }, intervalDuration);
 
+    const watchSessionsInterval = setInterval(() => {
+      if (!apiEndpoint) return;
+      return dispatch(
+        nodeActionsAsync.getSessionsThunk({
+          apiEndpoint,
+          apiToken: apiToken ? apiToken : '',
+        }),
+      );
+    }, 20_000);
+
     return () => {
       clearInterval(watchIsNodeReadyInterval);
       clearInterval(watchChannelsInterval);
@@ -113,6 +123,7 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
       clearInterval(watchNodeBalancesInterval);
       clearInterval(watchMessagesInterval);
       clearInterval(watchMetricsInterval);
+      clearInterval(watchSessionsInterval);
     };
   }, [connected, apiEndpoint, apiToken, isNodeReady, prevNodeBalances, prevNodeInfo, prevOutgoingChannels]);
 

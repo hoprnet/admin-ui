@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { actionsAsync } from '../../store/slices/node/actionsAsync';
 import { exportToCsv } from '../../utils/helpers';
@@ -16,18 +17,15 @@ import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
 
 // Mui
 import GetAppIcon from '@mui/icons-material/GetApp';
-import { useEffect } from 'react';
+import PhoneDisabledIcon from '@mui/icons-material/PhoneDisabled';
 
-function ChannelsPage() {
+function SessionsPage() {
   const dispatch = useAppDispatch();
-  const channels = useAppSelector((store) => store.node.channels.data);
   const sessions = useAppSelector((store) => store.node.sessions.data) || [];
   const sessionsFetching = useAppSelector((store) => store.node.sessions.isFetching);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const apiEndpoint = loginData.apiEndpoint;
   const apiToken = loginData.apiToken;
-  const tabLabel = 'incoming';
-  const channelsData = channels?.incoming;
 
   useEffect(() => {
     handleRefresh();
@@ -44,20 +42,12 @@ function ChannelsPage() {
   };
 
   const handleExport = () => {
-    if (channelsData) {
-      exportToCsv(
-        Object.entries(channelsData).map(([, channel]) => ({
-          channelId: channel.id,
-          nodeAddress: channel.peerAddress,
-          status: channel.status,
-          dedicatedFunds: channel.balance,
-        })),
-        `${tabLabel}-channels.csv`,
-      );
+    if (sessions && sessions.length > 0) {
+      exportToCsv(sessions, `sessions.csv`);
     }
   };
 
-  const headerIncoming = [
+  const header = [
     {
       key: 'id',
       name: '#',
@@ -96,32 +86,30 @@ function ChannelsPage() {
       key: 'actions',
       name: 'Actions',
       search: false,
-      width: '188px',
-      maxWidth: '188px',
+      width: '68px',
+      maxWidth: '68px',
     },
   ];
 
-  const handleCloseSession = (channelId: string) => {
-    console.log('handleCloseChannel', channelId);
+  const handleCloseSession = (protocol: 'udp' | 'tcp', listeningIp: string, port: number) => {
+    console.log('handleCloseSession', protocol, listeningIp, port);
     dispatch(
-      actionsAsync.closeChannelThunk({
+      actionsAsync.closeSessionThunk({
         apiEndpoint: loginData.apiEndpoint!,
         apiToken: loginData.apiToken ? loginData.apiToken : '',
-        channelId: channelId,
-        timeout: 120_000, //TODO: put those values as default to HOPRd SDK, average is 50s
+        protocol,
+        listeningIp,
+        port,
       }),
     )
       .unwrap()
-      .then(() => {
-        handleRefresh();
-      })
       .catch(async (e) => {
         const isCurrentApiEndpointTheSame = await dispatch(
           actionsAsync.isCurrentApiEndpointTheSame(loginData.apiEndpoint!),
         ).unwrap();
         if (!isCurrentApiEndpointTheSame) return;
 
-        let errMsg = `Closing of incoming channel ${channelId} failed`;
+        let errMsg = `Closing of ${protocol} session to ${listeningIp}:${port} failed`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
           errMsg = errMsg + `.\n${e.hoprdErrorPayload.status}`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.error) errMsg = errMsg + `.\n${e.hoprdErrorPayload.error}`;
@@ -136,6 +124,8 @@ function ChannelsPage() {
           toastPayload: { message: errMsg },
           dispatch,
         });
+      }).finally(() => {
+        handleRefresh();
       });
   };
 
@@ -148,9 +138,24 @@ function ChannelsPage() {
         port: session.port,
         protocol: session.protocol,
         target: session.target,
-        path: JSON.stringify(session.path).replace(/{|}|"/g, '').replaceAll(/,/g, ', '),
+        path:
+        <span style={{whiteSpace: "break-spaces"}}>
+          {JSON.stringify(session.path).replace(/{|}|\[|\]|"/g, '').replace('IntermediatePath:', 'IntermediatePath:\n').replaceAll(/,/g, ' ')}
+        </span>,
         actions: (
           <>
+            <IconButton
+              iconComponent={<PhoneDisabledIcon />}
+              //  pending={channelsOutgoingObject[id]?.isClosing} //to be added when sessions will get targets
+              tooltipText={
+                <span>
+                  CLOSE
+                  <br />
+                  session
+                </span>
+              }
+              onClick={() => handleCloseSession(session.protocol, session.ip, session.port)}
+            />
           </>
         ),
       };
@@ -175,7 +180,7 @@ function ChannelsPage() {
                 <span>
                   EXPORT
                   <br />
-                  {tabLabel} channels as a CSV
+                  sessions channels as a CSV
                 </span>
               }
               disabled={!sessions || Object.keys(sessions).length === 0}
@@ -187,8 +192,8 @@ function ChannelsPage() {
       />
       <TablePro
         data={parsedTableData}
-        id={'node-channels-in-table'}
-        header={headerIncoming}
+        id={'node-sessions-in-table'}
+        header={header}
         search
         loading={parsedTableData.length === 0 && sessionsFetching}
         orderByDefault="number"
@@ -197,4 +202,4 @@ function ChannelsPage() {
   );
 }
 
-export default ChannelsPage;
+export default SessionsPage;

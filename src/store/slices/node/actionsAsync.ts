@@ -45,7 +45,8 @@ import {
   type OpenSessionPayload,
   type GetTicketPriceResponseType,
   type GetMinimumNetworkProbabilityResponseType,
-  OpenSessionPayloadType,
+  type OpenSessionPayloadType,
+  type CloseSessionPayloadType,
 } from '@hoprnet/hopr-sdk';
 import { parseMetrics } from '../../../utils/metrics';
 import { RootState } from '../..';
@@ -78,6 +79,7 @@ const {
   getMinimumTicketProbability,
   getSessions,
   openSession,
+  closeSession,
   fundChannel,
   getVersion,
   openChannel,
@@ -1050,6 +1052,22 @@ const openSessionThunk = createAsyncThunk(
   },
 );
 
+const closeSessionThunk = createAsyncThunk(
+  'node/closeSession',
+  async (payload: CloseSessionPayloadType, { rejectWithValue }) => {
+    try {
+      const res = await closeSession(payload);
+      return res;
+    } catch (e) {
+      if (e instanceof sdkApiError) {
+        return rejectWithValue(e);
+      }
+      return rejectWithValue({ status: JSON.stringify(e) });
+    }
+  },
+);
+
+
 const isCurrentApiEndpointTheSame = createAsyncThunk<boolean, string, { state: RootState }>(
   'node/isCurrentApiEndpointTheSame',
   async (payload, { getState }) => {
@@ -1753,6 +1771,7 @@ export const actionsAsync = {
   getMinimumNetworkProbabilityThunk,
   getSessionsThunk,
   openSessionThunk,
+  closeSessionThunk,
   createTokenThunk,
   deleteTokenThunk,
   getPrometheusMetricsThunk,

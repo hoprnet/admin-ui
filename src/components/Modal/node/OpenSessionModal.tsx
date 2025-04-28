@@ -149,8 +149,8 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const addresses = useAppSelector((store) => store.node.addresses.data);
   const sendMessageAddressBook = sortAddresses(peers, addresses, peerIdToAliasLink);
   const [destination, set_destination] = useState<string | null>(props.peerId ? props.peerId : null);
-  const [listenHost, set_listenHost] = useState<string>('127.0.0.1:10000');
-  const [sessionTarget, set_sessionTarget] = useState<string>('127.0.0.1:8080');
+  const [listenHost, set_listenHost] = useState<string>('');
+  const [sessionTarget, set_sessionTarget] = useState<string>('');
   const [intermediatePath, set_intermediatePath] = useState<(string|null)[]>([null]);
   const fullPath = [...intermediatePath, destination];
 
@@ -260,6 +260,9 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
       })
       .finally(() => {
         set_loader(false);
+        if (loginData.apiEndpoint){
+          dispatch(actionsAsync.getSessionsThunk({ apiToken: loginData.apiToken ? loginData.apiToken : '', apiEndpoint: loginData.apiEndpoint }));
+        }
       });
   };
 
