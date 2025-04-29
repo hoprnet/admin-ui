@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
 import CloseIcon from '@mui/icons-material/Close';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
-import { utils as hoprdUlils } from '@hoprnet/hopr-sdk';
+import { utils as hoprdUlils, PingPeerPayloadType, PingPeerResponseType } from '@hoprnet/hopr-sdk';
 const { sdkApiError } = hoprdUlils;
 
 // HOPR Components
@@ -72,7 +72,7 @@ export const PingModal = (props: PingModalProps) => {
         }),
       )
         .unwrap()
-        .then((resp: any) => {
+        .then((resp: PingPeerResponseType) => {
           const msg = `Ping of ${getAliasByPeerId(peerId)} succeeded with latency of ${resp.latency}ms`;
           console.log(msg, resp);
           sendNotification({

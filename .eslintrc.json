@@ -35,8 +35,8 @@
         "functions": "always-multiline"
       }
     ],
-    "import-newlines/enforce": "warn",
-    "newline-destructuring/newline": ["warn", { "items": 1 }],
+    "import-newlines/enforce": "off",
+    "newline-destructuring/newline": "off",
     "no-duplicate-imports": "off",
     "no-console": "off",
     "prefer-const": "warn",
