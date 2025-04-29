@@ -1,15 +1,8 @@
-import React, { useRef, KeyboardEvent, Key } from 'react';
+import React, { useEffect, useState, useRef, KeyboardEvent, Key } from 'react';
 import styled from '@emotion/styled';
 import { HOPR_TOKEN_USED } from '../../../../config';
-import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store';
-import {
-DialogTitle,
-InputAdornment,
-MenuItem,
-Button as MuiButton,
-TextField,
-} from '@mui/material'
+import { DialogTitle, InputAdornment, MenuItem, Button as MuiButton, TextField } from '@mui/material';
 import Button from '../../../future-hopr-lib-components/Button';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
@@ -85,10 +78,7 @@ const WithdrawModal = ({ initialCurrency }: WithdrawModalProps) => {
   const nativeBalance = useAppSelector((state) => state.node.balances.data.native);
   const safeAddress = useAppSelector((state) => state.node.info.data?.hoprNodeSafe);
   const loginData = useAppSelector((store) => store.auth.loginData);
-  const {
-apiEndpoint,
-apiToken,
-} = useAppSelector((state) => state.auth.loginData);
+  const { apiEndpoint, apiToken } = useAppSelector((state) => state.auth.loginData);
   // local states
   const [openModal, set_openModal] = useState(false);
   const [currency, set_currency] = useState<'HOPR' | 'NATIVE'>(initialCurrency ?? 'NATIVE');

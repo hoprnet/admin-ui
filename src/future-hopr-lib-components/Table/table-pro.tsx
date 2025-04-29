@@ -55,12 +55,7 @@ const STableCell = styled(TableCell)`
 
 function TablePaginationActions(props: TablePaginationActionsProps) {
   const theme = useTheme();
-  const {
-count,
-page,
-rowsPerPage,
-onPageChange,
-} = props;
+  const { count, page, rowsPerPage, onPageChange } = props;
 
   const handleFirstPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     onPageChange(event, 0);

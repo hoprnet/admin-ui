@@ -14,11 +14,7 @@ interface AppBarProps extends MuiAppBarProps {
   webapp?: boolean;
 }
 
-const AppBar = styled(({
-tallerNavBarOnMobile,
-webapp,
-...rest
-}: AppBarProps) => <MuiAppBar {...rest} />)`
+const AppBar = styled(({ tallerNavBarOnMobile, webapp, ...rest }: AppBarProps) => <MuiAppBar {...rest} />)`
   background: white;
   height: 60px;
   border-bottom: 1px lightgray solid;

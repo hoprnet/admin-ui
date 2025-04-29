@@ -36,10 +36,7 @@ const TdActionIcons = styled.td`
 
 function InfoPage() {
   const dispatch = useAppDispatch();
-  const {
-apiEndpoint,
-apiToken,
-} = useAppSelector((store) => store.auth.loginData);
+  const { apiEndpoint, apiToken } = useAppSelector((store) => store.auth.loginData);
   const balances = useAppSelector((store) => store.node.balances.data);
   const balancesFetching = useAppSelector((store) => store.node.balances.isFetching);
   const addresses = useAppSelector((store) => store.node.addresses.data);

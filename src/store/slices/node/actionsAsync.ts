@@ -100,10 +100,7 @@ const { openMultipleChannels } = flows;
 
 const isNodeReadyThunk = createAsyncThunk<IsNodeReadyResponseType | undefined, BasePayloadType, { state: RootState }>(
   'node/isNodeReady',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     try {
       const res = await isNodeReady(payload);
       return res;
@@ -125,10 +122,7 @@ dispatch,
 
 const getInfoThunk = createAsyncThunk<GetInfoResponseType | undefined, BasePayloadType, { state: RootState }>(
   'node/getInfo',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setInfoFetching(true));
     try {
       const info = await getInfo(payload);
@@ -160,10 +154,7 @@ const getAddressesThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/getAccount',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setAddressesFetching(true));
     try {
       const addresses = await getAddresses(payload);
@@ -226,10 +217,7 @@ const getBalancesThunk = createAsyncThunk<
   { state: RootState; dispatch: ThunkDispatch<RootState, unknown, AnyAction> }
 >(
   'node/getBalances',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setBalancesFetching(true));
     try {
       const balances = await getBalances(payload);
@@ -261,10 +249,7 @@ const getBalanceInAllSafeChannelsThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/getBalanceInAllSafeChannels',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     try {
       const channels = await getChannels(payload);
       return channels;
@@ -287,10 +272,7 @@ dispatch,
 
 const getChannelsThunk = createAsyncThunk<GetChannelsResponseType | undefined, BasePayloadType, { state: RootState }>(
   'node/getChannels',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     try {
       const channels = await getChannels(payload);
       return channels;
@@ -317,10 +299,7 @@ const getConfigurationThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/getConfiguration',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     try {
       const configuration = await getConfiguration(payload);
       return configuration;
@@ -343,10 +322,7 @@ dispatch,
 
 const getPeersThunk = createAsyncThunk<GetPeersResponseType | undefined, GetPeersPayloadType, { state: RootState }>(
   'node/getPeers',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setPeersFetching(true));
     try {
       const peers = await getPeers(payload);
@@ -370,10 +346,7 @@ dispatch,
 
 const getPeerInfoThunk = createAsyncThunk<GetPeerResponseType | undefined, GetPeerPayloadType, { state: RootState }>(
   'node/getPeerInfo',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setPeerInfoFetching(true));
     try {
       const peerInfo = await getPeer(payload);
@@ -401,10 +374,7 @@ const getTicketStatisticsThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/getTicketStatistics',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setTicketStatisticsFetching(true));
     try {
       const statistics = await getTicketStatistics(payload);
@@ -428,10 +398,7 @@ dispatch,
 
 const getTokenThunk = createAsyncThunk<GetTokenResponseType | undefined, BasePayloadType, { state: RootState }>(
   'node/getToken',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setTokensFetching(true));
     try {
       const token = await getToken(payload);
@@ -459,10 +426,7 @@ const getEntryNodesThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/getEntryNodes',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setEntryNodesFetching(true));
     try {
       const entryNodes = await getEntryNodes(payload);
@@ -486,10 +450,7 @@ dispatch,
 
 const getVersionThunk = createAsyncThunk<string | undefined, BasePayloadType, { state: RootState }>(
   'node/getVersion',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setVersionFetching(true));
     try {
       const version = await getVersion(payload);
@@ -513,10 +474,7 @@ dispatch,
 
 const withdrawThunk = createAsyncThunk<string | undefined, WithdrawPayloadType, { state: RootState }>(
   'node/withdraw',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setTransactionsFetching(true));
     try {
       const res = await withdraw(payload);
@@ -548,10 +506,7 @@ const getAliasThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/getAlias',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setAliasesFetching(true));
     try {
       const res = await getAlias(payload);
@@ -582,10 +537,7 @@ const setAliasThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/setAlias',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     try {
       const res = await setAlias(payload);
       if (res) {
@@ -613,10 +565,7 @@ dispatch,
 
 const removeAliasThunk = createAsyncThunk<{ alias: string } | undefined, AliasPayloadType, { state: RootState }>(
   'node/removeAlias',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setAliasesFetching(true));
     try {
       const res = await removeAlias(payload);
@@ -650,10 +599,7 @@ const closeChannelThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/closeChannel',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     try {
       const res = await closeChannel(payload);
       dispatch(getChannelsThunk(payload));
@@ -755,10 +701,7 @@ const redeemChannelTicketsThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/redeemChannelTickets',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setRedeemAllTicketsFetching(true));
     try {
       const res = await redeemChannelTickets(payload);
@@ -864,10 +807,7 @@ const pingNodeThunk = createAsyncThunk('node/pingNode', async (payload: PingPeer
 
 const redeemAllTicketsThunk = createAsyncThunk<boolean | undefined, BasePayloadType, { state: RootState }>(
   'node/redeemAllTickets',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setRedeemAllTicketsFetching(true));
     try {
       const res = await redeemAllTickets(payload);
@@ -891,10 +831,7 @@ dispatch,
 
 const resetTicketStatisticsThunk = createAsyncThunk<boolean | undefined, BasePayloadType, { state: RootState }>(
   'node/resetTicketStatisticsThunk',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setResetTicketStatisticsFetching(true));
     try {
       const res = await resetTicketStatistics(payload);
@@ -922,10 +859,7 @@ const createTokenThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/createToken',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setTokensFetching(true));
     try {
       const res = await createToken(payload);
@@ -953,10 +887,7 @@ const deleteTokenThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/deleteToken',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setTokensFetching(true));
     try {
       const res = await deleteToken(payload);
@@ -983,10 +914,7 @@ dispatch,
 
 const getPrometheusMetricsThunk = createAsyncThunk<string | undefined, BasePayloadType, { state: RootState }>(
   'node/getPrometheusMetrics',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setMetricsFetching(true));
     try {
       const res = await getMetrics(payload);
@@ -1014,10 +942,7 @@ const getTicketPriceThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/getTicketPrice',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setTicketPriceFetching(true));
     try {
       const res = await getTicketPrice(payload);
@@ -1045,10 +970,7 @@ const getMinimumNetworkProbabilityThunk = createAsyncThunk<
   { state: RootState }
 >(
   'node/getMinimumTicketProbability',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.setMinimumTicketProbabilityFetching(true));
     try {
       const res = await getMinimumTicketProbability(payload);
@@ -1072,10 +994,7 @@ dispatch,
 
 const getSessionsThunk = createAsyncThunk<GetSessionsResponseType | undefined, BasePayloadType, { state: RootState }>(
   'node/getSessionsThunk',
-  async (payload, {
-rejectWithValue,
-dispatch,
-}) => {
+  async (payload, { rejectWithValue, dispatch }) => {
     dispatch(nodeActionsFetching.openSessionsFetching(true));
     try {
       const bothRes = await Promise.all([

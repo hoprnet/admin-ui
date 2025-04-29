@@ -57,10 +57,7 @@ const Container = styled.div`
   }
 `;
 
-const CustomWidthTooltip = styled(({
-className,
-...props
-}) => (
+const CustomWidthTooltip = styled(({ className, ...props }) => (
   <Tooltip
     {...props}
     classes={{ popper: className }}
