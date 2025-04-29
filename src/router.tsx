@@ -26,6 +26,7 @@ import ChannelsPageIncoming from './pages/node/channelsIncoming';
 import ChannelsPageOutgoing from './pages/node/channelsOutgoing';
 import MetricsPage from './pages/node/metrics';
 import ConfigurationPage from './pages/node/configuration';
+import SessionsPage from './pages/node/sessions';
 
 // Layout
 import Layout from './future-hopr-lib-components/Layout';
@@ -54,6 +55,8 @@ import IncomingChannelsIcon from './future-hopr-lib-components/Icons/channelsIn'
 import OutgoingChannelsIcon from './future-hopr-lib-components/Icons/channelsOut';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyNotice from './pages/PrivacyNotice';
+import SettingsPhoneIcon from '@mui/icons-material/SettingsPhone';
+
 import { trackGoal } from 'fathom-client';
 
 export type ApplicationMapType = {
@@ -72,6 +75,7 @@ export type ApplicationMapType = {
     onClick?: () => void;
     mobileOnly?: boolean | null;
     numberKey?: string;
+    fetchingKey?: string;
   }[];
 }[];
 
@@ -123,6 +127,7 @@ export const applicationMapNode: ApplicationMapType = [
         element: <PeersPage />,
         loginNeeded: 'node',
         numberKey: 'numberOfPeers',
+        fetchingKey: 'fetchingPeers',
       },
       {
         name: 'ALIASES',
@@ -147,6 +152,7 @@ export const applicationMapNode: ApplicationMapType = [
         element: <ChannelsPageIncoming />,
         loginNeeded: 'node',
         numberKey: 'numberOfChannelsIn',
+        fetchingKey: 'fetchingChannels',
       },
       {
         name: 'CHANNELS: OUT',
@@ -155,6 +161,16 @@ export const applicationMapNode: ApplicationMapType = [
         element: <ChannelsPageOutgoing />,
         loginNeeded: 'node',
         numberKey: 'numberOfChannelsOut',
+        fetchingKey: 'fetchingChannels',
+      },
+      {
+        name: 'SESSIONS',
+        path: 'sessions',
+        icon: <SettingsPhoneIcon />,
+        element: <SessionsPage />,
+        loginNeeded: 'node',
+        numberKey: 'numberOfSessions',
+        fetchingKey: 'fetchingSessions',
       },
     ],
   },
@@ -210,12 +226,17 @@ const LayoutEnhanced = () => {
   const apiToken = searchParams.get('apiToken');
 
   const numberOfPeers = useAppSelector((store) => store.node.peers.data?.connected.length);
+  const fetchingPeers = useAppSelector((store) => store.node.peers.isFetching);
   const numberOfAliases = useAppSelector(
     (store) => store.node.aliases?.data && Object.keys(store.node.aliases?.data).length,
   );
+  const fetchingAliases = useAppSelector((store) => store.node.aliases.isFetching);
   const numberOfMessagesReceived = useAppSelector((store) => store.node.messages.data.length);
   const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
   const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
+  const fetchingChannels = useAppSelector((store) => store.node.channels.isFetching);
+  const numberOfSessions = useAppSelector((store) => store.node.sessions.data?.length);
+  const fetchingSessions = useAppSelector((store) => store.node.sessions.isFetching);
 
   const numberForDrawer = {
     numberOfPeers,
@@ -223,6 +244,14 @@ const LayoutEnhanced = () => {
     numberOfMessagesReceived,
     numberOfChannelsIn,
     numberOfChannelsOut,
+    numberOfSessions,
+  };
+
+  const drawerNumbersLoading = {
+    fetchingPeers,
+    fetchingAliases,
+    fetchingChannels,
+    fetchingSessions,
   };
 
   useEffect(() => {
@@ -323,6 +352,18 @@ const LayoutEnhanced = () => {
               apiToken: apiToken ? apiToken : '',
             }),
           );
+          dispatch(
+            nodeActionsAsync.getMinimumNetworkProbabilityThunk({
+              apiEndpoint,
+              apiToken: apiToken ? apiToken : '',
+            }),
+          );
+          dispatch(
+            nodeActionsAsync.getSessionsThunk({
+              apiEndpoint,
+              apiToken: apiToken ? apiToken : '',
+            }),
+          );
         }
       } catch (e) {
         trackGoal('ZUIBL4M8', 1); // FAILED_CONNECT_TO_NODE_BY_URL
@@ -343,6 +384,7 @@ const LayoutEnhanced = () => {
       drawerItems={applicationMap}
       drawerFunctionItems={undefined}
       drawerNumbers={numberForDrawer}
+      drawerNumbersLoading={drawerNumbersLoading}
       drawerLoginState={{ node: nodeConnected }}
       className={environment}
       drawerType={undefined}

@@ -37,7 +37,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerAddress);
 
   useEffect(() => {
-   window.addEventListener('keydown', handleEnter as EventListener);
+    window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
@@ -108,7 +108,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
     );
   };
 
-  function handleEnter (event: KeyboardEvent) {
+  function handleEnter(event: KeyboardEvent) {
     if (openChannelModal && canOpen && event.key === 'Enter') {
       console.log('OpenChannelModal event');
       handleAction();

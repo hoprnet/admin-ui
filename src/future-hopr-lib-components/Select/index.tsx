@@ -42,7 +42,7 @@ const SFormControl = styled(FormControl)`
   }
 `;
 
-interface Props extends SelectMuiProps {
+type Props = SelectMuiProps & {
   removeValue?: (value: number) => void;
   removeValueTooltip?: string;
   showJazzIcon?: boolean;
@@ -54,7 +54,7 @@ interface Props extends SelectMuiProps {
     disabled?: boolean;
   }[];
   native?: boolean;
-}
+};
 
 const Select: React.FC<Props> = (props) => {
   console.log('props.values', props.values);

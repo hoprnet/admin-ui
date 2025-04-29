@@ -43,7 +43,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   );
 
   useEffect(() => {
-   window.addEventListener('keydown', handleEnter as EventListener);
+    window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
@@ -136,7 +136,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
     }
   };
 
-  function handleEnter (event: KeyboardEvent) {
+  function handleEnter(event: KeyboardEvent) {
     if (canAddAlias && event.key === 'Enter') {
       console.log('AddAliasModal event');
       handleAddAlias();

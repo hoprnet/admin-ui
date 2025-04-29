@@ -36,10 +36,7 @@ const TdActionIcons = styled.td`
 
 function InfoPage() {
   const dispatch = useAppDispatch();
-  const {
-apiEndpoint,
-apiToken,
-} = useAppSelector((store) => store.auth.loginData);
+  const { apiEndpoint, apiToken } = useAppSelector((store) => store.auth.loginData);
   const balances = useAppSelector((store) => store.node.balances.data);
   const balancesFetching = useAppSelector((store) => store.node.balances.isFetching);
   const addresses = useAppSelector((store) => store.node.addresses.data);
@@ -60,22 +57,11 @@ apiToken,
       ? new Date(nodeStartedEpoch * 1000).toJSON().replace('T', ' ').replace('Z', ' UTC')
       : '-';
   const nodeSync = useAppSelector((store) => store.node.metricsParsed.nodeSync);
-  const blockNumberFromMetrics = useAppSelector((store) => store.node.metricsParsed.blockNumber); // <2.1.2
-  const blockNumberCheckSumFromMetrics = useAppSelector((store) => store.node.metricsParsed.checksum); // <2.1.2
-  const blockNumberFromInfo = useAppSelector((store) => store.node.info.data?.indexerBlock); // >=2.1.3
-  const blockNumberCheckSumFromInfo = useAppSelector((store) => store.node.info.data?.indexerChecksum); // >=2.1.3
-  const blockNumberPrevIndexedWithHOPRdata = useAppSelector((store) => store.node.info.data?.indexBlockPrevChecksum); // >=2.1.4
-  const blockNumberIndexedWithHOPRdata =
-    blockNumberPrevIndexedWithHOPRdata && blockNumberFromInfo !== blockNumberPrevIndexedWithHOPRdata
-      ? blockNumberPrevIndexedWithHOPRdata + 1
-      : null;
-  const blockNumber = blockNumberFromInfo ?? blockNumberFromMetrics;
-  const blockNumberCheckSum =
-    (blockNumberCheckSumFromInfo ?? blockNumberCheckSumFromMetrics) !==
-    '0x0000000000000000000000000000000000000000000000000000000000000000'
-      ? blockNumberCheckSumFromInfo ?? blockNumberCheckSumFromMetrics
-      : null;
+  const blockNumberFromInfo = useAppSelector((store) => store.node.info.data?.indexerBlock); // >=2.2.0
+  const indexerLastLogBlock = useAppSelector((store) => store.node.info.data?.indexerLastLogBlock); // >=2.2.0
+  const indexerLastLogChecksum = useAppSelector((store) => store.node.info.data?.indexerLastLogChecksum); // >=2.2.0
   const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
+  const minimumNetworkProbability = useAppSelector((store) => store.node.probability.data);
 
   useEffect(() => {
     fetchInfoData();
@@ -344,41 +330,55 @@ apiToken,
             <tr>
               <th>
                 <Tooltip
+                  title="The RPC provider address your node uses sync"
+                  notWide
+                >
+                  <span>Provider address</span>
+                </Tooltip>
+              </th>
+              <td>{info?.provider}</td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
                   title="Last block that the node got from the RPC"
                   notWide
                 >
                   <span>Current block</span>
                 </Tooltip>
               </th>
-              <td>{blockNumber ? blockNumber : '-'}</td>
+              <td>{blockNumberFromInfo ? blockNumberFromInfo : '-'}</td>
             </tr>
-            {(blockNumberIndexedWithHOPRdata || blockNumberCheckSum) && (
-              <>
-                <tr>
-                  <th>
-                    <Tooltip
-                      title="Last indexed block from the chain which contains HOPR data"
-                      notWide
-                    >
-                      <span>Last indexed block</span>
-                    </Tooltip>
-                  </th>
-                  <td>{blockNumberIndexedWithHOPRdata ? blockNumberIndexedWithHOPRdata : '-'}</td>
-                </tr>
-
-                <tr>
-                  <th>
-                    <Tooltip
-                      title="The latest hash of the node database"
-                      notWide
-                    >
-                      <span>Block checksum</span>
-                    </Tooltip>
-                  </th>
-                  <td>{blockNumberCheckSum ? blockNumberCheckSum : '-'}</td>
-                </tr>
-              </>
-            )}
+            <tr>
+              <th>
+                <Tooltip
+                  title="Last indexed block from the chain which contains HOPR data"
+                  notWide
+                >
+                  <span>
+                    Last indexed
+                    <br />
+                    log at block
+                  </span>
+                </Tooltip>
+              </th>
+              <td>{indexerLastLogBlock ? indexerLastLogBlock : '-'}</td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
+                  title="The latest hash of the node database"
+                  notWide
+                >
+                  <span>
+                    Last indexed
+                    <br />
+                    log checksum
+                  </span>
+                </Tooltip>
+              </th>
+              <td>{indexerLastLogChecksum ? indexerLastLogChecksum : '-'}</td>
+            </tr>
           </tbody>
         </TableExtended>
 
@@ -458,6 +458,14 @@ apiToken,
                 wxHOPR
               </td>
             </tr>
+          </tbody>
+        </TableExtended>
+
+        <TableExtended
+          title="Ticket properties"
+          style={{ marginBottom: '42px' }}
+        >
+          <tbody>
             <tr>
               <th>
                 <Tooltip
@@ -468,6 +476,17 @@ apiToken,
                 </Tooltip>
               </th>
               <td>{ticketPrice ? formatEther(BigInt(ticketPrice as string)) : '-'} wxHOPR</td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
+                  title={`Minimum allowed winning probability of the ticket as defined in the ${info?.network} network`}
+                  notWide
+                >
+                  <span>Minimum ticket winning probability</span>
+                </Tooltip>
+              </th>
+              <td>{minimumNetworkProbability ? minimumNetworkProbability.toFixed(9) : '-'}</td>
             </tr>
           </tbody>
         </TableExtended>
@@ -707,7 +726,7 @@ apiToken,
                   <span>Incoming</span>
                 </Tooltip>
               </th>
-              <td>{channels?.incoming.filter((channel) => channel.status === 'Open').length}</td>
+              <td>{channels?.incoming.length}</td>
             </tr>
             <tr>
               <th>
@@ -718,7 +737,7 @@ apiToken,
                   <span>Outgoing</span>
                 </Tooltip>
               </th>
-              <td>{channels?.outgoing.filter((channel) => channel.status === 'Open').length}</td>
+              <td>{channels?.outgoing.length}</td>
             </tr>
           </tbody>
         </TableExtended>

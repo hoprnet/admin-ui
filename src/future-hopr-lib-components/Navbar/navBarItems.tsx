@@ -26,20 +26,11 @@ type NavBarItemsProps = {
   onButtonClick?: any;
 };
 
-const NavBarItems = ({
-className,
-center,
-webapp,
-right,
-mobile,
-itemsNavbar,
-onButtonClick,
-}: NavBarItemsProps) => {
+const NavBarItems = ({ className, center, webapp, right, mobile, itemsNavbar, onButtonClick }: NavBarItemsProps) => {
   const position = center ? 'center' : right ? 'right' : mobile ? 'mobile' : 'position-undefined';
 
   return (
     <Content className={['menu', `menu-${position}`, webapp ? 'menu-webpapp' : ''].join(' ')}>
-      {/*  @ts-ignore */}
       {itemsNavbar &&
         itemsNavbar[0]?.label &&
         itemsNavbar.map((item, i) => (

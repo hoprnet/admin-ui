@@ -8,6 +8,8 @@ import type {
   GetEntryNodesResponseType,
   PingPeerResponseType,
   GetConfigurationResponseType,
+  GetMinimumNetworkProbabilityResponseType,
+  GetSessionsResponseType,
 } from '@hoprnet/hopr-sdk';
 
 export type Message = {
@@ -167,6 +169,7 @@ type InitialState = {
     isFetching: boolean;
     alreadyFetched: boolean;
   };
+  probability: { data: number | null; isFetching: boolean };
   entryNodes: { data: GetEntryNodesResponseType | null; isFetching: boolean };
   peerInfo: {
     data: {
@@ -228,6 +231,12 @@ type InitialState = {
   };
   ticketPrice: {
     data: string | null;
+    isFetching: boolean;
+  };
+  sessions: {
+    data: GetSessionsResponseType | null;
+    opening: string[];
+    closing: string[];
     isFetching: boolean;
   };
   apiEndpoint: string | null;
@@ -309,10 +318,7 @@ export const initialState: InitialState = {
   messagesSent: [],
   signedMessages: [],
   peers: {
-    data: {
-      connected: [],
-      announced: [],
-    },
+    data: null,
     parsed: {
       connected: {},
     },
@@ -326,6 +332,7 @@ export const initialState: InitialState = {
     },
     isFetching: false,
   },
+  probability: { data: null, isFetching: false },
   entryNodes: {
     data: null,
     isFetching: false,
@@ -377,6 +384,12 @@ export const initialState: InitialState = {
   },
   ticketPrice: {
     data: null,
+    isFetching: false,
+  },
+  sessions: {
+    data: null,
+    opening: [],
+    closing: [],
     isFetching: false,
   },
   links: {

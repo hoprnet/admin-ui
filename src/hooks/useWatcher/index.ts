@@ -10,10 +10,7 @@ import { checkHowChannelsHaveChanged } from './channels';
 
 export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: number }) => {
   const dispatch = useAppDispatch();
-  const {
-apiEndpoint,
-apiToken,
-} = useAppSelector((store) => store.auth.loginData);
+  const { apiEndpoint, apiToken } = useAppSelector((store) => store.auth.loginData);
   const isNodeReady = useAppSelector((store) => store.node.nodeIsReady.data);
   const messages = useAppSelector((store) => store.node.messages.data);
   const channelsParsed = useAppSelector((store) => store.node.channels.parsed);
@@ -109,6 +106,16 @@ apiToken,
       });
     }, intervalDuration);
 
+    const watchSessionsInterval = setInterval(() => {
+      if (!apiEndpoint) return;
+      return dispatch(
+        nodeActionsAsync.getSessionsThunk({
+          apiEndpoint,
+          apiToken: apiToken ? apiToken : '',
+        }),
+      );
+    }, 20_000);
+
     return () => {
       clearInterval(watchIsNodeReadyInterval);
       clearInterval(watchChannelsInterval);
@@ -116,6 +123,7 @@ apiToken,
       clearInterval(watchNodeBalancesInterval);
       clearInterval(watchMessagesInterval);
       clearInterval(watchMetricsInterval);
+      clearInterval(watchSessionsInterval);
     };
   }, [connected, apiEndpoint, apiToken, isNodeReady, prevNodeBalances, prevNodeInfo, prevOutgoingChannels]);
 

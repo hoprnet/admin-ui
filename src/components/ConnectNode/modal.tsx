@@ -319,6 +319,18 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
             apiEndpoint,
           }),
         );
+        dispatch(
+          nodeActionsAsync.getMinimumNetworkProbabilityThunk({
+            apiEndpoint,
+            apiToken: apiToken ? apiToken : '',
+          }),
+        );
+        dispatch(
+          nodeActionsAsync.getSessionsThunk({
+            apiEndpoint,
+            apiToken: apiToken ? apiToken : '',
+          }),
+        );
         dispatch(nodeActions.setInfo(loginInfo));
         if (!apiToken || apiToken === '') {
           navigate(`/node/info?apiEndpoint=${formattedApiEndpoint}`);
@@ -366,7 +378,7 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
     chosenNode.jazzIcon && set_jazzIcon(chosenNode.jazzIcon);
   };
 
-  function handleEnter (event: KeyboardEvent) {
+  function handleEnter(event: KeyboardEvent) {
     if (props.open && canConnectToNode && event.key === 'Enter') {
       console.log('ConnectNode event');
       useNode({});

@@ -98,17 +98,7 @@ const SCircularProgress = styled(CircularProgress)`
 `;
 
 const Button = forwardRef((props: StyledButtonProps, ref: Ref<HTMLButtonElement>) => {
-  const {
-imageOnly,
-size70,
-standardWidth,
-fade,
-children,
-nofade,
-pending,
-outlined,
-...rest
-} = props;
+  const { imageOnly, size70, standardWidth, fade, children, nofade, pending, outlined, ...rest } = props;
 
   const classNames = [
     props.className,

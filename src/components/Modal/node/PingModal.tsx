@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
 import CloseIcon from '@mui/icons-material/Close';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
-import { utils as hoprdUlils } from '@hoprnet/hopr-sdk';
+import { utils as hoprdUlils, PingPeerPayloadType, PingPeerResponseType } from '@hoprnet/hopr-sdk';
 const { sdkApiError } = hoprdUlils;
 
 // HOPR Components
@@ -30,9 +30,9 @@ export const PingModal = (props: PingModalProps) => {
   const canPing = peerId.length !== 0;
 
   useEffect(() => {
-   window.addEventListener('keydown', handleEnter as EventListener);
+    window.addEventListener('keydown', handleEnter as unknown as EventListener);
     return () => {
-      window.removeEventListener('keydown', handleEnter as EventListener);
+      window.removeEventListener('keydown', handleEnter as unknown as EventListener);
     };
   }, [loginData, peerId]);
 
@@ -72,7 +72,7 @@ export const PingModal = (props: PingModalProps) => {
         }),
       )
         .unwrap()
-        .then((resp: any) => {
+        .then((resp: PingPeerResponseType) => {
           const msg = `Ping of ${getAliasByPeerId(peerId)} succeeded with latency of ${resp.latency}ms`;
           console.log(msg, resp);
           sendNotification({
@@ -116,8 +116,8 @@ export const PingModal = (props: PingModalProps) => {
     }
   };
 
-  const handleEnter = (event: any) => {
-    if (canPing && openModal && (event as KeyboardEvent)?.key === 'Enter') {
+  const handleEnter = (event: KeyboardEvent) => {
+    if (canPing && openModal && event?.key === 'Enter') {
       console.log('PingModal event');
       handlePing();
     }

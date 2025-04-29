@@ -116,11 +116,11 @@ export const ColorStatus = styled.span`
 const truncateBalanceto5charsWhenNoDecimals = (value: string | number | undefined | null) => {
   try {
     if (value && BigInt(value)) {
+      if (typeof value === 'string') value = parseInt(value);
       if (BigInt(value) > BigInt(1e9)) {
         return '1e9+';
       } else if (BigInt(value) >= BigInt(1e6)) {
-        // @ts-ignore
-        const tmp = (parseInt(value) / 1e6).toString();
+        const tmp = (value / 1e6).toString();
         if (tmp.includes('.')) {
           const [before, after] = tmp.split('.');
           if (before.length === 3) return before + 'm';
@@ -130,8 +130,7 @@ const truncateBalanceto5charsWhenNoDecimals = (value: string | number | undefine
           return `${tmp}.0m`;
         }
       } else if (BigInt(value) > BigInt(99999)) {
-        // @ts-ignore
-        const tmp = (parseInt(value) / 1e3).toString();
+        const tmp = (value / 1e3).toString();
         if (tmp.includes('.')) {
           const [before, after] = tmp.split('.');
           if (before.length === 3) return before + 'k';

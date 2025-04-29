@@ -3,16 +3,12 @@ import Tooltip from '@mui/material/Tooltip';
 import { Container } from './styled';
 
 type CodeCopyBoxProps = {
-  code: any;
+  code: string | JSX.Element;
   copy?: string;
   breakSpaces?: boolean;
 };
 
-const CodeCopyBox = ({
-code,
-copy: copyText,
-breakSpaces,
-}: CodeCopyBoxProps) => {
+const CodeCopyBox = ({ code, copy: copyText, breakSpaces }: CodeCopyBoxProps) => {
   const [copied, setCopied] = useState(false);
 
   const copy = (copyText: string) => {
@@ -20,7 +16,7 @@ breakSpaces,
   };
 
   const handleClick = () => {
-    copy(copyText ? copyText : code);
+    copy(copyText ? copyText : (code as string));
     setCopied(true);
     setTimeout(() => {
       setCopied(false);

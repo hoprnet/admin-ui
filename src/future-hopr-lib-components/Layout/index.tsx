@@ -76,6 +76,9 @@ const Layout: React.FC<{
   drawerNumbers?: {
     [key: string]: number | string | undefined | null;
   };
+  drawerNumbersLoading?: {
+    [key: string]: boolean;
+  };
 }> = ({
   className = '',
   children,
@@ -89,6 +92,7 @@ const Layout: React.FC<{
   drawerType,
   drawerFunctionItems,
   drawerNumbers,
+  drawerNumbersLoading,
 }) => {
   const isMobile = !useMediaQuery('(min-width: 500px)');
   const isConnected = useAppSelector((store) => store.auth.status.connected);
@@ -140,6 +144,7 @@ const Layout: React.FC<{
           drawerFunctionItems={drawerFunctionItems}
           drawerLoginState={drawerLoginState}
           drawerNumbers={drawerNumbers}
+          drawerNumbersLoading={drawerNumbersLoading}
           set_openedNavigationDrawer={handleOpenedNavigationDrawer}
           openedNavigationDrawer={isMobile ? openedNavigationDrawerMobile : openedNavigationDrawerPC}
         />

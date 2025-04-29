@@ -19,6 +19,7 @@ import { PingModal } from '../../components/Modal/node/PingModal';
 import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
 import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
+import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
 
 //Mui
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -26,6 +27,7 @@ import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 
 function AliasesPage() {
   const dispatch = useAppDispatch();
+  const peerId = useAppSelector((store) => store.node.addresses.data.hopr);
   const aliases = useAppSelector((store) => store.node.aliases.data);
   const peersObject = useAppSelector((store) => store.node.peers.parsed.connected);
   const aliasesFetching = useAppSelector((store) => store.node.aliases.isFetching);
@@ -33,6 +35,8 @@ function AliasesPage() {
   const myNodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const peerIdToNodeAddressLink = useAppSelector((store) => store.node.links.peerIdToNodeAddress);
+  const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
+  const peerIdsWithAliases = Object.keys(peerIdToAliasLink);
   const nodeAddressToOutgoingChannelLink = useAppSelector((store) => store.node.links.nodeAddressToOutgoingChannel);
   const [importSuccess, set_importSuccess] = useState(false);
   const [deleteSuccess, set_deleteSuccess] = useState(false);
@@ -87,6 +91,17 @@ function AliasesPage() {
     if (!loginData.apiEndpoint) return;
     for (const data of parsedData) {
       if (data.alias && data.peerId) {
+        if (peerIdsWithAliases.includes(data.peerId)) {
+          console.log(peerIdToAliasLink, data.peerId, peerIdToAliasLink[data.peerId]);
+          await dispatch(
+            actionsAsync.removeAliasThunk({
+              alias: peerIdToAliasLink[data.peerId],
+              apiEndpoint: loginData.apiEndpoint,
+              apiToken: loginData.apiToken ? loginData.apiToken : '',
+            }),
+          );
+        }
+
         await dispatch(
           actionsAsync.setAliasThunk({
             alias: String(data.alias),
@@ -167,6 +182,7 @@ function AliasesPage() {
               tooltip={peerId === hoprAddress ? `You can't open a channel to yourself` : undefined}
             />
           )}
+          <OpenSessionModal peerId={peerId} />
           <SendMessageModal peerId={peerId} />
           <DeleteAliasButton
             onSuccess={() => {
@@ -226,8 +242,8 @@ function AliasesPage() {
       key: 'actions',
       name: 'Actions',
       search: false,
-      width: '168px',
-      maxWidth: '168px',
+      width: '190px',
+      maxWidth: '190px',
     },
   ];
 
@@ -339,10 +355,7 @@ function CreateAliasForm() {
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-name,
-value,
-} = event.target;
+    const { name, value } = event.target;
     set_form({
       ...form,
       [name]: value,

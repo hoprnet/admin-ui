@@ -17,6 +17,7 @@ import PeersInfo from '../../future-hopr-lib-components/PeerInfo';
 
 //  Modals
 import { PingModal } from '../../components/Modal/node/PingModal';
+import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
 
 //Mui
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -113,8 +114,8 @@ function PeersPage() {
       key: 'actions',
       name: 'Actions',
       search: false,
-      width: '168px',
-      maxWidth: '168px',
+      width: '190px',
+      maxWidth: '190px',
     },
   ];
 
@@ -185,7 +186,7 @@ function PeersPage() {
           ) : (
             <OpenChannelModal peerAddress={peer.peerAddress} />
           )}
-
+          <OpenSessionModal peerId={peer.peerId} />
           <SendMessageModal peerId={peer.peerId} />
         </>
       ),

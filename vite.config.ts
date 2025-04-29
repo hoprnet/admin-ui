@@ -23,6 +23,9 @@ export default defineConfig(() => {
         babel: { plugins: ['@emotion/babel-plugin'] },
       }),
     ],
+    optimizeDeps: {
+      include: ['@emotion/react', '@emotion/styled', '@mui/material/Tooltip'],
+    },
     build: {
       outDir: 'build',
       rollupOptions: {
