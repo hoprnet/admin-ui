@@ -18,8 +18,6 @@ import Button from '../../../future-hopr-lib-components/Button';
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
 import AddChannelsIcon from '../../../future-hopr-lib-components/Icons/AddChannels';
 
-type OpenMultipleChannelsModalProps = {};
-
 export const OpenMultipleChannelsModal = () => {
   const dispatch = useAppDispatch();
   const loginData = useAppSelector((selector) => selector.auth.loginData);

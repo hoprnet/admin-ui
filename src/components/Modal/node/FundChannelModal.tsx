@@ -110,7 +110,7 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
     );
   };
 
-  function handleEnter(event: any) {
+  function handleEnter(event: KeyboardEvent) {
     if (openChannelModal && canFund && event.key === 'Enter') {
       console.log('FundChannelModal event');
       handleAction();

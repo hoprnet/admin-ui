@@ -3,9 +3,8 @@ import styled from '@emotion/styled';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
 
 // HOPRd SDK
-import { SendMessagePayloadType } from '@hoprnet/hopr-sdk';
 import { utils as hoprdUtils } from '@hoprnet/hopr-sdk';
-import type { GetPeersResponseType, GetAliasesResponseType, OpenSessionPayloadType } from '@hoprnet/hopr-sdk';
+import type { GetPeersResponseType, OpenSessionPayloadType } from '@hoprnet/hopr-sdk';
 const { sdkApiError } = hoprdUtils;
 
 // HOPR Components

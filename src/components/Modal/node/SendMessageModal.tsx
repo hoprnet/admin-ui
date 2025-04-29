@@ -20,7 +20,6 @@ import {
   Autocomplete,
 } from '@mui/material';
 
-import { SendMessagePayloadType } from '@hoprnet/hopr-sdk';
 import CloseIcon from '@mui/icons-material/Close';
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 
@@ -28,7 +27,7 @@ import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
 
-import type { GetPeersResponseType, GetAliasesResponseType } from '@hoprnet/hopr-sdk';
+import type { GetPeersResponseType, SendMessagePayloadType } from '@hoprnet/hopr-sdk';
 import type { AddressesType } from '../../../store/slices/node/initialState';
 
 const PathOrHops = styled.div`

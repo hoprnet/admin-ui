@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import styled from '@emotion/styled';
-import MuiMenu from '@mui/material/Menu';
-import { MenuProps } from '@mui/material/Menu';
+import MuiMenu, { MenuProps } from '@mui/material/Menu';
 
 const SMenu = styled(MuiMenu)``;
 
