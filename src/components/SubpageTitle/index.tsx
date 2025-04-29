@@ -56,7 +56,12 @@ const SIconButton = styled(IconButton)`
   }
 `;
 
-export const SubpageTitle = ({ title, reloading, refreshFunction, actions }: SubpageTitleProps) => {
+export const SubpageTitle = ({
+title,
+reloading,
+refreshFunction,
+actions,
+}: SubpageTitleProps) => {
   const [reloadingLocal, set_reloadingLocal] = useState(false);
 
   return (

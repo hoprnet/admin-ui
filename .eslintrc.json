@@ -16,7 +16,7 @@
   "rules": {
     "linebreak-style": ["error", "unix"],
     "react/react-in-jsx-scope": "off",
-    "react/jsx-filename-extension": [1, { "extensions": [".ts", ".tsx"] }],
+    "react/jsx-filename-extension": "off",
     "react/prop-types": "off",
     "react/no-unescaped-entities": "off",
     "@typescript-eslint/no-unused-vars": "off",

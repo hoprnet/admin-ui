@@ -10,7 +10,10 @@ import { checkHowChannelsHaveChanged } from './channels';
 
 export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: number }) => {
   const dispatch = useAppDispatch();
-  const { apiEndpoint, apiToken } = useAppSelector((store) => store.auth.loginData);
+  const {
+apiEndpoint,
+apiToken,
+} = useAppSelector((store) => store.auth.loginData);
   const isNodeReady = useAppSelector((store) => store.node.nodeIsReady.data);
   const messages = useAppSelector((store) => store.node.messages.data);
   const channelsParsed = useAppSelector((store) => store.node.channels.parsed);
