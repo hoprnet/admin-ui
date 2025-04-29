@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error
 import jazzicon from '@metamask/jazzicon';
 import { createHash } from 'crypto';
 
@@ -25,7 +25,7 @@ export function copyStringToClipboard(input: string) {
   const el = document.createElement('textarea');
   el.value = input;
   el.setAttribute('readonly', '');
-  //@ts-ignore
+  //@ts-expect-error
   el.style = {
     position: 'absolute',
     left: '-9999px',

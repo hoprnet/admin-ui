@@ -37,7 +37,7 @@ const Modal: React.FC<Props> = (props) => {
   const { onClose, selectedValue, open, title, children, maxWidth, disableScrollLock } = props;
 
   const handleClose = (event: {}) => {
-    // @ts-ignore
+    // @ts-expect-error
     onClose(event, 'escapeKeyDown');
   };
 

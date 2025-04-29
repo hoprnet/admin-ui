@@ -31,7 +31,7 @@ const NavBarItems = ({ className, center, webapp, right, mobile, itemsNavbar, on
 
   return (
     <Content className={['menu', `menu-${position}`, webapp ? 'menu-webpapp' : ''].join(' ')}>
-      {/*  @ts-ignore */}
+      {/*  @ts-expect-error */}
       {itemsNavbar &&
         itemsNavbar[0]?.label &&
         itemsNavbar.map((item, i) => (

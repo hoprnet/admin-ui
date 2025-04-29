@@ -255,7 +255,7 @@ export default function CustomPaginationActionsTable(props: Props) {
   const visibleRows = React.useMemo(
     () =>
       [...filteredData]
-        //@ts-ignore as we can input JSX into the data, but we will not sort by it
+        //@ts-expect-error as we can input JSX into the data, but we will not sort by it
         .sort(getComparator(order, orderBy))
         .slice(page * rowsPerPage, rowsPerPage !== -1 ? page * rowsPerPage + rowsPerPage : filteredData.length),
     [rowsPerPage, filteredData, order, orderBy, page, rowsPerPage],
