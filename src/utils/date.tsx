@@ -40,16 +40,14 @@ export const formatDate = (epoch: number, twoRows = true, now?: number) => {
     return (
       <TimeAgo
         date={new Date(epoch).getTime() - 2 * 60 * 60 * 1000}
-        // @ts-ignore
-        now={now}
+        now={now ? () => now : undefined}
       />
     );
   if (differenceMs < 24 * 60 * 60 * 1000) {
     return (
       <TimeAgo
         date={epoch}
-        // @ts-ignore
-        now={now}
+        now={now ? () => now : undefined}
       />
     );
   } else {

@@ -116,8 +116,8 @@ export const PingModal = (props: PingModalProps) => {
     }
   };
 
-  const handleEnter = (event: any) => {
-    if (canPing && openModal && (event as KeyboardEvent)?.key === 'Enter') {
+  const handleEnter = (event: KeyboardEvent) => {
+    if (canPing && openModal && event?.key === 'Enter') {
       console.log('PingModal event');
       handlePing();
     }
