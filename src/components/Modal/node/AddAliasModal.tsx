@@ -24,7 +24,7 @@ type CreateAliasModalProps = {
 export const CreateAliasModal = (props: CreateAliasModalProps) => {
   const dispatch = useAppDispatch();
   const loginData = useAppSelector((store) => store.auth.loginData);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const [alias, set_alias] = useState<string>('');
   const [peerId, set_peerId] = useState<string>(props.peerId ? props.peerId : '');
   const [duplicateAlias, set_duplicateAlias] = useState(false);

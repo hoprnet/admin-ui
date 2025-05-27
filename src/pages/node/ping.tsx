@@ -15,21 +15,9 @@ function PingPage() {
   const [invalidPeerId, set_invalidPeerId] = useState(false);
 
   const pings = useAppSelector((store) => store.node.pings);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const { apiEndpoint, apiToken } = loginData;
-
-  // Get aliases on page load
-  useEffect(() => {
-    if (!apiEndpoint) return;
-
-    dispatch(
-      nodeActionsAsync.getAliasesThunk({
-        apiEndpoint,
-        apiToken: apiToken ? apiToken : '',
-      }),
-    );
-  }, []);
 
   const isAlias = (alias: string) => {
     if (aliases) {
@@ -54,7 +42,7 @@ function PingPage() {
         nodeActionsAsync.pingNodeThunk({
           apiEndpoint,
           apiToken,
-          peerId: validatedPeerId,
+          address: validatedPeerId,
         }),
       )
         .unwrap()

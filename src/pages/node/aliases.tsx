@@ -27,11 +27,8 @@ import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 
 function AliasesPage() {
   const dispatch = useAppDispatch();
-  const peerId = useAppSelector((store) => store.node.addresses.data.hopr);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const peersObject = useAppSelector((store) => store.node.peers.parsed.connected);
-  const aliasesFetching = useAppSelector((store) => store.node.aliases.isFetching);
-  const hoprAddress = useAppSelector((store) => store.node.addresses.data.hopr);
   const myNodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const peerIdToNodeAddressLink = useAppSelector((store) => store.node.links.peerIdToNodeAddress);
@@ -48,25 +45,11 @@ function AliasesPage() {
   >([]);
 
   useEffect(() => {
-    if (loginData.apiEndpoint) {
-      dispatch(
-        actionsAsync.getAliasesThunk({
-          apiEndpoint: loginData.apiEndpoint,
-          apiToken: loginData.apiToken ? loginData.apiToken : '',
-        }),
-      );
-    }
+
   }, [loginData]);
 
   const handleRefresh = () => {
-    if (loginData.apiEndpoint) {
-      dispatch(
-        actionsAsync.getAliasesThunk({
-          apiEndpoint: loginData.apiEndpoint,
-          apiToken: loginData.apiToken ? loginData.apiToken : '',
-        }),
-      );
-    }
+
   };
 
   const getNodeAddressByPeerId = (peerId: string): string | undefined => {
@@ -91,49 +74,9 @@ function AliasesPage() {
     if (!loginData.apiEndpoint) return;
     for (const data of parsedData) {
       if (data.alias && data.peerId) {
-        if (peerIdsWithAliases.includes(data.peerId)) {
-          console.log(peerIdToAliasLink, data.peerId, peerIdToAliasLink[data.peerId]);
-          await dispatch(
-            actionsAsync.removeAliasThunk({
-              alias: peerIdToAliasLink[data.peerId],
-              apiEndpoint: loginData.apiEndpoint,
-              apiToken: loginData.apiToken ? loginData.apiToken : '',
-            }),
-          );
-        }
 
-        await dispatch(
-          actionsAsync.setAliasThunk({
-            alias: String(data.alias),
-            peerId: String(data.peerId),
-            apiEndpoint: loginData.apiEndpoint,
-            apiToken: loginData.apiToken ? loginData.apiToken : '',
-          }),
-        )
-          .unwrap()
-          .then(() => {
-            set_importSuccess(true);
-            set_importErrors([]);
-          })
-          .catch((e) => {
-            set_importSuccess(false);
-            set_importErrors([
-              ...importErrors,
-              {
-                alias: String(data.alias),
-                error: e.error,
-                status: e.status,
-              },
-            ]);
-          });
       }
     }
-    dispatch(
-      actionsAsync.getAliasesThunk({
-        apiEndpoint: loginData.apiEndpoint,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
-      }),
-    );
   };
 
   const parsedTableData = Object.entries(aliases ?? {}).map(([alias, peerId], key) => {

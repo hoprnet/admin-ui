@@ -49,8 +49,7 @@ function InfoPage() {
   const infoFetching = useAppSelector((store) => store.node.info.isFetching);
   const peers = useAppSelector((store) => store.node.peers.data);
   const peersFetching = useAppSelector((store) => store.node.peers.isFetching);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
-  const aliasesFetching = useAppSelector((store) => store.node.aliases.isFetching);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const nodeStartedEpoch = useAppSelector((store) => store.node.metricsParsed.nodeStartEpoch);
   const nodeStartedTime =
     nodeStartedEpoch && typeof nodeStartedEpoch === 'number'
@@ -66,22 +65,6 @@ function InfoPage() {
   useEffect(() => {
     fetchInfoData();
   }, [apiEndpoint, apiToken]);
-
-  useEffect(() => {
-    const watchSync = setInterval(() => {
-      if (!apiEndpoint || (nodeSync && nodeSync === 1)) return;
-      return dispatch(
-        nodeActionsAsync.getPrometheusMetricsThunk({
-          apiEndpoint,
-          apiToken: apiToken ? apiToken : '',
-        }),
-      );
-    }, 5_000);
-
-    return () => {
-      clearInterval(watchSync);
-    };
-  }, [nodeSync, apiEndpoint, apiToken]);
 
   const fetchInfoData = () => {
     if (!apiEndpoint) return;
@@ -123,19 +106,7 @@ function InfoPage() {
       }),
     );
     dispatch(
-      nodeActionsAsync.getAliasesThunk({
-        apiEndpoint,
-        apiToken: apiToken ? apiToken : '',
-      }),
-    );
-    dispatch(
       nodeActionsAsync.getTicketStatisticsThunk({
-        apiEndpoint,
-        apiToken: apiToken ? apiToken : '',
-      }),
-    );
-    dispatch(
-      nodeActionsAsync.getPrometheusMetricsThunk({
         apiEndpoint,
         apiToken: apiToken ? apiToken : '',
       }),
@@ -150,7 +121,6 @@ function InfoPage() {
     versionFetching,
     infoFetching,
     peersFetching,
-    aliasesFetching,
   ].includes(true);
 
   const noCopyPaste = !(
@@ -247,7 +217,7 @@ function InfoPage() {
               </th>
               <td>{info?.isEligible ? 'Yes' : 'No'}</td>
             </tr>
-            <tr>
+            {/* <tr>
               <th>
                 <Tooltip
                   title="The sync process of your node with the blockchain"
@@ -257,7 +227,7 @@ function InfoPage() {
                 </Tooltip>
               </th>
               <td>{nodeSync && typeof nodeSync === 'number' ? <ProgressBar value={nodeSync} /> : '-'}</td>
-            </tr>
+            </tr> */}
             <tr>
               <th>
                 <Tooltip
@@ -475,7 +445,7 @@ function InfoPage() {
                   <span>Current ticket price</span>
                 </Tooltip>
               </th>
-              <td>{ticketPrice ? formatEther(BigInt(ticketPrice as string)) : '-'} wxHOPR</td>
+              <td>{ticketPrice ? ticketPrice : '-'} wxHOPR</td>
             </tr>
             <tr>
               <th>
@@ -697,7 +667,7 @@ function InfoPage() {
               </th>
               <td>{version?.replaceAll('"', '')}</td>
             </tr>
-            <tr key="node-startdate">
+            {/* <tr key="node-startdate">
               <th>
                 <Tooltip
                   title="Date when you node was started"
@@ -707,8 +677,8 @@ function InfoPage() {
                 </Tooltip>
               </th>
               <td>{nodeStartedTime}</td>
-            </tr>
-            <NodeUptime />
+            </tr> */}
+            {/* <NodeUptime /> */}
           </tbody>
         </TableExtended>
 

@@ -227,7 +227,9 @@ export default function Details(props: Props) {
               {info?.connectivityStatus ? info?.connectivityStatus : '-'}
             </ColorStatus>
           </p>
-          <ColorStatus className={`status-${isXdaiEnough()}`}>
+          <ColorStatus
+            // className={`status-${isXdaiEnough()}`}
+          >
             <Tooltip
               title={
                 balances.native?.formatted && balances.native?.formatted !== '0' ? balances.native?.formatted : null
@@ -256,23 +258,23 @@ export default function Details(props: Props) {
           <Tooltip
             title={
               statistics?.unredeemedValue && statistics?.unredeemedValue !== '0'
-                ? formatEther(BigInt(statistics?.unredeemedValue as string))
+                ? "formatEther(BigInt(statistics?.unredeemedValue as string))"
                 : null
             }
           >
             <p className="double">
-              {statistics?.unredeemedValue ? formatEther(BigInt(statistics?.unredeemedValue as string)) : '-'}
+              {statistics?.unredeemedValue ? "formatEther(BigInt(statistics?.unredeemedValue as string))" : '-'}
             </p>
           </Tooltip>
           <Tooltip
             title={
               statistics?.redeemedValue && statistics?.redeemedValue !== '0'
-                ? formatEther(BigInt(statistics?.redeemedValue as string))
+                ?" formatEther(BigInt(statistics?.redeemedValue as string))"
                 : null
             }
           >
             <p className="double">
-              {statistics?.redeemedValue ? formatEther(BigInt(statistics?.redeemedValue as string)) : '-'}
+              {statistics?.redeemedValue ? "formatEther(BigInt(statistics?.redeemedValue as string))" : '-'}
             </p>
           </Tooltip>
         </Data>

@@ -139,7 +139,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   const [segmentation, set_segmentation] = useState<boolean>(true);
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
   const peers = useAppSelector((store) => store.node.peers.data);
   const addresses = useAppSelector((store) => store.node.addresses.data);

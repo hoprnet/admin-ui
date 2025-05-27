@@ -35,7 +35,7 @@ function ChannelsPage() {
   const channelsOutgoingObject = useAppSelector((store) => store.node.channels.parsed.outgoing);
   const channelsOutgoing = useAppSelector((store) => store.node.channels.data?.outgoing);
   const channelsFetching = useAppSelector((store) => store.node.channels.isFetching);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const currentApiEndpoint = useAppSelector((store) => store.node.apiEndpoint);
   const nodeAddressToPeerIdLink = useAppSelector((store) => store.node.links.nodeAddressToPeerId);
@@ -47,12 +47,6 @@ function ChannelsPage() {
     if (!loginData.apiEndpoint) return;
     dispatch(
       actionsAsync.getChannelsThunk({
-        apiEndpoint: loginData.apiEndpoint!,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
-      }),
-    );
-    dispatch(
-      actionsAsync.getAliasesThunk({
         apiEndpoint: loginData.apiEndpoint!,
         apiToken: loginData.apiToken ? loginData.apiToken : '',
       }),

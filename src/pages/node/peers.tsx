@@ -27,8 +27,7 @@ function PeersPage() {
   const loginData = useAppSelector((store) => store.auth.loginData);
   const peers = useAppSelector((store) => store.node.peers.data);
   const peersFetching = useAppSelector((store) => store.node.peers.isFetching);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
-  const aliasesFetching = useAppSelector((store) => store.node.aliases.isFetching);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const nodeAddressToOutgoingChannelLink = useAppSelector((store) => store.node.links.nodeAddressToOutgoingChannel);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
 
@@ -41,12 +40,6 @@ function PeersPage() {
 
     dispatch(
       actionsAsync.getPeersThunk({
-        apiEndpoint: loginData.apiEndpoint!,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
-      }),
-    );
-    dispatch(
-      actionsAsync.getAliasesThunk({
         apiEndpoint: loginData.apiEndpoint!,
         apiToken: loginData.apiToken ? loginData.apiToken : '',
       }),
@@ -201,7 +194,7 @@ function PeersPage() {
       <SubpageTitle
         title={`PEERS (${peers?.connected?.length || '-'})`}
         refreshFunction={handleRefresh}
-        reloading={peersFetching || aliasesFetching}
+        reloading={peersFetching}
         actions={
           <>
             <PingModal />

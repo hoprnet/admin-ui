@@ -19,17 +19,6 @@ const messages = () => {
   const { apiEndpoint, apiToken } = useAppSelector((store) => store.auth.loginData);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (!apiEndpoint) return;
-
-    dispatch(
-      actionsAsync.getAliasesThunk({
-        apiEndpoint,
-        apiToken: apiToken ? apiToken : '',
-      }),
-    );
-  }, []);
-
   const header = [
     {
       key: 'receivedAt',
@@ -87,15 +76,6 @@ const messages = () => {
                   messages
                 </span>
               }
-              onClick={() => {
-                if (!apiEndpoint) return;
-                dispatch(
-                  actionsAsync.deleteMessagesThunk({
-                    apiEndpoint,
-                    apiToken: apiToken ? apiToken : '',
-                  }),
-                );
-              }}
             />
           </>
         }

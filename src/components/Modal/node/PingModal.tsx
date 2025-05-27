@@ -22,7 +22,7 @@ type PingModalProps = {
 export const PingModal = (props: PingModalProps) => {
   const dispatch = useAppDispatch();
   const loginData = useAppSelector((selector) => selector.auth.loginData);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
   const [peerId, set_peerId] = useState<string>(props.peerId ? props.peerId : '');
   const [openModal, set_OpenModal] = useState(false);

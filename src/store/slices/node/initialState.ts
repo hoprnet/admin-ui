@@ -1,6 +1,5 @@
 import type {
   GetTicketStatisticsResponseType,
-  GetAliasesResponseType,
   GetChannelsResponseType,
   GetInfoResponseType,
   GetPeersResponseType,
@@ -50,7 +49,7 @@ export type ChannelsIncomingType = {
   [channelId: string]: ChannelIncomingType;
 };
 
-export type AddressesType = { hopr: string | null; native: string | null };
+export type AddressesType = { native: string | null };
 
 type WebsocketConnectionStatus = 'connecting' | 'connected' | 'error' | null;
 
@@ -68,8 +67,6 @@ type InitialState = {
     isFetching: boolean;
   };
   aliases: {
-    data: GetAliasesResponseType | null;
-    isFetching: boolean;
   };
   balances: {
     data: {
@@ -257,14 +254,11 @@ export const initialState: InitialState = {
   },
   addresses: {
     data: {
-      hopr: null,
       native: null,
     },
     isFetching: false,
   },
   aliases: {
-    data: null,
-    isFetching: false,
   },
   balances: {
     data: {
