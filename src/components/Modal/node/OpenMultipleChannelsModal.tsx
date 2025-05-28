@@ -4,7 +4,7 @@ import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-ho
 import STextField from '../../../future-hopr-lib-components/TextField';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
-import { utils } from 'ethers';
+import { parseEther } from 'viem';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
 import { HOPR_TOKEN_USED } from '../../../../config';
 import { utils as hoprdUlils } from '@hoprnet/hopr-sdk';
@@ -50,13 +50,13 @@ export const OpenMultipleChannelsModal = () => {
     set_peerIds([]);
   };
 
-  const handleOpenChannel = async (weiValue: string, peerId: string) => {
+  const handleOpenChannel = async (weiValue: string, peerAddress: string) => {
     await dispatch(
       actionsAsync.openChannelThunk({
         apiEndpoint: loginData.apiEndpoint!,
         apiToken: loginData.apiToken ? loginData.apiToken : '',
         amount: weiValue,
-        peerAddress: peerId,
+        destination: peerAddress,
         timeout: 60e3,
       }),
     )
@@ -67,7 +67,7 @@ export const OpenMultipleChannelsModal = () => {
         ).unwrap();
         if (!isCurrentApiEndpointTheSame) return;
 
-        let errMsg = `Channel to ${peerId} failed to be opened`;
+        let errMsg = `Channel to ${peerAddress} failed to be opened`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
           errMsg = errMsg + `.\n${e.hoprdErrorPayload.status}`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.error) errMsg = errMsg + `.\n${e.hoprdErrorPayload.error}`;
@@ -87,7 +87,7 @@ export const OpenMultipleChannelsModal = () => {
 
   const handleAction = async () => {
     const parsedOutgoing = parseFloat(amount ?? '0') >= 0 ? amount ?? '0' : '0';
-    const weiValue = utils.parseEther(parsedOutgoing).toString();
+    const weiValue = parseEther(parsedOutgoing).toString();
     if (peerIds && loginData.apiEndpoint) {
       for (let i = 0; i < peerIds.length; i++) {
         handleOpenChannel(weiValue, peerIds[i]);

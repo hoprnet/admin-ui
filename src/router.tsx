@@ -17,14 +17,14 @@ import { nodeActions, nodeActionsAsync } from './store/slices/node';
 
 // Sections
 import NodeLandingPage from './pages/node/landingPage';
-import AliasesPage from './pages/node/aliases';
+//import AliasesPage from './pages/node/aliases';
 import InfoPage from './pages/node/info';
-import MessagesPage from './pages/node/messages';
+//import MessagesPage from './pages/node/messages';
 import PeersPage from './pages/node/peers';
 import TicketsPage from './pages/node/tickets';
 import ChannelsPageIncoming from './pages/node/channelsIncoming';
 import ChannelsPageOutgoing from './pages/node/channelsOutgoing';
-import MetricsPage from './pages/node/metrics';
+//import MetricsPage from './pages/node/metrics';
 import ConfigurationPage from './pages/node/configuration';
 import SessionsPage from './pages/node/sessions';
 
@@ -99,13 +99,13 @@ export const applicationMapNode: ApplicationMapType = [
         element: <TicketsPage />,
         loginNeeded: 'node',
       },
-      {
-        name: 'METRICS',
-        path: 'metrics',
-        icon: <BarChartIcon />,
-        element: <MetricsPage />,
-        loginNeeded: 'node',
-      },
+      // {
+      //   name: 'METRICS',
+      //   path: 'metrics',
+      //   icon: <BarChartIcon />,
+      //   element: <MetricsPage />,
+      //   loginNeeded: 'node',
+      // },
       {
         name: 'CONFIGURATION',
         path: 'configuration',
@@ -129,22 +129,22 @@ export const applicationMapNode: ApplicationMapType = [
         numberKey: 'numberOfPeers',
         fetchingKey: 'fetchingPeers',
       },
-      {
-        name: 'ALIASES',
-        path: 'aliases',
-        icon: <ContactPhone />,
-        element: <AliasesPage />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfAliases',
-      },
-      {
-        name: 'MESSAGES',
-        path: 'messages',
-        icon: <MailIcon />,
-        element: <MessagesPage />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfMessagesReceived',
-      },
+      // {
+      //   name: 'ALIASES',
+      //   path: 'aliases',
+      //   icon: <ContactPhone />,
+      //   element: <AliasesPage />,
+      //   loginNeeded: 'node',
+      //   numberKey: 'numberOfAliases',
+      // },
+      // {
+      //   name: 'MESSAGES',
+      //   path: 'messages',
+      //   icon: <MailIcon />,
+      //   element: <MessagesPage />,
+      //   loginNeeded: 'node',
+      //   numberKey: 'numberOfMessagesReceived',
+      // },
       {
         name: 'CHANNELS: IN',
         path: 'channels-INCOMING',
@@ -227,10 +227,7 @@ const LayoutEnhanced = () => {
 
   const numberOfPeers = useAppSelector((store) => store.node.peers.data?.connected.length);
   const fetchingPeers = useAppSelector((store) => store.node.peers.isFetching);
-  const numberOfAliases = useAppSelector(
-    (store) => store.node.aliases?.data && Object.keys(store.node.aliases?.data).length,
-  );
-  const fetchingAliases = useAppSelector((store) => store.node.aliases.isFetching);
+  const numberOfAliases = useAppSelector((store) => store.node.aliases && Object.keys(store.node.aliases).length);
   const numberOfMessagesReceived = useAppSelector((store) => store.node.messages.data.length);
   const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
   const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);
@@ -249,7 +246,6 @@ const LayoutEnhanced = () => {
 
   const drawerNumbersLoading = {
     fetchingPeers,
-    fetchingAliases,
     fetchingChannels,
     fetchingSessions,
   };
@@ -298,12 +294,6 @@ const LayoutEnhanced = () => {
             }),
           );
           dispatch(
-            nodeActionsAsync.getAliasesThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            }),
-          );
-          dispatch(
             nodeActionsAsync.getPeersThunk({
               apiEndpoint,
               apiToken: apiToken ? apiToken : '',
@@ -316,13 +306,6 @@ const LayoutEnhanced = () => {
             }),
           );
           dispatch(
-            nodeActionsAsync.getMessagesThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-              firstLoad: true,
-            }),
-          );
-          dispatch(
             nodeActionsAsync.getChannelsThunk({
               apiEndpoint,
               apiToken: apiToken ? apiToken : '',
@@ -330,12 +313,6 @@ const LayoutEnhanced = () => {
           );
           dispatch(
             nodeActionsAsync.getTicketStatisticsThunk({
-              apiEndpoint,
-              apiToken: apiToken ? apiToken : '',
-            }),
-          );
-          dispatch(
-            nodeActionsAsync.getPrometheusMetricsThunk({
               apiEndpoint,
               apiToken: apiToken ? apiToken : '',
             }),

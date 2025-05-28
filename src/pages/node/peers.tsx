@@ -9,7 +9,7 @@ import { SubpageTitle } from '../../components/SubpageTitle';
 import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
 import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
-import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
+//import { SendMessageModal } from '../../components/Modal/node/SendMessageModal.tsx_';
 import IconButton from '../../future-hopr-lib-components/Button/IconButton';
 import TablePro from '../../future-hopr-lib-components/Table/table-pro';
 import ProgressBar from '../../future-hopr-lib-components/Progressbar';
@@ -27,8 +27,7 @@ function PeersPage() {
   const loginData = useAppSelector((store) => store.auth.loginData);
   const peers = useAppSelector((store) => store.node.peers.data);
   const peersFetching = useAppSelector((store) => store.node.peers.isFetching);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
-  const aliasesFetching = useAppSelector((store) => store.node.aliases.isFetching);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const nodeAddressToOutgoingChannelLink = useAppSelector((store) => store.node.links.nodeAddressToOutgoingChannel);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
 
@@ -45,12 +44,6 @@ function PeersPage() {
         apiToken: loginData.apiToken ? loginData.apiToken : '',
       }),
     );
-    dispatch(
-      actionsAsync.getAliasesThunk({
-        apiEndpoint: loginData.apiEndpoint!,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
-      }),
-    );
   };
 
   const getAliasByPeerId = (peerId: string): string => {
@@ -62,8 +55,7 @@ function PeersPage() {
     if (peers?.connected) {
       exportToCsv(
         peers.connected.map((peer) => ({
-          peerId: peer.peerId,
-          nodeAddress: peer.peerAddress,
+          nodeAddress: peer.address,
           quality: peer.quality,
           multiaddr: peer.multiaddr,
           heartbeats: peer.heartbeats,
@@ -120,25 +112,25 @@ function PeersPage() {
   ];
 
   const peersWithAliases = (peers?.connected || []).filter(
-    (peer) => aliases && peer.peerId && peerIdToAliasLink[peer.peerId],
+    (peer) => aliases && peer.address && peerIdToAliasLink[peer.address],
   );
   const peersWithAliasesSorted = peersWithAliases.sort((a, b) => {
-    if (getAliasByPeerId(b.peerId).toLowerCase() > getAliasByPeerId(a.peerId).toLowerCase()) {
+    if (getAliasByPeerId(b.address).toLowerCase() > getAliasByPeerId(a.address).toLowerCase()) {
       return -1;
     }
-    if (getAliasByPeerId(b.peerId).toLowerCase() < getAliasByPeerId(a.peerId).toLowerCase()) {
+    if (getAliasByPeerId(b.address).toLowerCase() < getAliasByPeerId(a.address).toLowerCase()) {
       return 1;
     }
     return 0;
   });
   const peersWithoutAliases = (peers?.connected || []).filter(
-    (peer) => aliases && peer.peerId && !peerIdToAliasLink[peer.peerId],
+    (peer) => aliases && peer.address && !peerIdToAliasLink[peer.address],
   );
   const peersWithoutAliasesSorted = peersWithoutAliases.sort((a, b) => {
-    if (b.peerId > a.peerId) {
+    if (b.address > a.address) {
       return -1;
     }
-    if (b.peerId < a.peerId) {
+    if (b.address < a.address) {
       return 1;
     }
     return 0;
@@ -165,29 +157,28 @@ function PeersPage() {
       id: index + 1,
       node: (
         <PeersInfo
-          peerId={peer.peerId}
-          nodeAddress={peer.peerAddress}
+          peerId={''}
+          nodeAddress={peer.address}
           shortenPeerIdIfAliasPresent
         />
       ),
-      peerId: getAliasByPeerId(peer.peerId),
-      peerAddress: peer.peerAddress,
+      peerId: getAliasByPeerId(peer.address),
+      peerAddress: peer.address,
       quality: <ProgressBar value={peer.quality} />,
       lastSeen: <span style={{ whiteSpace: 'break-spaces' }}>{lastSeen}</span>,
       actions: (
         <>
-          <PingModal peerId={peer.peerId} />
-          <CreateAliasModal
+          <PingModal address={peer.address} />
+          {/* <CreateAliasModal
             handleRefresh={handleRefresh}
-            peerId={peer.peerId}
-          />
-          {nodeAddressToOutgoingChannelLink[peer.peerAddress] ? (
-            <FundChannelModal channelId={nodeAddressToOutgoingChannelLink[peer.peerAddress]} />
+            peerId={peer.address}
+          /> */}
+          {nodeAddressToOutgoingChannelLink[peer.address] ? (
+            <FundChannelModal channelId={nodeAddressToOutgoingChannelLink[peer.address]} />
           ) : (
-            <OpenChannelModal peerAddress={peer.peerAddress} />
+            <OpenChannelModal peerAddress={peer.address} />
           )}
-          <OpenSessionModal peerId={peer.peerId} />
-          <SendMessageModal peerId={peer.peerId} />
+          <OpenSessionModal destination={peer.address} />
         </>
       ),
     };
@@ -201,7 +192,7 @@ function PeersPage() {
       <SubpageTitle
         title={`PEERS (${peers?.connected?.length || '-'})`}
         refreshFunction={handleRefresh}
-        reloading={peersFetching || aliasesFetching}
+        reloading={peersFetching}
         actions={
           <>
             <PingModal />

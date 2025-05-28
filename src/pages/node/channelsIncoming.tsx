@@ -3,7 +3,6 @@ import { useAppDispatch, useAppSelector } from '../../store';
 import { actionsAsync } from '../../store/slices/node/actionsAsync';
 import { useNavigate } from 'react-router-dom';
 import { exportToCsv } from '../../utils/helpers';
-import { utils } from 'ethers';
 import { HOPR_TOKEN_USED } from '../../../config';
 import { sendNotification } from '../../hooks/useWatcher/notifications';
 import { formatEther } from 'viem';
@@ -24,7 +23,7 @@ import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
 import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
 import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
-import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
+//import { SendMessageModal } from '../../components/Modal/node/SendMessageModal.tsx_';
 
 // Mui
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -36,7 +35,7 @@ function ChannelsPage() {
   const channelsIncoming = useAppSelector((store) => store.node.channels.data?.incoming);
   const channelsIncomingObject = useAppSelector((store) => store.node.channels.parsed.incoming);
   const channelsFetching = useAppSelector((store) => store.node.channels.isFetching);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const currentApiEndpoint = useAppSelector((store) => store.node.apiEndpoint);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const nodeAddressToPeerIdLink = useAppSelector((store) => store.node.links.nodeAddressToPeerId);
@@ -56,19 +55,7 @@ function ChannelsPage() {
       }),
     );
     dispatch(
-      actionsAsync.getAliasesThunk({
-        apiEndpoint: loginData.apiEndpoint!,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
-      }),
-    );
-    dispatch(
       actionsAsync.getPeersThunk({
-        apiEndpoint: loginData.apiEndpoint!,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
-      }),
-    );
-    dispatch(
-      actionsAsync.getPrometheusMetricsThunk({
         apiEndpoint: loginData.apiEndpoint!,
         apiToken: loginData.apiToken ? loginData.apiToken : '',
       }),
@@ -136,20 +123,20 @@ function ChannelsPage() {
       maxWidth: '68px',
       tooltip: true,
     },
-    {
-      key: 'tickets',
-      name: 'Unredeemed',
-      maxWidth: '130px',
-      tooltipHeader: (
-        <>
-          Unredeemed value of tickets per channel in wxHOPR.
-          <br />
-          <br />
-          Value is reset on node restart.
-        </>
-      ),
-      tooltip: true,
-    },
+    // {
+    //   key: 'tickets',
+    //   name: 'Unredeemed',
+    //   maxWidth: '130px',
+    //   tooltipHeader: (
+    //     <>
+    //       Unredeemed value of tickets per channel in wxHOPR.
+    //       <br />
+    //       <br />
+    //       Value is reset on node restart.
+    //     </>
+    //   ),
+    //   tooltip: true,
+    // },
     {
       key: 'actions',
       name: 'Actions',
@@ -257,28 +244,27 @@ function ChannelsPage() {
           />
         ),
         peerAddress: getAliasByPeerAddress(peerAddress as string),
-        peerId: peerId,
         status: channelsIncomingObject[id].status,
-        funds: `${utils.formatEther(channelsIncomingObject[id].balance as string)} ${HOPR_TOKEN_USED}`,
+        funds: `${channelsIncomingObject[id].balance} ${HOPR_TOKEN_USED}`,
         tickets: unredeemedTicketsPerChannel,
         actions: (
           <>
             <PingModal
-              peerId={peerId}
-              disabled={!peerId}
+              address={peerAddress}
+              disabled={!peerAddress}
               tooltip={
-                !peerId ? (
+                !peerAddress ? (
                   <span>
                     DISABLED
                     <br />
                     Unable to find
                     <br />
-                    peerId
+                    node address
                   </span>
                 ) : undefined
               }
             />
-            <CreateAliasModal
+            {/* <CreateAliasModal
               handleRefresh={handleRefresh}
               peerId={peerId}
               disabled={!peerId}
@@ -293,7 +279,7 @@ function ChannelsPage() {
                   </span>
                 ) : undefined
               }
-            />
+            /> */}
             {outgoingChannelOpened ? (
               <FundChannelModal channelId={id} />
             ) : (
@@ -311,8 +297,8 @@ function ChannelsPage() {
               }
               onClick={() => handleCloseChannel(id)}
             />
-            <OpenSessionModal peerId={peerId} />
-            <SendMessageModal
+            <OpenSessionModal destination={peerAddress} />
+            {/* <SendMessageModal
               peerId={peerId}
               disabled={!peerId}
               tooltip={
@@ -326,7 +312,7 @@ function ChannelsPage() {
                   </span>
                 ) : undefined
               }
-            />
+            /> */}
           </>
         ),
       };

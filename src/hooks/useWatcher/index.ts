@@ -66,26 +66,6 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
       });
     }, intervalDuration);
 
-    const watchMetricsInterval = setInterval(() => {
-      if (!apiEndpoint) return;
-      return dispatch(
-        nodeActionsAsync.getPrometheusMetricsThunk({
-          apiEndpoint,
-          apiToken: apiToken ? apiToken : '',
-        }),
-      );
-    }, intervalDuration);
-
-    const watchMessagesInterval = setInterval(() => {
-      if (!apiEndpoint) return;
-      return dispatch(
-        nodeActionsAsync.getMessagesThunk({
-          apiEndpoint,
-          apiToken: apiToken ? apiToken : '',
-        }),
-      );
-    }, 5_000);
-
     const watchNodeBalancesInterval = setInterval(() => {
       observeNodeBalances({
         apiEndpoint,
@@ -93,7 +73,7 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
         active: activeNodeBalances,
         minimumNodeBalances: {
           hopr: '0',
-          native: parseEther('0.003').toString(),
+          native: '0.003',
           safeHopr: '0',
           safeNative: '0',
           safeHoprAllowance: '0',
@@ -121,8 +101,6 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
       clearInterval(watchChannelsInterval);
       clearInterval(watchNodeInfoInterval);
       clearInterval(watchNodeBalancesInterval);
-      clearInterval(watchMessagesInterval);
-      clearInterval(watchMetricsInterval);
       clearInterval(watchSessionsInterval);
     };
   }, [connected, apiEndpoint, apiToken, isNodeReady, prevNodeBalances, prevNodeInfo, prevOutgoingChannels]);

@@ -255,25 +255,15 @@ export default function Details(props: Props) {
           </Tooltip>
           <Tooltip
             title={
-              statistics?.unredeemedValue && statistics?.unredeemedValue !== '0'
-                ? formatEther(BigInt(statistics?.unredeemedValue as string))
-                : null
+              statistics?.unredeemedValue && statistics?.unredeemedValue !== '0' ? statistics?.unredeemedValue : null
             }
           >
-            <p className="double">
-              {statistics?.unredeemedValue ? formatEther(BigInt(statistics?.unredeemedValue as string)) : '-'}
-            </p>
+            <p className="double">{statistics?.unredeemedValue ? statistics?.unredeemedValue : '-'}</p>
           </Tooltip>
           <Tooltip
-            title={
-              statistics?.redeemedValue && statistics?.redeemedValue !== '0'
-                ? formatEther(BigInt(statistics?.redeemedValue as string))
-                : null
-            }
+            title={statistics?.redeemedValue && statistics?.redeemedValue !== '0' ? statistics?.redeemedValue : null}
           >
-            <p className="double">
-              {statistics?.redeemedValue ? formatEther(BigInt(statistics?.redeemedValue as string)) : '-'}
-            </p>
+            <p className="double">{statistics?.redeemedValue ? statistics?.redeemedValue : '-'}</p>
           </Tooltip>
         </Data>
       </DataColumn>

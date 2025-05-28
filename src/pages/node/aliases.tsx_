@@ -9,14 +9,14 @@ const { sdkApiError } = utils;
 import Section from '../../future-hopr-lib-components/Section';
 import { SubpageTitle } from '../../components/SubpageTitle';
 import IconButton from '../../future-hopr-lib-components/Button/IconButton';
-import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
+import { SendMessageModal } from '../../components/Modal/node/SendMessageModal.tsx_';
 import RemoveAliasIcon from '../../future-hopr-lib-components/Icons/RemoveAlias';
 import TablePro from '../../future-hopr-lib-components/Table/table-pro';
 import PeersInfo from '../../future-hopr-lib-components/PeerInfo';
 
 // Modals
 import { PingModal } from '../../components/Modal/node/PingModal';
-import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
+import { CreateAliasModal } from '../../components/Modal/node/AddAliasModal';
 import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
 import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
@@ -27,11 +27,8 @@ import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 
 function AliasesPage() {
   const dispatch = useAppDispatch();
-  const peerId = useAppSelector((store) => store.node.addresses.data.hopr);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const peersObject = useAppSelector((store) => store.node.peers.parsed.connected);
-  const aliasesFetching = useAppSelector((store) => store.node.aliases.isFetching);
-  const hoprAddress = useAppSelector((store) => store.node.addresses.data.hopr);
   const myNodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const peerIdToNodeAddressLink = useAppSelector((store) => store.node.links.peerIdToNodeAddress);
@@ -48,25 +45,11 @@ function AliasesPage() {
   >([]);
 
   useEffect(() => {
-    if (loginData.apiEndpoint) {
-      dispatch(
-        actionsAsync.getAliasesThunk({
-          apiEndpoint: loginData.apiEndpoint,
-          apiToken: loginData.apiToken ? loginData.apiToken : '',
-        }),
-      );
-    }
+
   }, [loginData]);
 
   const handleRefresh = () => {
-    if (loginData.apiEndpoint) {
-      dispatch(
-        actionsAsync.getAliasesThunk({
-          apiEndpoint: loginData.apiEndpoint,
-          apiToken: loginData.apiToken ? loginData.apiToken : '',
-        }),
-      );
-    }
+
   };
 
   const getNodeAddressByPeerId = (peerId: string): string | undefined => {
@@ -91,49 +74,9 @@ function AliasesPage() {
     if (!loginData.apiEndpoint) return;
     for (const data of parsedData) {
       if (data.alias && data.peerId) {
-        if (peerIdsWithAliases.includes(data.peerId)) {
-          console.log(peerIdToAliasLink, data.peerId, peerIdToAliasLink[data.peerId]);
-          await dispatch(
-            actionsAsync.removeAliasThunk({
-              alias: peerIdToAliasLink[data.peerId],
-              apiEndpoint: loginData.apiEndpoint,
-              apiToken: loginData.apiToken ? loginData.apiToken : '',
-            }),
-          );
-        }
 
-        await dispatch(
-          actionsAsync.setAliasThunk({
-            alias: String(data.alias),
-            peerId: String(data.peerId),
-            apiEndpoint: loginData.apiEndpoint,
-            apiToken: loginData.apiToken ? loginData.apiToken : '',
-          }),
-        )
-          .unwrap()
-          .then(() => {
-            set_importSuccess(true);
-            set_importErrors([]);
-          })
-          .catch((e) => {
-            set_importSuccess(false);
-            set_importErrors([
-              ...importErrors,
-              {
-                alias: String(data.alias),
-                error: e.error,
-                status: e.status,
-              },
-            ]);
-          });
       }
     }
-    dispatch(
-      actionsAsync.getAliasesThunk({
-        apiEndpoint: loginData.apiEndpoint,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
-      }),
-    );
   };
 
   const parsedTableData = Object.entries(aliases ?? {}).map(([alias, peerId], key) => {
@@ -257,7 +200,7 @@ function AliasesPage() {
       <SubpageTitle
         title={`ALIASES (${parsedTableData.length})`}
         refreshFunction={handleRefresh}
-        reloading={aliasesFetching}
+      //  reloading={aliasesFetching}
         actions={
           <>
             <CreateAliasModal handleRefresh={handleRefresh} />
@@ -278,11 +221,11 @@ function AliasesPage() {
         }
       />
       <TablePro
-        data={parsedTableData}
-        search={true}
-        id={'node-aliases-table'}
-        header={header}
-        loading={parsedTableData.length === 0 && aliasesFetching}
+        // data={parsedTableData}
+        // search={true}
+        // id={'node-aliases-table'}
+        // header={header}
+        // loading={parsedTableData.length === 0 && aliasesFetching}
         orderByDefault="alias"
       />
     </Section>
@@ -322,19 +265,19 @@ function DeleteAliasButton({
       }
       onClick={() => {
         if (loginData.apiEndpoint) {
-          dispatch(
-            actionsAsync.removeAliasThunk({
-              alias,
-              apiEndpoint: loginData.apiEndpoint,
-              apiToken: loginData.apiToken ? loginData.apiToken : '',
-            }),
-          )
-            .unwrap()
-            .then(() => {
-              onSuccess();
-            })
-            .catch((e) => onError(e));
-        }
+        //   dispatch(
+        //     actionsAsync.removeAliasThunk({
+        //       alias,
+        //       apiEndpoint: loginData.apiEndpoint,
+        //       apiToken: loginData.apiToken ? loginData.apiToken : '',
+        //     }),
+        //   )
+        //     .unwrap()
+        //     .then(() => {
+        //       onSuccess();
+        //     })
+        //     .catch((e) => onError(e));
+        // }
       }}
       disabled={disabled}
     />
@@ -381,28 +324,7 @@ function CreateAliasForm() {
       <button
         disabled={form.alias.length === 0 || form.peerId.length === 0}
         onClick={() => {
-          if (loginData.apiEndpoint) {
-            dispatch(
-              actionsAsync.setAliasThunk({
-                alias: form.alias,
-                peerId: form.peerId,
-                apiEndpoint: loginData.apiEndpoint,
-                apiToken: loginData.apiToken ? loginData.apiToken : '',
-              }),
-            )
-              .unwrap()
-              .then(() => {
-                set_success(true);
-                set_error(undefined);
-              })
-              .catch((e) => {
-                set_success(false);
-                set_error({
-                  error: e.error,
-                  status: e.status,
-                });
-              });
-          }
+
         }}
       >
         add

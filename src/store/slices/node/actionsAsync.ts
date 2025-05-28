@@ -2,7 +2,6 @@ import { ActionReducerMapBuilder, AnyAction, ThunkDispatch, createAsyncThunk } f
 import { initialState } from './initialState';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  type AliasPayloadType,
   type BasePayloadType,
   type CloseChannelPayloadType,
   type CreateTokenPayloadType,
@@ -11,10 +10,6 @@ import {
   type GetPeersPayloadType,
   type OpenChannelPayloadType,
   type PingPeerPayloadType,
-  type SendMessagePayloadType,
-  type PeekAllMessagesPayloadType,
-  type DeleteMessagesPayloadType,
-  type SetAliasPayloadType,
   type GetChannelTicketsPayloadType,
   type GetConfigurationResponseType,
   type FundChannelsPayloadType,
@@ -24,7 +19,6 @@ import {
   type GetPeerPayloadType,
   type GetChannelResponseType,
   type GetPeersResponseType,
-  type GetAliasesResponseType,
   type GetInfoResponseType,
   type GetTicketStatisticsResponseType,
   type GetTokenResponseType,
@@ -50,7 +44,7 @@ import {
 } from '@hoprnet/hopr-sdk';
 import { parseMetrics } from '../../../utils/metrics';
 import { RootState } from '../..';
-import { formatEther } from 'viem';
+import { formatEther, parseEther } from 'viem';
 import { nodeActionsFetching } from './actionsFetching';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
 import { useAppDispatch } from '../../../store';
@@ -62,8 +56,6 @@ const {
   createToken,
   deleteToken,
   getAddresses,
-  getAlias,
-  getAliases,
   getBalances,
   getChannel,
   getChannelTickets,
@@ -71,7 +63,6 @@ const {
   getConfiguration,
   getEntryNodes,
   getInfo,
-  getMetrics,
   getPeers,
   getTicketStatistics,
   getToken,
@@ -85,14 +76,9 @@ const {
   openChannel,
   pingPeer,
   getPeer, // old getPeerInfo
-  peekAllMessages,
-  deleteMessages,
   redeemChannelTickets,
   redeemAllTickets,
   resetTicketStatistics,
-  removeAlias,
-  sendMessage,
-  setAlias,
   withdraw,
   isNodeReady,
 } = api;
@@ -146,7 +132,6 @@ const getInfoThunk = createAsyncThunk<GetInfoResponseType | undefined, BasePaylo
 
 const getAddressesThunk = createAsyncThunk<
   | {
-      hopr: string;
       native: string;
     }
   | undefined,
@@ -188,29 +173,6 @@ const getAddressesThunk = createAsyncThunk<
   },
 );
 
-const getAliasesThunk = createAsyncThunk<GetAliasesResponseType | undefined, BasePayloadType, { state: RootState }>(
-  'node/getAliases',
-  async (payload, { rejectWithValue }) => {
-    try {
-      const aliases = await getAliases(payload);
-      return aliases;
-    } catch (e) {
-      if (e instanceof sdkApiError) {
-        return rejectWithValue(e);
-      }
-      return rejectWithValue({ status: JSON.stringify(e) });
-    }
-  },
-  {
-    condition: (_payload, { getState }) => {
-      const isFetching = getState().node.aliases.isFetching;
-      if (isFetching) {
-        return false;
-      }
-    },
-  },
-);
-
 const getBalancesThunk = createAsyncThunk<
   GetBalancesResponseType | undefined,
   BasePayloadType & { force?: boolean },
@@ -221,6 +183,7 @@ const getBalancesThunk = createAsyncThunk<
     dispatch(nodeActionsFetching.setBalancesFetching(true));
     try {
       const balances = await getBalances(payload);
+      console.log('getBalancesThunk', balances);
       return balances;
     } catch (e) {
       if (e instanceof sdkApiError) {
@@ -302,6 +265,7 @@ const getConfigurationThunk = createAsyncThunk<
   async (payload, { rejectWithValue, dispatch }) => {
     try {
       const configuration = await getConfiguration(payload);
+      console.log('getConfigurationThunk', configuration);
       return configuration;
     } catch (e) {
       if (e instanceof sdkApiError) {
@@ -496,99 +460,6 @@ const withdrawThunk = createAsyncThunk<string | undefined, WithdrawPayloadType, 
   },
 );
 
-const getAliasThunk = createAsyncThunk<
-  | {
-      peerId: string;
-      alias: string;
-    }
-  | undefined,
-  AliasPayloadType,
-  { state: RootState }
->(
-  'node/getAlias',
-  async (payload, { rejectWithValue, dispatch }) => {
-    dispatch(nodeActionsFetching.setAliasesFetching(true));
-    try {
-      const res = await getAlias(payload);
-      return {
-        peerId: res,
-        alias: payload.alias,
-      };
-    } catch (e) {
-      if (e instanceof sdkApiError) {
-        return rejectWithValue(e);
-      }
-      return rejectWithValue({ status: JSON.stringify(e) });
-    }
-  },
-  {
-    condition: (_payload, { getState }) => {
-      const isFetching = getState().node.aliases.isFetching;
-      if (isFetching) {
-        return false;
-      }
-    },
-  },
-);
-
-const setAliasThunk = createAsyncThunk<
-  { peerId: string; alias: string } | undefined,
-  SetAliasPayloadType,
-  { state: RootState }
->(
-  'node/setAlias',
-  async (payload, { rejectWithValue, dispatch }) => {
-    try {
-      const res = await setAlias(payload);
-      if (res) {
-        return {
-          peerId: payload.peerId as string,
-          alias: payload.alias,
-        };
-      }
-    } catch (e) {
-      if (e instanceof sdkApiError) {
-        return rejectWithValue(e);
-      }
-      return rejectWithValue({ status: JSON.stringify(e) });
-    }
-  },
-  {
-    condition: (_payload, { getState }) => {
-      const isFetching = getState().node.aliases.isFetching;
-      if (isFetching) {
-        return false;
-      }
-    },
-  },
-);
-
-const removeAliasThunk = createAsyncThunk<{ alias: string } | undefined, AliasPayloadType, { state: RootState }>(
-  'node/removeAlias',
-  async (payload, { rejectWithValue, dispatch }) => {
-    dispatch(nodeActionsFetching.setAliasesFetching(true));
-    try {
-      const res = await removeAlias(payload);
-      if (res) {
-        return { alias: payload.alias };
-      }
-    } catch (e) {
-      if (e instanceof sdkApiError) {
-        return rejectWithValue(e);
-      }
-      return rejectWithValue({ status: JSON.stringify(e) });
-    }
-  },
-  {
-    condition: (_payload, { getState }) => {
-      const isFetching = getState().node.aliases.isFetching;
-      if (isFetching) {
-        return false;
-      }
-    },
-  },
-);
-
 const closeChannelThunk = createAsyncThunk<
   | {
       channelStatus: string;
@@ -723,79 +594,12 @@ const redeemChannelTicketsThunk = createAsyncThunk<
   },
 );
 
-interface GetMessagesThunk extends PeekAllMessagesPayloadType {
-  firstLoad?: boolean;
-}
-
-const getMessagesThunk = createAsyncThunk(
-  'node/getMessages',
-  async (payload: GetMessagesThunk, { rejectWithValue }) => {
-    try {
-      const res = await peekAllMessages(payload);
-      return res.messages;
-    } catch (e) {
-      if (e instanceof sdkApiError) {
-        return rejectWithValue(e);
-      }
-      return rejectWithValue({ status: JSON.stringify(e) });
-    }
-  },
-);
-
-const sendMessageThunk = createAsyncThunk(
-  'node/sendMessage',
-  async (payload: SendMessagePayloadType, { rejectWithValue }) => {
-    try {
-      const res = await sendMessage(payload);
-      return {
-        challenge: res,
-        body: payload.body,
-      };
-    } catch (e) {
-      if (e instanceof sdkApiError) {
-        return rejectWithValue(e);
-      }
-      return rejectWithValue({ status: JSON.stringify(e) });
-    }
-  },
-);
-
-const deleteMessagesThunk = createAsyncThunk(
-  'node/deleteMessages',
-  async (payload: DeleteMessagesPayloadType, { rejectWithValue }) => {
-    try {
-      const res = await deleteMessages(payload);
-      return;
-    } catch (e) {
-      if (e instanceof sdkApiError) {
-        return rejectWithValue(e);
-      }
-      return rejectWithValue({ status: JSON.stringify(e) });
-    }
-  },
-);
-
-//
-// const signThunk = createAsyncThunk('node/sign', async (payload: SignPayloadType, { rejectWithValue }) => {
-//   try {
-//     const res = await sign(payload);
-//     return res;
-//   } catch (e) {
-//     if (e instanceof sdkApiError) {
-//       return rejectWithValue({
-//         status: e.status,
-//         error: e.error,
-//       });
-//     }
-//   }
-// });
-
 const pingNodeThunk = createAsyncThunk('node/pingNode', async (payload: PingPeerPayloadType, { rejectWithValue }) => {
   try {
     const res = await pingPeer(payload);
     return {
       ...res,
-      peerId: payload.peerId,
+      peerId: payload.address,
     };
   } catch (e) {
     if (e instanceof sdkApiError) {
@@ -905,30 +709,6 @@ const deleteTokenThunk = createAsyncThunk<
   {
     condition: (_payload, { getState }) => {
       const isFetching = getState().node.tokens.isFetching;
-      if (isFetching) {
-        return false;
-      }
-    },
-  },
-);
-
-const getPrometheusMetricsThunk = createAsyncThunk<string | undefined, BasePayloadType, { state: RootState }>(
-  'node/getPrometheusMetrics',
-  async (payload, { rejectWithValue, dispatch }) => {
-    dispatch(nodeActionsFetching.setMetricsFetching(true));
-    try {
-      const res = await getMetrics(payload);
-      return res;
-    } catch (e) {
-      if (e instanceof sdkApiError) {
-        return rejectWithValue(e);
-      }
-      return rejectWithValue({ status: JSON.stringify(e) });
-    }
-  },
-  {
-    condition: (_payload, { getState }) => {
-      const isFetching = getState().node.metrics.isFetching;
       if (isFetching) {
         return false;
       }
@@ -1102,56 +882,36 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   builder.addCase(getAddressesThunk.rejected, (state) => {
     state.addresses.isFetching = false;
   });
-  // getAliases
-  builder.addCase(getAliasesThunk.pending, (state) => {
-    state.aliases.isFetching = true;
-  });
-  builder.addCase(getAliasesThunk.fulfilled, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    if (action.payload) {
-      state.aliases.data = action.payload;
-
-      const aliases = Object.keys(action.payload);
-      for (let i = 0; i < aliases.length; i++) {
-        state.links.peerIdToAlias[action.payload[aliases[i]]] = aliases[i];
-      }
-    }
-    state.aliases.isFetching = false;
-  });
-  builder.addCase(getAliasesThunk.rejected, (state) => {
-    state.aliases.isFetching = false;
-  });
   // getBalances
   builder.addCase(getBalancesThunk.fulfilled, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
     if (action.payload) {
       state.balances.data = {
         native: {
-          value: action.payload.native,
-          formatted: formatEther(BigInt(action.payload.native)),
+          value: parseEther(action.payload.native).toString(),
+          formatted: action.payload.native,
         },
         hopr: {
-          value: action.payload.hopr,
-          formatted: formatEther(BigInt(action.payload.hopr)),
+          value: parseEther(action.payload.hopr).toString(),
+          formatted: action.payload.hopr,
         },
         safeHopr: {
-          value: action.payload.safeHopr,
-          formatted: formatEther(BigInt(action.payload.safeHopr)),
+          value: parseEther(action.payload.safeHopr).toString(),
+          formatted: action.payload.safeHopr,
         },
         safeNative: {
-          value: action.payload.safeNative,
-          formatted: formatEther(BigInt(action.payload.safeNative)),
+          value: parseEther(action.payload.safeNative).toString(),
+          formatted: action.payload.safeNative,
         },
         safeHoprAllowance: {
-          value: action.payload.safeHoprAllowance,
-          formatted: formatEther(BigInt(action.payload.safeHoprAllowance)),
+          value: parseEther(action.payload.safeHoprAllowance).toString(),
+          formatted: action.payload.safeHoprAllowance,
         },
         channels: {
           value: state.balances.data.channels.value,
           formatted: state.balances.data.channels.formatted,
         },
       };
-
       if (!state.balances.alreadyFetched) state.balances.alreadyFetched = true;
       state.balances.isFetching = false;
     }
@@ -1166,10 +926,11 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   builder.addCase(getChannelsThunk.fulfilled, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
     if (action.payload) {
+      console.log('getChannelsThunk', action.payload);
       state.channels.data = action.payload;
       if (action.payload.outgoing.length > 0) {
         let balance = BigInt(0);
-        action.payload.outgoing.forEach((channel) => (balance += BigInt(channel.balance)));
+        action.payload.outgoing.forEach((channel) => (balance += parseEther(channel.balance)));
         state.balances.data.channels = {
           value: balance.toString(),
           formatted: formatEther(balance),
@@ -1259,19 +1020,19 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   //openChannel
   builder.addCase(openChannelThunk.pending, (state, action) => {
-    const peerAddress = action.meta.arg.peerAddress;
+    const peerAddress = action.meta.arg.destination;
     if (!peerAddress) return;
     state.channels.parsed.outgoingOpening[peerAddress] = true;
   });
   builder.addCase(openChannelThunk.fulfilled, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    const peerAddress = action.meta.arg.peerAddress;
+    const peerAddress = action.meta.arg.destination;
     if (!peerAddress) return;
     state.channels.parsed.outgoingOpening[peerAddress] = false;
   });
   builder.addCase(openChannelThunk.rejected, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    const peerAddress = action.meta.arg.peerAddress;
+    const peerAddress = action.meta.arg.destination;
     if (!peerAddress) return;
     state.channels.parsed.outgoingOpening[peerAddress] = false;
   });
@@ -1318,23 +1079,6 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         connected: [],
       };
       state.peers.data = action.payload;
-
-      // Generate links
-      for (let i = 0; i < action.payload.connected.length; i++) {
-        const node = action.payload.connected[i];
-        if (node.peerId && node.peerAddress) {
-          state.links.nodeAddressToPeerId[node.peerAddress] = node.peerId;
-          state.links.peerIdToNodeAddress[node.peerId] = node.peerAddress;
-        }
-        state.peers.parsed.connected[node.peerId] = node;
-      }
-      for (let i = 0; i < action.payload.announced.length; i++) {
-        const node = action.payload.announced[i];
-        if (node.peerId && node.peerAddress) {
-          state.links.nodeAddressToPeerId[node.peerAddress] = node.peerId;
-          state.links.peerIdToNodeAddress[node.peerId] = node.peerAddress;
-        }
-      }
     }
 
     if (!state.peers.alreadyFetched) state.peers.alreadyFetched = true;
@@ -1428,55 +1172,6 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   builder.addCase(getVersionThunk.rejected, (state) => {
     state.version.isFetching = false;
   });
-  // getAlias
-  builder.addCase(getAliasThunk.fulfilled, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    if (action.payload) {
-      if (state.aliases.data) {
-        state.aliases.data[action.payload.alias] = action.payload.peerId;
-      } else {
-        state.aliases.data = { [action.payload.alias]: action.payload.peerId };
-      }
-    }
-    state.aliases.isFetching = false;
-  });
-  builder.addCase(getAliasThunk.rejected, (state) => {
-    state.aliases.isFetching = false;
-  });
-  // setAlias
-  builder.addCase(setAliasThunk.pending, (state) => {
-    state.aliases.isFetching = true;
-  });
-  builder.addCase(setAliasThunk.fulfilled, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    console.log('a', action);
-    if (action.payload) {
-      console.log('b', action.payload);
-      if (state.aliases.data) {
-        console.log('c', state.aliases.data);
-        state.aliases.data[action.payload.alias] = action.payload.peerId;
-      } else {
-        state.aliases.data = { [action.payload.alias]: action.payload.peerId };
-      }
-    }
-    state.aliases.isFetching = false;
-  });
-  builder.addCase(setAliasThunk.rejected, (state) => {
-    state.aliases.isFetching = false;
-  });
-  // removeAlias
-  builder.addCase(removeAliasThunk.fulfilled, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    if (action.payload && state.aliases.data) {
-      if (state.aliases.data) {
-        delete state.aliases.data[action.payload.alias];
-      }
-    }
-    state.aliases.isFetching = false;
-  });
-  builder.addCase(removeAliasThunk.rejected, (state) => {
-    state.aliases.isFetching = false;
-  });
   // withdraw
   builder.addCase(withdrawThunk.fulfilled, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
@@ -1498,91 +1193,6 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   builder.addCase(getTicketStatisticsThunk.rejected, (state) => {
     state.statistics.isFetching = false;
-  });
-  // getMessages
-  builder.addCase(getMessagesThunk.pending, (state) => {
-    state.messages.isFetching = true;
-  });
-  builder.addCase(getMessagesThunk.fulfilled, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    const messages = action.payload;
-    const firstLoad = action.meta?.arg?.firstLoad ? true : false;
-    if (messages) {
-      messages.forEach((msgReceived) => {
-        const addMessage =
-          state.messages.data.findIndex(
-            (msgSaved) =>
-              msgSaved.tag === msgReceived.tag &&
-              msgSaved.receivedAt === msgReceived.receivedAt &&
-              msgSaved.body === msgReceived.body,
-          ) === -1;
-        if (addMessage) {
-          state.messages.data.unshift({
-            body: msgReceived.body,
-            receivedAt: msgReceived.receivedAt,
-            tag: msgReceived.tag,
-            id: uuidv4(),
-            notified: firstLoad,
-          });
-        }
-      });
-    }
-    state.messages.isFetching = false;
-  });
-  builder.addCase(getMessagesThunk.rejected, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    state.messages.isFetching = false;
-  });
-  // sendMessage
-  builder.addCase(sendMessageThunk.pending, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    if (action.meta) {
-      state.messagesSent.push({
-        id: action.meta.requestId,
-        body: action.meta.arg.body,
-        timestamp: Date.now(),
-        status: 'sending',
-        receiver: action.meta.arg.peerId,
-      });
-    }
-  });
-  builder.addCase(sendMessageThunk.fulfilled, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    const index = state.messagesSent.findIndex((msg) => msg.id === action.meta.requestId);
-    if (action.payload && index !== -1) {
-      state.messagesSent[index].status = 'sent';
-      state.messagesSent[index].challenge = action.payload.challenge;
-      state.messagesSent[index].timestamp = Date.now();
-    }
-  });
-  builder.addCase(sendMessageThunk.rejected, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    const index = state.messagesSent.findIndex((msg) => msg.id === action.meta.requestId);
-    if (index !== -1) {
-      state.messagesSent[index].status = 'error';
-      // make sure it is not null
-      if (!action.payload) return;
-      // since action payload is unknown we have to check if it an object
-      if (typeof action.payload !== 'object') return;
-      // make sure status is part of payload
-      if (!('status' in action.payload)) return;
-
-      if (typeof action.payload.status === 'string') {
-        state.messagesSent[index].error = action.payload.status;
-      }
-    }
-  });
-  // deleteMessages
-  builder.addCase(deleteMessagesThunk.pending, (state) => {
-    state.messages.isDeleting = true;
-  });
-  builder.addCase(deleteMessagesThunk.fulfilled, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    state.messages.data = [];
-    state.messages.isDeleting = false;
-  });
-  builder.addCase(deleteMessagesThunk.rejected, (state) => {
-    state.messages.isDeleting = false;
   });
   // pingNode
   builder.addCase(pingNodeThunk.fulfilled, (state, action) => {
@@ -1617,82 +1227,6 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   builder.addCase(deleteTokenThunk.rejected, (state) => {
     state.tokens.isFetching = false;
-  });
-  // getPrometheusMetrics
-  builder.addCase(getPrometheusMetricsThunk.fulfilled, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    if (action.payload) {
-      state.metrics.data.raw = action.payload;
-      const jsonMetrics = parseMetrics(action.payload);
-      state.metrics.data.parsed = jsonMetrics;
-      state.metricsParsed.nodeSync = (jsonMetrics?.hopr_indexer_sync_progress?.data[0] as number) || null;
-
-      // count tickets
-      state.metricsParsed.tickets.incoming = {
-        redeemed: {},
-        unredeemed: {},
-      };
-      if (
-        jsonMetrics?.hopr_tickets_incoming_statistics?.categories &&
-        jsonMetrics?.hopr_tickets_incoming_statistics?.data
-      ) {
-        const categories = jsonMetrics.hopr_tickets_incoming_statistics.categories;
-        const data = jsonMetrics?.hopr_tickets_incoming_statistics?.data;
-        for (let i = 0; i < categories.length; i++) {
-          const channel = categories[i]
-            .match(/channel="0x[a-f0-9]+"/gi)[0]
-            .replace(`channel="`, ``)
-            .replace(`"`, ``);
-          const statistic = categories[i]
-            .match(/statistic="[a-z_]+"/g)[0]
-            .replace(`statistic="`, ``)
-            .replace(`"`, ``);
-          const value = data[i];
-
-          if (value) {
-            if (statistic === 'unredeemed') {
-              state.metricsParsed.tickets.incoming.unredeemed[channel] = {
-                value: `${value}`,
-                formatted: formatEther(BigInt(`${value}`)),
-              };
-            } else if (statistic === 'redeemed') {
-              state.metricsParsed.tickets.incoming.redeemed[channel] = {
-                value: `${value}`,
-                formatted: formatEther(BigInt(`${value}`)),
-              };
-            }
-          }
-        }
-      }
-
-      // get checksum
-      if (jsonMetrics?.hopr_indexer_block_number && jsonMetrics?.hopr_indexer_checksum) {
-        try {
-          const hopr_indexer_block_number = jsonMetrics.hopr_indexer_block_number?.data[0];
-          const hopr_indexer_checksum = jsonMetrics.hopr_indexer_checksum?.data[0];
-          const checksum = hopr_indexer_checksum.toString(16);
-
-          state.metricsParsed.checksum = checksum;
-          state.metricsParsed.blockNumber = hopr_indexer_block_number;
-        } catch (e) {
-          console.error('Error getting blockNumber and checksum');
-        }
-      }
-
-      // nodeStartEpoch
-      if (jsonMetrics?.hopr_up) {
-        try {
-          const nodeStartEpoch = jsonMetrics.hopr_up?.data[0];
-          state.metricsParsed.nodeStartEpoch = nodeStartEpoch;
-        } catch (e) {
-          console.error('Error getting node startup epoch');
-        }
-      }
-    }
-    state.metrics.isFetching = false;
-  });
-  builder.addCase(getPrometheusMetricsThunk.rejected, (state) => {
-    state.metrics.isFetching = false;
   });
   // redeemChannelTickets
   builder.addCase(redeemChannelTicketsThunk.fulfilled, (state) => {
@@ -1734,28 +1268,21 @@ export const actionsAsync = {
   isNodeReadyThunk,
   getInfoThunk,
   getAddressesThunk,
-  getAliasesThunk,
   getBalancesThunk,
   getChannelsThunk,
   getConfigurationThunk,
-  getMessagesThunk,
-  deleteMessagesThunk,
   getPeersThunk,
   getPeerInfoThunk,
   getTicketStatisticsThunk,
   getTokenThunk,
   getEntryNodesThunk,
   getVersionThunk,
-  getAliasThunk,
-  setAliasThunk,
-  removeAliasThunk,
   withdrawThunk,
   closeChannelThunk,
   fundChannelThunk,
   openChannelThunk,
   openMultipleChannelsThunk,
   redeemChannelTicketsThunk,
-  sendMessageThunk,
   pingNodeThunk,
   redeemAllTicketsThunk,
   resetTicketStatisticsThunk,
@@ -1766,6 +1293,5 @@ export const actionsAsync = {
   closeSessionThunk,
   createTokenThunk,
   deleteTokenThunk,
-  getPrometheusMetricsThunk,
   isCurrentApiEndpointTheSame,
 };

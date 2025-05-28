@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { DialogActions, DialogTitle, InputAdornment, TextField } from '@mui/material';
-import { ethers } from 'ethers';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
 import { HOPR_TOKEN_USED } from '../../../../config';
 import { utils } from '@hoprnet/hopr-sdk';
+import { parseEther } from 'viem';
 const { sdkApiError } = utils;
 
 // HOPR Components
@@ -28,7 +28,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const dispatch = useAppDispatch();
   const loginData = useAppSelector((store) => store.auth.loginData);
   const outgoingOpening = useAppSelector((store) => store.node.channels.parsed.outgoingOpening);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
   const channelIsBeingOpened = props.peerAddress ? !!outgoingOpening[props.peerAddress] : false;
   const [openChannelModal, set_openChannelModal] = useState(false);
@@ -65,8 +65,8 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
         actionsAsync.openChannelThunk({
           apiEndpoint: loginData.apiEndpoint!,
           apiToken: loginData.apiToken ? loginData.apiToken : '',
-          amount: weiValue,
-          peerAddress: peerAddress,
+          amount: `${weiValue} wei wxHOPR`,
+          destination: peerAddress,
           timeout: 2 * 60_000,
         }),
       )
@@ -98,7 +98,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
 
     handleCloseModal();
     const parsedOutgoing = parseFloat(amount ?? '0') >= 0 ? amount ?? '0' : '0';
-    const weiValue = ethers.utils.parseEther(parsedOutgoing).toString();
+    const weiValue = parseEther(parsedOutgoing).toString();
     await handleOpenChannel(weiValue, peerAddress);
     dispatch(
       actionsAsync.getChannelsThunk({

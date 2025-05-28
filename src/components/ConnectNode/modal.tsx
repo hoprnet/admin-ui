@@ -289,25 +289,6 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
           }),
         );
         dispatch(
-          nodeActionsAsync.getAliasesThunk({
-            apiToken,
-            apiEndpoint: formattedApiEndpoint,
-          }),
-        );
-        dispatch(
-          nodeActionsAsync.getMessagesThunk({
-            apiToken,
-            apiEndpoint: formattedApiEndpoint,
-            firstLoad: true,
-          }),
-        );
-        dispatch(
-          nodeActionsAsync.getPrometheusMetricsThunk({
-            apiToken,
-            apiEndpoint,
-          }),
-        );
-        dispatch(
           nodeActionsAsync.getConfigurationThunk({
             apiToken,
             apiEndpoint,

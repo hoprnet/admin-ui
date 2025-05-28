@@ -25,6 +25,8 @@ import {
   Autocomplete,
   Tooltip,
   IconButton as IconButtonMui,
+  InputAdornment,
+  Radio,
 } from '@mui/material';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -75,8 +77,8 @@ const StatusContainer = styled.div`
   z-index: 100;
 `;
 
-type SendMessageModalProps = {
-  peerId?: string;
+type OpenSessionModalProps = {
+  destination?: string;
   disabled?: boolean;
   tooltip?: JSX.Element | string;
 };
@@ -107,91 +109,126 @@ const Splitscreen = styled.div`
 // order of peers: me, aliases (sorted by aliases), peers (sorted by peersIds)
 function sortAddresses(
   peers: GetPeersResponseType | null,
-  me: AddressesType,
+  myAddress: string | null,
   peerIdToAliasLink: {
     [peerId: string]: string;
   },
 ): string[] {
-  if (!peers || !me) return [];
+  if (!peers || !myAddress) return [];
   const connectedPeers = peers.connected;
-  const myAddress = me.hopr as string;
   const peerIdsWithAliases = Object.keys(peerIdToAliasLink).sort((a, b) =>
     peerIdToAliasLink[a] < peerIdToAliasLink[b] ? -1 : 1,
   );
-  if (peerIdsWithAliases.length === 0) return [myAddress, ...connectedPeers.map((peer) => peer.peerId).sort()];
+  if (peerIdsWithAliases.length === 0) return [myAddress, ...connectedPeers.map((peer) => peer.address).sort()];
   const peerIdsWithAliasesWithoutMyAddress = peerIdsWithAliases.filter((peerId) => peerId !== myAddress);
   const connectedPeersWithoutAliases = connectedPeers
-    .filter((peer) => !peerIdToAliasLink[peer.peerId])
-    .map((peer) => peer.peerId)
+    .filter((peer) => !peerIdToAliasLink[peer.address])
+    .map((peer) => peer.address)
     .sort();
   return [myAddress, ...peerIdsWithAliasesWithoutMyAddress, ...connectedPeersWithoutAliases];
 }
 
-export const OpenSessionModal = (props: SendMessageModalProps) => {
+export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const dispatch = useAppDispatch();
 
   const [loader, set_loader] = useState<boolean>(false);
   const [error, set_error] = useState<string | null>(null);
-  const [numberOfHops, set_numberOfHops] = useState<number>(0);
-  const [sendMode, set_sendMode] = useState<'path' | 'numberOfHops'>('numberOfHops');
+  const [numberOfForwardHops, set_numberOfForwardHops] = useState<number>(0);
+  const [numberOfReturnHops, set_numberOfReturnHops] = useState<number>(0);
+  const [sendForwardMode, set_sendForwardMode] = useState<'path' | 'numberOfHops'>('numberOfHops');
+  const [sendReturnMode, set_sendReturnMode] = useState<'path' | 'numberOfHops'>('numberOfHops');
   const [protocol, set_protocol] = useState<'udp' | 'tcp'>('udp');
+  const [responseBuffer, set_responseBuffer] = useState<number>(2048);
   const [retransmission, set_retransmission] = useState<boolean>(true);
   const [segmentation, set_segmentation] = useState<boolean>(true);
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
   const peers = useAppSelector((store) => store.node.peers.data);
-  const addresses = useAppSelector((store) => store.node.addresses.data);
-  const sendMessageAddressBook = sortAddresses(peers, addresses, peerIdToAliasLink);
-  const [destination, set_destination] = useState<string | null>(props.peerId ? props.peerId : null);
+  const myAddress = useAppSelector((store) => store.node.addresses.data.native);
+  const sendMessageAddressBook = sortAddresses(peers, myAddress, peerIdToAliasLink);
+  const [destination, set_destination] = useState<string | null>(props.destination ? props.destination : null);
   const [listenHost, set_listenHost] = useState<string>('');
   const [sessionTarget, set_sessionTarget] = useState<string>('');
-  const [intermediatePath, set_intermediatePath] = useState<(string | null)[]>([null]);
-  const fullPath = [...intermediatePath, destination];
+  const [intermediateForwardPath, set_intermediateForwardPath] = useState<(string | null)[]>([null]);
+  const [intermediateReturnPath, set_intermediateReturnPath] = useState<(string | null)[]>([null]);
+  const fullForwardPath = [...intermediateForwardPath, destination];
+  const fullReturnPath = [...intermediateReturnPath, destination];
 
   // Errors
   const destinationMissing = !destination || (!!destination && destination.length === 0);
   const listenHostMissing = listenHost.length === 0;
   const sessionTargetMissing = sessionTarget.length === 0;
-  const intermediatePathError =
-    fullPath.findIndex((elem, index) => {
-      return elem === fullPath[index + 1];
+
+  //Fordward path errors
+  const intermediateForwardPathError =
+    fullForwardPath.findIndex((elem, index) => {
+      return elem === fullForwardPath[index + 1];
     }) !== -1;
-  const intermediatePathEmptyLink = !(sendMode === 'path' && !intermediatePath.includes(null));
+  const intermediateForwardPathEmptyLink = !(sendForwardMode === 'path' && !intermediateForwardPath.includes(null));
+
+  //Return path errors
+  const intermediateReturnPathError =
+    fullReturnPath.findIndex((elem, index) => {
+      return elem === fullReturnPath[index + 1];
+    }) !== -1;
+  const intermediateReturnPathEmptyLink = !(sendReturnMode === 'path' && !intermediateReturnPath.includes(null));
 
   const canOpenSession =
     !destinationMissing &&
     !listenHostMissing &&
     !sessionTargetMissing &&
-    ((sendMode === 'path' && !intermediatePathError && !intermediatePathEmptyLink && intermediatePath.length > 0) ||
-      sendMode === 'numberOfHops');
+    ((sendForwardMode === 'path' &&
+      !intermediateForwardPathError &&
+      !intermediateForwardPathEmptyLink &&
+      intermediateForwardPath.length > 0) ||
+      sendForwardMode === 'numberOfHops') &&
+    ((sendReturnMode === 'path' &&
+      !intermediateReturnPathError &&
+      !intermediateReturnPathEmptyLink &&
+      intermediateReturnPath.length > 0) ||
+      sendReturnMode === 'numberOfHops');
 
   const setPropPeerId = () => {
-    if (props.peerId) set_destination(props.peerId);
+    if (props.destination) set_destination(props.destination);
   };
-  useEffect(setPropPeerId, [props.peerId]);
+  useEffect(setPropPeerId, [props.destination]);
 
   useEffect(() => {
-    console.log('intermediatePathError', intermediatePathError);
-  }, [intermediatePathError]);
+    console.log('intermediateForwardPathError', intermediateForwardPathError);
+  }, [intermediateForwardPathError]);
+
+  useEffect(() => {
+    console.log('intermediateReturnPathError', intermediateReturnPathError);
+  }, [intermediateReturnPathError]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
-  }, [loginData, destination, sendMode]);
+  }, [loginData, destination, sendForwardMode, sendReturnMode]);
 
   useEffect(() => {
-    switch (sendMode) {
+    switch (sendForwardMode) {
       case 'path':
-        set_numberOfHops(0);
+        set_numberOfForwardHops(0);
         break;
       case 'numberOfHops':
         break;
     }
-  }, [sendMode]);
+  }, [sendForwardMode]);
+
+  useEffect(() => {
+    switch (sendReturnMode) {
+      case 'path':
+        set_numberOfReturnHops(0);
+        break;
+      case 'numberOfHops':
+        break;
+    }
+  }, [sendReturnMode]);
 
   const handleOpenSession = () => {
     if (!loginData.apiEndpoint || !destination) return;
@@ -209,19 +246,32 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
       },
       capabilities: [],
       protocol,
-      path: {},
+      forwardPath: {},
+      returnPath: {},
+      responseBuffer: `${responseBuffer} kB`,
     };
 
-    if (sendMode === 'numberOfHops') {
-      sessionPayload.path = {
-        Hops: numberOfHops,
+    if (sendForwardMode === 'numberOfHops') {
+      sessionPayload.forwardPath = {
+        Hops: numberOfForwardHops,
       };
     }
-    if (sendMode == 'path' && intermediatePath.length > 0 && !intermediatePath.includes(null)) {
-      sessionPayload.path = {
-        IntermediatePath: intermediatePath as string[],
+    if (sendForwardMode == 'path' && intermediateForwardPath.length > 0 && !intermediateForwardPath.includes(null)) {
+      sessionPayload.forwardPath = {
+        IntermediatePath: intermediateForwardPath as string[],
       };
     }
+    if (sendReturnMode === 'numberOfHops') {
+      sessionPayload.returnPath = {
+        Hops: numberOfForwardHops,
+      };
+    }
+    if (sendReturnMode == 'path' && intermediateReturnPath.length > 0 && !intermediateReturnPath.includes(null)) {
+      sessionPayload.returnPath = {
+        IntermediatePath: intermediateReturnPath as string[],
+      };
+    }
+
     if (retransmission) {
       sessionPayload.capabilities.push('Retransmission');
     }
@@ -269,12 +319,22 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
       });
   };
 
-  const handleSendModeChange = (event: SelectChangeEvent) => {
-    set_sendMode(event.target.value as 'path' | 'numberOfHops');
+  const handleSendForwardModeChange = (event: SelectChangeEvent) => {
+    set_sendForwardMode(event.target.value as 'path' | 'numberOfHops');
   };
 
-  const handleNumberOfHops = (event: React.ChangeEvent<HTMLInputElement>) => {
-    set_numberOfHops(
+  const handleSendReturnModeChange = (event: SelectChangeEvent) => {
+    set_sendReturnMode(event.target.value as 'path' | 'numberOfHops');
+  };
+
+  const handlenumberOfForwardHops = (event: React.ChangeEvent<HTMLInputElement>) => {
+    set_numberOfForwardHops(
+      parseInt(event.target.value) || parseInt(event.target.value) === 0 ? parseInt(event.target.value) : 0,
+    );
+  };
+
+  const handlenumberOfReturnHops = (event: React.ChangeEvent<HTMLInputElement>) => {
+    set_numberOfReturnHops(
       parseInt(event.target.value) || parseInt(event.target.value) === 0 ? parseInt(event.target.value) : 0,
     );
   };
@@ -285,23 +345,24 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
   };
 
   const handleCloseModal = () => {
-    set_sendMode('numberOfHops');
-    set_numberOfHops(0);
-    set_destination(props.peerId ? props.peerId : null);
+    set_sendForwardMode('numberOfHops');
+    set_numberOfForwardHops(0);
+    set_destination(props.destination ? props.destination : null);
     set_openModal(false);
     set_error(null);
   };
 
   const isAlias = (alias: string) => {
-    if (aliases) {
-      return !!aliases[alias];
-    } else return false;
+    // if (aliases) {
+    //   return !!aliases[alias];
+    // }
+    return false;
   };
 
   const validatePeerId = (receiver: string) => {
-    if (aliases && isAlias(receiver)) {
-      return aliases[receiver];
-    }
+    // if (aliases && isAlias(receiver)) {
+    //   return aliases[receiver];
+    // }
     return receiver;
   };
 
@@ -382,15 +443,42 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
             }}
             fullWidth
           />
-          <TextField
-            label="Session Target"
-            placeholder={'127.0.0.1:8080'}
-            value={sessionTarget}
-            onChange={(event) => {
-              set_sessionTarget(event?.target?.value);
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: '8px',
             }}
-            fullWidth
-          />
+          >
+            <TextField
+              label="Session Target"
+              placeholder={'127.0.0.1:8080'}
+              value={sessionTarget}
+              onChange={(event) => {
+                set_sessionTarget(event?.target?.value);
+              }}
+              fullWidth
+            />
+            <TextField
+              label="Response buffer"
+              value={responseBuffer}
+              onChange={(event) => {
+                set_responseBuffer(Number(event?.target?.value));
+              }}
+              inputProps={{
+                type: 'number',
+                min: 1,
+                max: 10000,
+                step: 1,
+              }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">kB</InputAdornment>,
+              }}
+              style={{
+                width: '170px',
+              }}
+            />
+          </div>
           <Splitscreen>
             <div>
               <span style={{ margin: '0px 0px -2px' }}>Capabilities:</span>
@@ -419,14 +507,14 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
               <span style={{ margin: '0px 0px -2px' }}>Protocol:</span>
               <SFormGroup>
                 <FormControlLabel
-                  control={<Checkbox checked={protocol === 'udp'} />}
+                  control={<Radio checked={protocol === 'udp'} />}
                   label="UDP"
                   onChange={() => {
                     set_protocol('udp');
                   }}
                 />
                 <FormControlLabel
-                  control={<Checkbox checked={protocol === 'tcp'} />}
+                  control={<Radio checked={protocol === 'tcp'} />}
                   label="TCP"
                   onChange={() => {
                     set_protocol('tcp');
@@ -435,23 +523,24 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
               </SFormGroup>
             </div>
           </Splitscreen>
-          <span style={{ margin: '0px 0px -2px' }}>Path:</span>
-          <PathOrHops className={sendMode === 'numberOfHops' ? 'numerOfHopsSelected' : 'noNumberOfHopsSelected'}>
+
+          <span style={{ margin: '0px 0px -2px' }}>Forward path:</span>
+          <PathOrHops className={sendForwardMode === 'numberOfHops' ? 'numerOfHopsSelected' : 'noNumberOfHopsSelected'}>
             <Select
-              value={sendMode}
-              onChange={handleSendModeChange}
-              className={sendMode === 'numberOfHops' ? 'numerOfHops' : 'noNumberOfHops'}
+              value={sendForwardMode}
+              onChange={handleSendForwardModeChange}
+              className={sendForwardMode === 'numberOfHops' ? 'numerOfHops' : 'noNumberOfHops'}
             >
-              <MenuItem value="numberOfHops">Number of Hops</MenuItem>
+              <MenuItem value="numberOfHops">Number of hops</MenuItem>
               <MenuItem value="path">Intermediate Path</MenuItem>
             </Select>
-            {sendMode === 'numberOfHops' && (
+            {sendForwardMode === 'numberOfHops' && (
               <TextField
                 type="number"
-                label="Number of Hops"
+                label="Number of forward hops"
                 placeholder="1"
-                value={numberOfHops}
-                onChange={handleNumberOfHops}
+                value={numberOfForwardHops}
+                onChange={handlenumberOfForwardHops}
                 inputProps={{
                   min: 0,
                   max: 10,
@@ -462,15 +551,15 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
               />
             )}
           </PathOrHops>
-          {sendMode === 'path' && (
+          {sendForwardMode === 'path' && (
             <>
-              {intermediatePath.map((pathNode, pathIndex) => (
+              {intermediateForwardPath.map((pathNode, pathIndex) => (
                 <PathNode key={`path-node-${pathIndex}`}>
                   <Autocomplete
                     //  key={`path-node-${pathIndex}-Autocomplete`}
                     value={pathNode}
                     onChange={(event, newValue) => {
-                      set_intermediatePath((path) => {
+                      set_intermediateForwardPath((path) => {
                         const tmp = [...path];
                         tmp[pathIndex] = newValue;
                         return tmp;
@@ -493,7 +582,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
                   <IconButtonMui
                     aria-label="delete node from path"
                     onClick={() => {
-                      set_intermediatePath((path) => {
+                      set_intermediateForwardPath((path) => {
                         return path.filter((elem, index) => index !== pathIndex);
                       });
                     }}
@@ -505,7 +594,7 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
               <Button
                 outlined
                 onClick={() => {
-                  set_intermediatePath((path) => {
+                  set_intermediateForwardPath((path) => {
                     return [...path, null];
                   });
                 }}
@@ -515,7 +604,94 @@ export const OpenSessionModal = (props: SendMessageModalProps) => {
                   margin: 'auto',
                 }}
                 startIcon={<AddCircleIcon />}
-                disabled={intermediatePath.length > 10}
+                disabled={intermediateForwardPath.length > 10}
+              >
+                Add a node to path
+              </Button>
+            </>
+          )}
+
+          <span style={{ margin: '0px 0px -2px' }}>Return path:</span>
+          <PathOrHops className={sendReturnMode === 'numberOfHops' ? 'numerOfHopsSelected' : 'noNumberOfHopsSelected'}>
+            <Select
+              value={sendReturnMode}
+              onChange={handleSendReturnModeChange}
+              className={sendReturnMode === 'numberOfHops' ? 'numerOfHops' : 'noNumberOfHops'}
+            >
+              <MenuItem value="numberOfHops">Number of hops</MenuItem>
+              <MenuItem value="path">Intermediate Path</MenuItem>
+            </Select>
+            {sendReturnMode === 'numberOfHops' && (
+              <TextField
+                type="number"
+                label="Number of return hops"
+                placeholder="1"
+                value={numberOfReturnHops}
+                onChange={handlenumberOfReturnHops}
+                inputProps={{
+                  min: 0,
+                  max: 10,
+                  step: 1,
+                }}
+                style={{ flex: 1 }}
+                fullWidth
+              />
+            )}
+          </PathOrHops>
+          {sendReturnMode === 'path' && (
+            <>
+              {intermediateReturnPath.map((pathNode, pathIndex) => (
+                <PathNode key={`path-node-${pathIndex}`}>
+                  <Autocomplete
+                    //  key={`path-node-${pathIndex}-Autocomplete`}
+                    value={pathNode}
+                    onChange={(event, newValue) => {
+                      set_intermediateReturnPath((path) => {
+                        const tmp = [...path];
+                        tmp[pathIndex] = newValue;
+                        return tmp;
+                      });
+                    }}
+                    options={sendMessageAddressBook}
+                    getOptionLabel={(peerId) =>
+                      peerIdToAliasLink[peerId] ? `${peerIdToAliasLink[peerId]} (${peerId})` : peerId
+                    }
+                    autoSelect
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Path node"
+                        placeholder="Select node"
+                        fullWidth
+                      />
+                    )}
+                  />
+                  <IconButtonMui
+                    aria-label="delete node from path"
+                    onClick={() => {
+                      set_intermediateReturnPath((path) => {
+                        return path.filter((elem, index) => index !== pathIndex);
+                      });
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButtonMui>
+                </PathNode>
+              ))}
+              <Button
+                outlined
+                onClick={() => {
+                  set_intermediateReturnPath((path) => {
+                    return [...path, null];
+                  });
+                }}
+                style={{
+                  marginTop: '8px',
+                  width: '258px',
+                  margin: 'auto',
+                }}
+                startIcon={<AddCircleIcon />}
+                disabled={intermediateReturnPath.length > 10}
               >
                 Add a node to path
               </Button>

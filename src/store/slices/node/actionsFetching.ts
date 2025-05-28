@@ -2,7 +2,6 @@ import { ActionReducerMapBuilder, createAction } from '@reduxjs/toolkit';
 import { initialState } from './initialState';
 
 // Helper action to update the isFetching state
-const setAliasesFetching = createAction<boolean>('node/setAliasesFetching');
 const setInfoFetching = createAction<boolean>('node/setInfoFetching');
 const setMetricsFetching = createAction<boolean>('node/setMetricsFetching');
 const setAddressesFetching = createAction<boolean>('node/setAddressesFetching');
@@ -24,7 +23,6 @@ const setResetTicketStatisticsFetching = createAction<boolean>('node/setResetTic
 const openSessionsFetching = createAction<boolean>('node/openSessionsFetching');
 
 export const nodeActionsFetching = {
-  setAliasesFetching,
   setInfoFetching,
   setMetricsFetching,
   setAddressesFetching,
@@ -48,12 +46,9 @@ export const nodeActionsFetching = {
 
 export const createFetchingReducer = (builder: ActionReducerMapBuilder<typeof initialState>) => {
   // Action to update the isFetching state
-  builder.addCase(setAliasesFetching, (state, action) => {
-    state.aliases.isFetching = action.payload;
+  builder.addCase(setInfoFetching, (state, action) => {
+    state.info.isFetching = action.payload;
   }),
-    builder.addCase(setInfoFetching, (state, action) => {
-      state.info.isFetching = action.payload;
-    }),
     builder.addCase(setMetricsFetching, (state, action) => {
       state.metrics.isFetching = action.payload;
     }),

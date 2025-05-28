@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../store';
 import { actionsAsync } from '../../store/slices/node/actionsAsync';
 import { useNavigate } from 'react-router-dom';
 import { exportToCsv } from '../../utils/helpers';
-import { utils } from 'ethers';
+import { formatEther, parseEther, parseGwei } from 'viem';
 import { sendNotification } from '../../hooks/useWatcher/notifications';
 import { HOPR_TOKEN_USED } from '../../../config';
 import { utils as hoprdUtils } from '@hoprnet/hopr-sdk';
@@ -24,7 +24,7 @@ import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
 import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
 import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
-import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
+//import { SendMessageModal } from '../../components/Modal/node/SendMessageModal.tsx_';
 
 // Mui
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -35,7 +35,7 @@ function ChannelsPage() {
   const channelsOutgoingObject = useAppSelector((store) => store.node.channels.parsed.outgoing);
   const channelsOutgoing = useAppSelector((store) => store.node.channels.data?.outgoing);
   const channelsFetching = useAppSelector((store) => store.node.channels.isFetching);
-  const aliases = useAppSelector((store) => store.node.aliases.data);
+  const aliases = useAppSelector((store) => store.node.aliases);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const currentApiEndpoint = useAppSelector((store) => store.node.apiEndpoint);
   const nodeAddressToPeerIdLink = useAppSelector((store) => store.node.links.nodeAddressToPeerId);
@@ -47,12 +47,6 @@ function ChannelsPage() {
     if (!loginData.apiEndpoint) return;
     dispatch(
       actionsAsync.getChannelsThunk({
-        apiEndpoint: loginData.apiEndpoint!,
-        apiToken: loginData.apiToken ? loginData.apiToken : '',
-      }),
-    );
-    dispatch(
-      actionsAsync.getAliasesThunk({
         apiEndpoint: loginData.apiEndpoint!,
         apiToken: loginData.apiToken ? loginData.apiToken : '',
       }),
@@ -162,12 +156,6 @@ function ChannelsPage() {
       hidden: true,
     },
     {
-      key: 'peerId',
-      name: 'Peer Id',
-      search: true,
-      hidden: true,
-    },
-    {
       key: 'status',
       name: 'Status',
       search: true,
@@ -227,40 +215,39 @@ function ChannelsPage() {
         return;
 
       const peerAddress = channelsOutgoingObject[id].peerAddress;
-      const peerId = getPeerIdFromPeerAddress(peerAddress as string);
+      if (!peerAddress) return;
 
       return {
         id: (index + 1).toString(),
         key: id,
         node: (
           <PeersInfo
-            peerId={peerId}
+            peerId={''}
             nodeAddress={peerAddress}
             shortenPeerIdIfAliasPresent
           />
         ),
         peerAddress: getAliasByPeerAddress(peerAddress as string),
-        peerId: peerId,
         status: channelsOutgoingObject[id].status as string,
-        funds: `${utils.formatEther(channelsOutgoingObject[id].balance as string)} ${HOPR_TOKEN_USED}`,
+        funds: `${channelsOutgoingObject[id].balance} ${HOPR_TOKEN_USED}`,
         actions: (
           <>
             <PingModal
-              peerId={peerId}
-              disabled={!peerId}
+              address={peerAddress}
+              disabled={!peerAddress}
               tooltip={
-                !peerId ? (
+                !peerAddress ? (
                   <span>
                     DISABLED
                     <br />
                     Unable to find
                     <br />
-                    peerId
+                    node address
                   </span>
                 ) : undefined
               }
             />
-            <CreateAliasModal
+            {/* <CreateAliasModal
               handleRefresh={handleRefresh}
               peerId={peerId}
               disabled={!peerId}
@@ -275,7 +262,7 @@ function ChannelsPage() {
                   </span>
                 ) : undefined
               }
-            />
+            /> */}
             <FundChannelModal channelId={id} />
             <IconButton
               iconComponent={<CloseChannelIcon />}
@@ -289,8 +276,8 @@ function ChannelsPage() {
               }
               onClick={() => handleCloseChannels(id)}
             />
-            <OpenSessionModal peerId={peerId} />
-            <SendMessageModal
+            <OpenSessionModal destination={peerAddress} />
+            {/* <SendMessageModal
               peerId={peerId}
               disabled={!peerId}
               tooltip={
@@ -304,7 +291,7 @@ function ChannelsPage() {
                   </span>
                 ) : undefined
               }
-            />
+            /> */}
           </>
         ),
       };
