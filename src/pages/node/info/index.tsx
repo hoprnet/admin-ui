@@ -467,20 +467,6 @@ function InfoPage() {
         >
           <tbody>
             <tr>
-              <TdActionIcons>
-                {addresses?.hopr}
-                {addresses?.hopr && (
-                  <SmallActionButton
-                    onClick={() => navigator.clipboard.writeText(addresses?.hopr as string)}
-                    disabled={noCopyPaste}
-                    tooltip={noCopyPaste ? 'Clipboard not supported on HTTP' : 'Copy'}
-                  >
-                    <CopyIcon />
-                  </SmallActionButton>
-                )}
-              </TdActionIcons>
-            </tr>
-            <tr>
               <th>
                 <Tooltip
                   title="Your node's Ethereum address"

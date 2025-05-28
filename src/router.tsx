@@ -17,14 +17,14 @@ import { nodeActions, nodeActionsAsync } from './store/slices/node';
 
 // Sections
 import NodeLandingPage from './pages/node/landingPage';
-import AliasesPage from './pages/node/aliases';
+//import AliasesPage from './pages/node/aliases';
 import InfoPage from './pages/node/info';
-import MessagesPage from './pages/node/messages';
+//import MessagesPage from './pages/node/messages';
 import PeersPage from './pages/node/peers';
 import TicketsPage from './pages/node/tickets';
 import ChannelsPageIncoming from './pages/node/channelsIncoming';
 import ChannelsPageOutgoing from './pages/node/channelsOutgoing';
-import MetricsPage from './pages/node/metrics';
+//import MetricsPage from './pages/node/metrics';
 import ConfigurationPage from './pages/node/configuration';
 import SessionsPage from './pages/node/sessions';
 

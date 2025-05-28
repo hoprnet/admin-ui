@@ -24,7 +24,7 @@ import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
 import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
 import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
-import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
+//import { SendMessageModal } from '../../components/Modal/node/SendMessageModal.tsx_';
 
 // Mui
 import GetAppIcon from '@mui/icons-material/GetApp';

@@ -347,15 +347,16 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   };
 
   const isAlias = (alias: string) => {
-    if (aliases) {
-      return !!aliases[alias];
-    } else return false;
+    // if (aliases) {
+    //   return !!aliases[alias];
+    // }
+    return false;
   };
 
   const validatePeerId = (receiver: string) => {
-    if (aliases && isAlias(receiver)) {
-      return aliases[receiver];
-    }
+    // if (aliases && isAlias(receiver)) {
+    //   return aliases[receiver];
+    // }
     return receiver;
   };
 

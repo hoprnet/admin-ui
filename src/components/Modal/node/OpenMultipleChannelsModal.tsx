@@ -50,13 +50,13 @@ export const OpenMultipleChannelsModal = () => {
     set_peerIds([]);
   };
 
-  const handleOpenChannel = async (weiValue: string, peerId: string) => {
+  const handleOpenChannel = async (weiValue: string, peerAddress: string) => {
     await dispatch(
       actionsAsync.openChannelThunk({
         apiEndpoint: loginData.apiEndpoint!,
         apiToken: loginData.apiToken ? loginData.apiToken : '',
         amount: weiValue,
-        peerAddress: peerId,
+        destination: peerAddress,
         timeout: 60e3,
       }),
     )
@@ -67,7 +67,7 @@ export const OpenMultipleChannelsModal = () => {
         ).unwrap();
         if (!isCurrentApiEndpointTheSame) return;
 
-        let errMsg = `Channel to ${peerId} failed to be opened`;
+        let errMsg = `Channel to ${peerAddress} failed to be opened`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
           errMsg = errMsg + `.\n${e.hoprdErrorPayload.status}`;
         if (e instanceof sdkApiError && e.hoprdErrorPayload?.error) errMsg = errMsg + `.\n${e.hoprdErrorPayload.error}`;

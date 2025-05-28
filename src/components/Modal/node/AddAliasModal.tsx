@@ -86,54 +86,54 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   };
 
   const handleAddAlias = () => {
-    if (loginData.apiEndpoint) {
-      dispatch(
-        actionsAsync.setAliasThunk({
-          alias: alias,
-          peerId: peerId,
-          apiEndpoint: loginData.apiEndpoint,
-          apiToken: loginData.apiToken ? loginData.apiToken : '',
-        }),
-      )
-        .unwrap()
-        .then(() => {
-          props.handleRefresh();
-          sendNotification({
-            notificationPayload: {
-              source: 'node',
-              name: `Alias ${alias} added to ${peerId}`,
-              url: null,
-              timeout: null,
-            },
-            toastPayload: { message: `Alias ${alias} added to ${peerId}` },
-            dispatch,
-          });
-        })
-        .catch((e) => {
-          let errMsg = `Alias ${alias} failed to add`;
-          if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
-            errMsg = errMsg + `.\n${e.hoprdErrorPayload.status}`;
-          if (e instanceof sdkApiError && e.hoprdErrorPayload?.error)
-            errMsg = errMsg + `.\n${e.hoprdErrorPayload.error}`;
-          console.error(errMsg, e);
-          sendNotification({
-            notificationPayload: {
-              source: 'node',
-              name: errMsg,
-              url: null,
-              timeout: null,
-            },
-            toastPayload: {
-              message: errMsg,
-              type: 'error',
-            },
-            dispatch,
-          });
-        })
-        .finally(() => {
-          handleCloseModal();
-        });
-    }
+    // if (loginData.apiEndpoint) {
+    //   dispatch(
+    //     actionsAsync.setAliasThunk({
+    //       alias: alias,
+    //       peerId: peerId,
+    //       apiEndpoint: loginData.apiEndpoint,
+    //       apiToken: loginData.apiToken ? loginData.apiToken : '',
+    //     }),
+    //   )
+    //     .unwrap()
+    //     .then(() => {
+    //       props.handleRefresh();
+    //       sendNotification({
+    //         notificationPayload: {
+    //           source: 'node',
+    //           name: `Alias ${alias} added to ${peerId}`,
+    //           url: null,
+    //           timeout: null,
+    //         },
+    //         toastPayload: { message: `Alias ${alias} added to ${peerId}` },
+    //         dispatch,
+    //       });
+    //     })
+    //     .catch((e) => {
+    //       let errMsg = `Alias ${alias} failed to add`;
+    //       if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
+    //         errMsg = errMsg + `.\n${e.hoprdErrorPayload.status}`;
+    //       if (e instanceof sdkApiError && e.hoprdErrorPayload?.error)
+    //         errMsg = errMsg + `.\n${e.hoprdErrorPayload.error}`;
+    //       console.error(errMsg, e);
+    //       sendNotification({
+    //         notificationPayload: {
+    //           source: 'node',
+    //           name: errMsg,
+    //           url: null,
+    //           timeout: null,
+    //         },
+    //         toastPayload: {
+    //           message: errMsg,
+    //           type: 'error',
+    //         },
+    //         dispatch,
+    //       });
+    //     })
+    //     .finally(() => {
+    //       handleCloseModal();
+    //     });
+    // }
   };
 
   function handleEnter(event: KeyboardEvent) {

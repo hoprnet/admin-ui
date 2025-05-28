@@ -165,14 +165,14 @@ function MetricsPage() {
   }, [apiEndpoint, apiToken]);
 
   const handleRefresh = () => {
-    if (!apiEndpoint) return;
+    // if (!apiEndpoint) return;
 
-    dispatch(
-      actionsAsync.getPrometheusMetricsThunk({
-        apiEndpoint,
-        apiToken: apiToken ? apiToken : '',
-      }),
-    );
+    // dispatch(
+    //   actionsAsync.getPrometheusMetricsThunk({
+    //     apiEndpoint,
+    //     apiToken: apiToken ? apiToken : '',
+    //   }),
+    // );
   };
 
   const isTooltipTextString = (tooltipText: string | JSX.Element): boolean => {

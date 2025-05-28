@@ -9,14 +9,14 @@ const { sdkApiError } = utils;
 import Section from '../../future-hopr-lib-components/Section';
 import { SubpageTitle } from '../../components/SubpageTitle';
 import IconButton from '../../future-hopr-lib-components/Button/IconButton';
-import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
+import { SendMessageModal } from '../../components/Modal/node/SendMessageModal.tsx_';
 import RemoveAliasIcon from '../../future-hopr-lib-components/Icons/RemoveAlias';
 import TablePro from '../../future-hopr-lib-components/Table/table-pro';
 import PeersInfo from '../../future-hopr-lib-components/PeerInfo';
 
 // Modals
 import { PingModal } from '../../components/Modal/node/PingModal';
-import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
+import { CreateAliasModal } from '../../components/Modal/node/AddAliasModal';
 import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
 import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
@@ -265,19 +265,19 @@ function DeleteAliasButton({
       }
       onClick={() => {
         if (loginData.apiEndpoint) {
-          dispatch(
-            actionsAsync.removeAliasThunk({
-              alias,
-              apiEndpoint: loginData.apiEndpoint,
-              apiToken: loginData.apiToken ? loginData.apiToken : '',
-            }),
-          )
-            .unwrap()
-            .then(() => {
-              onSuccess();
-            })
-            .catch((e) => onError(e));
-        }
+        //   dispatch(
+        //     actionsAsync.removeAliasThunk({
+        //       alias,
+        //       apiEndpoint: loginData.apiEndpoint,
+        //       apiToken: loginData.apiToken ? loginData.apiToken : '',
+        //     }),
+        //   )
+        //     .unwrap()
+        //     .then(() => {
+        //       onSuccess();
+        //     })
+        //     .catch((e) => onError(e));
+        // }
       }}
       disabled={disabled}
     />
@@ -324,28 +324,7 @@ function CreateAliasForm() {
       <button
         disabled={form.alias.length === 0 || form.peerId.length === 0}
         onClick={() => {
-          if (loginData.apiEndpoint) {
-            dispatch(
-              actionsAsync.setAliasThunk({
-                alias: form.alias,
-                peerId: form.peerId,
-                apiEndpoint: loginData.apiEndpoint,
-                apiToken: loginData.apiToken ? loginData.apiToken : '',
-              }),
-            )
-              .unwrap()
-              .then(() => {
-                set_success(true);
-                set_error(undefined);
-              })
-              .catch((e) => {
-                set_success(false);
-                set_error({
-                  error: e.error,
-                  status: e.status,
-                });
-              });
-          }
+
         }}
       >
         add

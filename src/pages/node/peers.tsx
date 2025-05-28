@@ -9,7 +9,7 @@ import { SubpageTitle } from '../../components/SubpageTitle';
 import { CreateAliasModal } from '../../components/Modal/node//AddAliasModal';
 import { OpenChannelModal } from '../../components/Modal/node/OpenChannelModal';
 import { FundChannelModal } from '../../components/Modal/node/FundChannelModal';
-import { SendMessageModal } from '../../components/Modal/node/SendMessageModal';
+//import { SendMessageModal } from '../../components/Modal/node/SendMessageModal.tsx_';
 import IconButton from '../../future-hopr-lib-components/Button/IconButton';
 import TablePro from '../../future-hopr-lib-components/Table/table-pro';
 import ProgressBar from '../../future-hopr-lib-components/Progressbar';
