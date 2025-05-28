@@ -467,14 +467,6 @@ function InfoPage() {
         >
           <tbody>
             <tr>
-              <th>
-                <Tooltip
-                  title="Your node's HOPR address, used by other node's to identify your node and send it messages (equivalent to a public key). "
-                  notWide
-                >
-                  <span>Node PeerID</span>
-                </Tooltip>
-              </th>
               <TdActionIcons>
                 {addresses?.hopr}
                 {addresses?.hopr && (
@@ -738,18 +730,6 @@ function InfoPage() {
                 </Tooltip>
               </th>
               <td>{peers?.connected.length}</td>
-            </tr>
-          </tbody>
-        </TableExtended>
-
-        <TableExtended
-          title="Aliases"
-          style={{ marginBottom: '42px' }}
-        >
-          <tbody>
-            <tr>
-              <th>Count</th>
-              <td>{Object.keys(aliases ?? {}).length}</td>
             </tr>
           </tbody>
         </TableExtended>

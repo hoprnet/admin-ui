@@ -124,20 +124,20 @@ function ChannelsPage() {
       maxWidth: '68px',
       tooltip: true,
     },
-    {
-      key: 'tickets',
-      name: 'Unredeemed',
-      maxWidth: '130px',
-      tooltipHeader: (
-        <>
-          Unredeemed value of tickets per channel in wxHOPR.
-          <br />
-          <br />
-          Value is reset on node restart.
-        </>
-      ),
-      tooltip: true,
-    },
+    // {
+    //   key: 'tickets',
+    //   name: 'Unredeemed',
+    //   maxWidth: '130px',
+    //   tooltipHeader: (
+    //     <>
+    //       Unredeemed value of tickets per channel in wxHOPR.
+    //       <br />
+    //       <br />
+    //       Value is reset on node restart.
+    //     </>
+    //   ),
+    //   tooltip: true,
+    // },
     {
       key: 'actions',
       name: 'Actions',
@@ -247,7 +247,7 @@ function ChannelsPage() {
         peerAddress: getAliasByPeerAddress(peerAddress as string),
         peerId: peerId,
         status: channelsIncomingObject[id].status,
-        funds: `${utils.formatEther(channelsIncomingObject[id].balance as string)} ${HOPR_TOKEN_USED}`,
+        funds: `${channelsIncomingObject[id].balance} ${HOPR_TOKEN_USED}`,
         tickets: unredeemedTicketsPerChannel,
         actions: (
           <>
@@ -300,7 +300,7 @@ function ChannelsPage() {
               onClick={() => handleCloseChannel(id)}
             />
             <OpenSessionModal peerId={peerId} />
-            <SendMessageModal
+            {/* <SendMessageModal
               peerId={peerId}
               disabled={!peerId}
               tooltip={
@@ -314,7 +314,7 @@ function ChannelsPage() {
                   </span>
                 ) : undefined
               }
-            />
+            /> */}
           </>
         ),
       };

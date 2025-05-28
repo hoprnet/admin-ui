@@ -228,7 +228,7 @@ export default function Details(props: Props) {
             </ColorStatus>
           </p>
           <ColorStatus
-            // className={`status-${isXdaiEnough()}`}
+            className={`status-${isXdaiEnough()}`}
           >
             <Tooltip
               title={
@@ -258,23 +258,23 @@ export default function Details(props: Props) {
           <Tooltip
             title={
               statistics?.unredeemedValue && statistics?.unredeemedValue !== '0'
-                ? "formatEther(BigInt(statistics?.unredeemedValue as string))"
+                ? statistics?.unredeemedValue
                 : null
             }
           >
             <p className="double">
-              {statistics?.unredeemedValue ? "formatEther(BigInt(statistics?.unredeemedValue as string))" : '-'}
+              {statistics?.unredeemedValue ? statistics?.unredeemedValue : '-'}
             </p>
           </Tooltip>
           <Tooltip
             title={
               statistics?.redeemedValue && statistics?.redeemedValue !== '0'
-                ?" formatEther(BigInt(statistics?.redeemedValue as string))"
+                ? statistics?.redeemedValue
                 : null
             }
           >
             <p className="double">
-              {statistics?.redeemedValue ? "formatEther(BigInt(statistics?.redeemedValue as string))" : '-'}
+              {statistics?.redeemedValue ? statistics?.redeemedValue : '-'}
             </p>
           </Tooltip>
         </Data>

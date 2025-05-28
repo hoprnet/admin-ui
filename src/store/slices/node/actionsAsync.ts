@@ -183,6 +183,7 @@ const getBalancesThunk = createAsyncThunk<
     dispatch(nodeActionsFetching.setBalancesFetching(true));
     try {
       const balances = await getBalances(payload);
+      console.log('getBalancesThunk', balances);
       return balances;
     } catch (e) {
       if (e instanceof sdkApiError) {
@@ -925,6 +926,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   builder.addCase(getChannelsThunk.fulfilled, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
     if (action.payload) {
+      console.log('getChannelsThunk', action.payload);
       state.channels.data = action.payload;
       if (action.payload.outgoing.length > 0) {
         let balance = BigInt(0);
@@ -967,7 +969,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       // Regenerate channels
       for (let i = 0; i < action.payload.outgoing.length; i++) {
         const channelId = action.payload.outgoing[i].id;
-        const nodeAddress = action.payload.outgoing[i].destination;
+        const nodeAddress = action.payload.outgoing[i].peerAddress;
         state.links.nodeAddressToOutgoingChannel[nodeAddress] = channelId;
 
         if (!state.channels.parsed.outgoing[channelId]) {
@@ -988,7 +990,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.channels.parsed.incoming = {};
       for (let i = 0; i < action.payload.incoming.length; i++) {
         const channelId = action.payload.incoming[i].id;
-        const nodeAddress = action.payload.incoming[i].destination;
+        const nodeAddress = action.payload.incoming[i].peerAddress;
         state.links.nodeAddressToIncomingChannel[nodeAddress] = channelId;
         state.links.incomingChannelToNodeAddress[channelId] = nodeAddress;
 
