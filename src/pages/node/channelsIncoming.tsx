@@ -244,28 +244,27 @@ function ChannelsPage() {
           />
         ),
         peerAddress: getAliasByPeerAddress(peerAddress as string),
-        peerId: peerId,
         status: channelsIncomingObject[id].status,
         funds: `${channelsIncomingObject[id].balance} ${HOPR_TOKEN_USED}`,
         tickets: unredeemedTicketsPerChannel,
         actions: (
           <>
             <PingModal
-              peerId={peerId}
-              disabled={!peerId}
+              address={peerAddress}
+              disabled={!peerAddress}
               tooltip={
-                !peerId ? (
+                !peerAddress ? (
                   <span>
                     DISABLED
                     <br />
                     Unable to find
                     <br />
-                    peerId
+                    node address
                   </span>
                 ) : undefined
               }
             />
-            <CreateAliasModal
+            {/* <CreateAliasModal
               handleRefresh={handleRefresh}
               peerId={peerId}
               disabled={!peerId}
@@ -280,7 +279,7 @@ function ChannelsPage() {
                   </span>
                 ) : undefined
               }
-            />
+            /> */}
             {outgoingChannelOpened ? (
               <FundChannelModal channelId={id} />
             ) : (
@@ -298,7 +297,7 @@ function ChannelsPage() {
               }
               onClick={() => handleCloseChannel(id)}
             />
-            <OpenSessionModal peerId={peerId} />
+            <OpenSessionModal destination={peerAddress} />
             {/* <SendMessageModal
               peerId={peerId}
               disabled={!peerId}

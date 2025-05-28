@@ -239,7 +239,7 @@ function SettingsPage() {
               </td>
             </tr>
 
-            <tr>
+            {/* <tr>
               <th>Strategies</th>
               <td>
                 {strategiesString && (
@@ -260,7 +260,7 @@ function SettingsPage() {
                   />
                 )}
               </td>
-            </tr>
+            </tr> */}
           </tbody>
         </TableExtended>
       </Paper>

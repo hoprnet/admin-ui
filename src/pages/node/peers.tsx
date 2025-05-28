@@ -178,7 +178,7 @@ function PeersPage() {
           ) : (
             <OpenChannelModal peerAddress={peer.address} />
           )}
-          <OpenSessionModal peerId={peer.address} />
+          <OpenSessionModal destination={peer.address} />
         </>
       ),
     };
