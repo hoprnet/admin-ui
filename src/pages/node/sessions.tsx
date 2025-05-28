@@ -53,6 +53,12 @@ function SessionsPage() {
       name: '#',
     },
     {
+      key: 'destination',
+      name: 'Destination',
+      search: true,
+      copy: true,
+    },
+    {
       key: 'ip',
       name: 'IP',
       search: true,
@@ -79,6 +85,12 @@ function SessionsPage() {
     {
       key: 'path',
       name: 'Path',
+      search: true,
+      copy: true,
+    },
+    {
+      key: 'mtu',
+      name: 'MTU',
       search: true,
       copy: true,
     },
@@ -134,17 +146,29 @@ function SessionsPage() {
     return {
       id: (index + 1).toString(),
       key: session.target + index,
+      destination: session.destination,
       ip: session.ip,
       port: session.port,
       protocol: session.protocol,
       target: session.target,
+      mtu: session.mtu,
       path: (
+        <>
+        <strong>Forward path:</strong><br/>
         <span style={{ whiteSpace: 'break-spaces' }}>
-          {JSON.stringify(session.path)
+          {JSON.stringify(session.forwardPath)
+            .replace(/{|}|\[|\]|"/g, '')
+            .replace('IntermediatePath:', 'IntermediatePath:\n')
+            .replace(/,/g, ' ')}
+        </span><br/>
+        <strong>Return path:</strong><br/>
+        <span style={{ whiteSpace: 'break-spaces' }}>
+          {JSON.stringify(session.forwardPath)
             .replace(/{|}|\[|\]|"/g, '')
             .replace('IntermediatePath:', 'IntermediatePath:\n')
             .replace(/,/g, ' ')}
         </span>
+        </>
       ),
       actions: (
         <>
