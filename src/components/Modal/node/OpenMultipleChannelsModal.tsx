@@ -4,7 +4,7 @@ import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-ho
 import STextField from '../../../future-hopr-lib-components/TextField';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
-import { utils } from 'ethers';
+import { parseEther } from 'viem';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
 import { HOPR_TOKEN_USED } from '../../../../config';
 import { utils as hoprdUlils } from '@hoprnet/hopr-sdk';
@@ -87,7 +87,7 @@ export const OpenMultipleChannelsModal = () => {
 
   const handleAction = async () => {
     const parsedOutgoing = parseFloat(amount ?? '0') >= 0 ? amount ?? '0' : '0';
-    const weiValue = utils.parseEther(parsedOutgoing).toString();
+    const weiValue = parseEther(parsedOutgoing).toString();
     if (peerIds && loginData.apiEndpoint) {
       for (let i = 0; i < peerIds.length; i++) {
         handleOpenChannel(weiValue, peerIds[i]);

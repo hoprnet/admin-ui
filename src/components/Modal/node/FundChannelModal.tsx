@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DialogActions, DialogTitle, InputAdornment, TextField } from '@mui/material';
-import { ethers } from 'ethers';
+import { parseEther } from 'viem';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
@@ -100,7 +100,7 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
 
     handleCloseModal();
     const parsedOutgoing = parseFloat(amount ?? '0') >= 0 ? amount ?? '0' : '0';
-    const weiValue = ethers.utils.parseEther(parsedOutgoing).toString();
+    const weiValue = parseEther(parsedOutgoing).toString();
     await handleFundChannel(weiValue, channelId);
     dispatch(
       actionsAsync.getChannelsThunk({

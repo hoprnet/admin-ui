@@ -24,7 +24,6 @@
     "apexcharts": "^3.41.0",
     "canvas-confetti": "^1.6.0",
     "dayjs": "^1.11.9",
-    "ethers": "5.7.2",
     "fathom-client": "^3.5.0",
     "graphql": "^16.8.0",
     "graphql-request": "^6.1.0",
