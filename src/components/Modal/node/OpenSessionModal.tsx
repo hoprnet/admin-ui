@@ -26,7 +26,7 @@ import {
   Tooltip,
   IconButton as IconButtonMui,
   InputAdornment,
-  Radio
+  Radio,
 } from '@mui/material';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -179,9 +179,15 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
     !destinationMissing &&
     !listenHostMissing &&
     !sessionTargetMissing &&
-    ((sendForwardMode === 'path' && !intermediateForwardPathError && !intermediateForwardPathEmptyLink && intermediateForwardPath.length > 0) ||
+    ((sendForwardMode === 'path' &&
+      !intermediateForwardPathError &&
+      !intermediateForwardPathEmptyLink &&
+      intermediateForwardPath.length > 0) ||
       sendForwardMode === 'numberOfHops') &&
-    ((sendReturnMode === 'path' && !intermediateReturnPathError && !intermediateReturnPathEmptyLink && intermediateReturnPath.length > 0) ||
+    ((sendReturnMode === 'path' &&
+      !intermediateReturnPathError &&
+      !intermediateReturnPathEmptyLink &&
+      intermediateReturnPath.length > 0) ||
       sendReturnMode === 'numberOfHops');
 
   const setPropPeerId = () => {
@@ -466,7 +472,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                 step: 1,
               }}
               InputProps={{
-                endAdornment: <InputAdornment position="end">kB</InputAdornment>
+                endAdornment: <InputAdornment position="end">kB</InputAdornment>,
               }}
               style={{
                 width: '170px',
@@ -615,7 +621,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
               <MenuItem value="numberOfHops">Number of hops</MenuItem>
               <MenuItem value="path">Intermediate Path</MenuItem>
             </Select>
-          {sendReturnMode === 'numberOfHops' && (
+            {sendReturnMode === 'numberOfHops' && (
               <TextField
                 type="number"
                 label="Number of return hops"
@@ -691,7 +697,6 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
               </Button>
             </>
           )}
-
         </SDialogContent>
         <DialogActions>
           <Button

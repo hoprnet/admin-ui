@@ -66,8 +66,7 @@ type InitialState = {
     data: AddressesType;
     isFetching: boolean;
   };
-  aliases: {
-  };
+  aliases: {};
   balances: {
     data: {
       hopr: {
@@ -258,8 +257,7 @@ export const initialState: InitialState = {
     },
     isFetching: false,
   },
-  aliases: {
-  },
+  aliases: {},
   balances: {
     data: {
       hopr: {

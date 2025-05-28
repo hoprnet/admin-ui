@@ -154,20 +154,23 @@ function SessionsPage() {
       mtu: session.mtu,
       path: (
         <>
-        <strong>Forward path:</strong><br/>
-        <span style={{ whiteSpace: 'break-spaces' }}>
-          {JSON.stringify(session.forwardPath)
-            .replace(/{|}|\[|\]|"/g, '')
-            .replace('IntermediatePath:', 'IntermediatePath:\n')
-            .replace(/,/g, ' ')}
-        </span><br/>
-        <strong>Return path:</strong><br/>
-        <span style={{ whiteSpace: 'break-spaces' }}>
-          {JSON.stringify(session.forwardPath)
-            .replace(/{|}|\[|\]|"/g, '')
-            .replace('IntermediatePath:', 'IntermediatePath:\n')
-            .replace(/,/g, ' ')}
-        </span>
+          <strong>Forward path:</strong>
+          <br />
+          <span style={{ whiteSpace: 'break-spaces' }}>
+            {JSON.stringify(session.forwardPath)
+              .replace(/{|}|\[|\]|"/g, '')
+              .replace('IntermediatePath:', 'IntermediatePath:\n')
+              .replace(/,/g, ' ')}
+          </span>
+          <br />
+          <strong>Return path:</strong>
+          <br />
+          <span style={{ whiteSpace: 'break-spaces' }}>
+            {JSON.stringify(session.forwardPath)
+              .replace(/{|}|\[|\]|"/g, '')
+              .replace('IntermediatePath:', 'IntermediatePath:\n')
+              .replace(/,/g, ' ')}
+          </span>
         </>
       ),
       actions: (

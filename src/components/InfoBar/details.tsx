@@ -227,9 +227,7 @@ export default function Details(props: Props) {
               {info?.connectivityStatus ? info?.connectivityStatus : '-'}
             </ColorStatus>
           </p>
-          <ColorStatus
-            className={`status-${isXdaiEnough()}`}
-          >
+          <ColorStatus className={`status-${isXdaiEnough()}`}>
             <Tooltip
               title={
                 balances.native?.formatted && balances.native?.formatted !== '0' ? balances.native?.formatted : null
@@ -257,25 +255,15 @@ export default function Details(props: Props) {
           </Tooltip>
           <Tooltip
             title={
-              statistics?.unredeemedValue && statistics?.unredeemedValue !== '0'
-                ? statistics?.unredeemedValue
-                : null
+              statistics?.unredeemedValue && statistics?.unredeemedValue !== '0' ? statistics?.unredeemedValue : null
             }
           >
-            <p className="double">
-              {statistics?.unredeemedValue ? statistics?.unredeemedValue : '-'}
-            </p>
+            <p className="double">{statistics?.unredeemedValue ? statistics?.unredeemedValue : '-'}</p>
           </Tooltip>
           <Tooltip
-            title={
-              statistics?.redeemedValue && statistics?.redeemedValue !== '0'
-                ? statistics?.redeemedValue
-                : null
-            }
+            title={statistics?.redeemedValue && statistics?.redeemedValue !== '0' ? statistics?.redeemedValue : null}
           >
-            <p className="double">
-              {statistics?.redeemedValue ? statistics?.redeemedValue : '-'}
-            </p>
+            <p className="double">{statistics?.redeemedValue ? statistics?.redeemedValue : '-'}</p>
           </Tooltip>
         </Data>
       </DataColumn>

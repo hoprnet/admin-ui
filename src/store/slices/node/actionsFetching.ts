@@ -46,9 +46,9 @@ export const nodeActionsFetching = {
 
 export const createFetchingReducer = (builder: ActionReducerMapBuilder<typeof initialState>) => {
   // Action to update the isFetching state
-    builder.addCase(setInfoFetching, (state, action) => {
-      state.info.isFetching = action.payload;
-    }),
+  builder.addCase(setInfoFetching, (state, action) => {
+    state.info.isFetching = action.payload;
+  }),
     builder.addCase(setMetricsFetching, (state, action) => {
       state.metrics.isFetching = action.payload;
     }),

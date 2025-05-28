@@ -130,9 +130,7 @@ function TicketsPage() {
                   <span>Unredeemed value</span>
                 </Tooltip>
               </th>
-              <td>
-                {statistics?.unredeemedValue ? statistics?.unredeemedValue : '-'} wxHOPR
-              </td>
+              <td>{statistics?.unredeemedValue ? statistics?.unredeemedValue : '-'} wxHOPR</td>
             </tr>
             <tr>
               <th>
@@ -143,9 +141,7 @@ function TicketsPage() {
                   <span>Neglected value</span>
                 </Tooltip>
               </th>
-              <td>
-                {statistics?.neglectedValue ? statistics?.neglectedValue : '-'} wxHOPR
-              </td>
+              <td>{statistics?.neglectedValue ? statistics?.neglectedValue : '-'} wxHOPR</td>
             </tr>
             <tr>
               <th>
@@ -156,9 +152,7 @@ function TicketsPage() {
                   <span>Rejected value</span>
                 </Tooltip>
               </th>
-              <td>
-                {statistics?.rejectedValue ? statistics?.rejectedValue : '-'} wxHOPR
-              </td>
+              <td>{statistics?.rejectedValue ? statistics?.rejectedValue : '-'} wxHOPR</td>
             </tr>
             <tr>
               <th>
@@ -169,9 +163,7 @@ function TicketsPage() {
                   <span>Redeemed value</span>
                 </Tooltip>
               </th>
-              <td>
-                {statistics?.redeemedValue ? statistics?.redeemedValue : '-'} wxHOPR
-              </td>
+              <td>{statistics?.redeemedValue ? statistics?.redeemedValue : '-'} wxHOPR</td>
             </tr>
           </tbody>
         </TableExtended>

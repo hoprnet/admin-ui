@@ -227,9 +227,7 @@ const LayoutEnhanced = () => {
 
   const numberOfPeers = useAppSelector((store) => store.node.peers.data?.connected.length);
   const fetchingPeers = useAppSelector((store) => store.node.peers.isFetching);
-  const numberOfAliases = useAppSelector(
-    (store) => store.node.aliases && Object.keys(store.node.aliases).length,
-  );
+  const numberOfAliases = useAppSelector((store) => store.node.aliases && Object.keys(store.node.aliases).length);
   const numberOfMessagesReceived = useAppSelector((store) => store.node.messages.data.length);
   const numberOfChannelsIn = useAppSelector((store) => store.node.channels.data?.incoming.length);
   const numberOfChannelsOut = useAppSelector((store) => store.node.channels.data?.outgoing.length);

@@ -210,12 +210,13 @@ export default function ConnectNode() {
               <span>
                 {localNameToDisplay && <p className="node-info node-info-localname">{localNameToDisplay}</p>}
                 <p className="node-info">
-                  {nodeAddress &&
+                  {nodeAddress && (
                     <>
-                      <span style={{textTransform: 'lowercase'}}>0x</span>
-                      {nodeAddress.substring(2, 6).toUpperCase()}...{nodeAddress.substring(nodeAddress.length - 7, nodeAddress.length).toUpperCase()}
+                      <span style={{ textTransform: 'lowercase' }}>0x</span>
+                      {nodeAddress.substring(2, 6).toUpperCase()}...
+                      {nodeAddress.substring(nodeAddress.length - 7, nodeAddress.length).toUpperCase()}
                     </>
-                  }
+                  )}
                 </p>
               </span>
               <div className="dropdown-icon">

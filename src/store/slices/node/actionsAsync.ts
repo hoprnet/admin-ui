@@ -594,7 +594,6 @@ const redeemChannelTicketsThunk = createAsyncThunk<
   },
 );
 
-
 const pingNodeThunk = createAsyncThunk('node/pingNode', async (payload: PingPeerPayloadType, { rejectWithValue }) => {
   try {
     const res = await pingPeer(payload);

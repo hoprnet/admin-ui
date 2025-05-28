@@ -215,7 +215,7 @@ function ChannelsPage() {
         return;
 
       const peerAddress = channelsOutgoingObject[id].peerAddress;
-      if(!peerAddress) return;
+      if (!peerAddress) return;
 
       return {
         id: (index + 1).toString(),

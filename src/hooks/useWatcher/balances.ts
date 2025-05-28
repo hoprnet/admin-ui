@@ -52,7 +52,8 @@ export const handleBalanceNotification = ({
   }
   const nativeSafeBalanceIsLarger = balanceHasIncreased(prevNodeBalances.safeNative, newNodeBalances.safeNative);
   if (nativeSafeBalanceIsLarger) {
-    const nativeSafeBalanceDifference = parseEther(newNodeBalances.safeNative) - parseEther(prevNodeBalances.safeNative);
+    const nativeSafeBalanceDifference =
+      parseEther(newNodeBalances.safeNative) - parseEther(prevNodeBalances.safeNative);
     sendNewNativeSafeBalanceNotification(nativeSafeBalanceDifference);
   }
 
