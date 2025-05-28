@@ -3,7 +3,6 @@ import { useAppDispatch, useAppSelector } from '../../store';
 import { actionsAsync } from '../../store/slices/node/actionsAsync';
 import { useNavigate } from 'react-router-dom';
 import { exportToCsv } from '../../utils/helpers';
-import { utils } from 'ethers';
 import { HOPR_TOKEN_USED } from '../../../config';
 import { sendNotification } from '../../hooks/useWatcher/notifications';
 import { formatEther } from 'viem';

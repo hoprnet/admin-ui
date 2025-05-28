@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../store';
 import { actionsAsync } from '../../store/slices/node/actionsAsync';
 import { useNavigate } from 'react-router-dom';
 import { exportToCsv } from '../../utils/helpers';
-import { utils } from 'ethers';
+import { formatEther, parseEther, parseGwei } from 'viem';
 import { sendNotification } from '../../hooks/useWatcher/notifications';
 import { HOPR_TOKEN_USED } from '../../../config';
 import { utils as hoprdUtils } from '@hoprnet/hopr-sdk';
@@ -236,11 +236,11 @@ function ChannelsPage() {
         peerAddress: getAliasByPeerAddress(peerAddress as string),
         peerId: peerId,
         status: channelsOutgoingObject[id].status as string,
-        funds: `${utils.formatEther(channelsOutgoingObject[id].balance as string)} ${HOPR_TOKEN_USED}`,
+        funds: `${channelsOutgoingObject[id].balance} ${HOPR_TOKEN_USED}`,
         actions: (
           <>
             <PingModal
-              peerId={peerId}
+              address={peerAddress}
               disabled={!peerId}
               tooltip={
                 !peerId ? (

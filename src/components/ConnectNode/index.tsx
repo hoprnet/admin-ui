@@ -102,10 +102,9 @@ export default function ConnectNode() {
   const connecting = useAppSelector((store) => store.auth.status.connecting);
   const error = useAppSelector((store) => store.auth.status.error);
   const openLoginModalToNode = useAppSelector((store) => store.auth.helper.openLoginModalToNode);
-  const peerId = useAppSelector((store) => store.node.addresses.data.hopr);
+  const nodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const localNameFromLocalStorage = useAppSelector((store) => store.auth.loginData.localName);
   const jazzIconFromLocalStorage = useAppSelector((store) => store.auth.loginData.jazzIcon);
-  const nodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const localNameToDisplay =
     localNameFromLocalStorage && localNameFromLocalStorage.length > 17
       ? `${localNameFromLocalStorage?.substring(0, 5)}…${localNameFromLocalStorage?.substring(
@@ -211,7 +210,12 @@ export default function ConnectNode() {
               <span>
                 {localNameToDisplay && <p className="node-info node-info-localname">{localNameToDisplay}</p>}
                 <p className="node-info">
-                  {peerId && `${peerId.substring(0, 6)}...${peerId.substring(peerId.length - 8, peerId.length)}`}
+                  {nodeAddress &&
+                    <>
+                      <span style={{textTransform: 'lowercase'}}>0x</span>
+                      {nodeAddress.substring(2, 6).toUpperCase()}...{nodeAddress.substring(nodeAddress.length - 7, nodeAddress.length).toUpperCase()}
+                    </>
+                  }
                 </p>
               </span>
               <div className="dropdown-icon">

@@ -14,7 +14,7 @@ import RssFeedIcon from '@mui/icons-material/RssFeed';
 import Button from '../../../future-hopr-lib-components/Button';
 
 type PingModalProps = {
-  peerId?: string;
+  address?: string;
   disabled?: boolean;
   tooltip?: JSX.Element | string;
 };
@@ -24,31 +24,31 @@ export const PingModal = (props: PingModalProps) => {
   const loginData = useAppSelector((selector) => selector.auth.loginData);
   const aliases = useAppSelector((store) => store.node.aliases);
   const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
-  const [peerId, set_peerId] = useState<string>(props.peerId ? props.peerId : '');
+  const [address, set_address] = useState<string>(props.address ? props.address : '');
   const [openModal, set_OpenModal] = useState(false);
   const [disableButton, set_disableButton] = useState(false);
-  const canPing = peerId.length !== 0;
+  const canPing = address.length !== 0;
 
   useEffect(() => {
     window.addEventListener('keydown', handleEnter as unknown as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as unknown as EventListener);
     };
-  }, [loginData, peerId]);
+  }, [loginData, address]);
 
-  const getAliasByPeerId = (peerId: string): string => {
-    if (aliases && peerId && peerIdToAliasLink[peerId]) return `${peerIdToAliasLink[peerId]} (${peerId})`;
-    return peerId;
+  const getAliasByPeerId = (address: string): string => {
+    if (aliases && address && peerIdToAliasLink[address]) return `${peerIdToAliasLink[address]} (${address})`;
+    return address;
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    set_peerId(event.target.value);
+    set_address(event.target.value);
   };
 
-  const setPropPeerId = () => {
-    if (props.peerId) set_peerId(props.peerId);
+  const setPropAddress = () => {
+    if (props.address) set_address(props.address);
   };
-  useEffect(setPropPeerId, [props.peerId]);
+  useEffect(setPropAddress, [props.address]);
 
   const handleOpenModal = () => {
     (document.activeElement as HTMLInputElement).blur();
@@ -57,8 +57,8 @@ export const PingModal = (props: PingModalProps) => {
 
   const handleCloseModal = () => {
     set_OpenModal(false);
-    set_peerId('');
-    setPropPeerId();
+    set_address('');
+    setPropAddress();
   };
 
   const handlePing = () => {
@@ -66,14 +66,14 @@ export const PingModal = (props: PingModalProps) => {
       set_disableButton(true);
       dispatch(
         actionsAsync.pingNodeThunk({
-          peerId,
+          address: address,
           apiEndpoint: loginData.apiEndpoint,
           apiToken: loginData.apiToken ? loginData.apiToken : '',
         }),
       )
         .unwrap()
         .then((resp: PingPeerResponseType) => {
-          const msg = `Ping of ${getAliasByPeerId(peerId)} succeeded with latency of ${resp.latency}ms`;
+          const msg = `Ping of ${getAliasByPeerId(address)} succeeded with latency of ${resp.latency}ms`;
           console.log(msg, resp);
           sendNotification({
             notificationPayload: {
@@ -92,7 +92,7 @@ export const PingModal = (props: PingModalProps) => {
           ).unwrap();
           if (!isCurrentApiEndpointTheSame) return;
 
-          let errMsg = `Ping of ${getAliasByPeerId(peerId)} failed`;
+          let errMsg = `Ping of ${getAliasByPeerId(address)} failed`;
           if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
             errMsg = errMsg + `.\n${e.hoprdErrorPayload.status}`;
           if (e instanceof sdkApiError && e.hoprdErrorPayload?.error)
@@ -138,7 +138,7 @@ export const PingModal = (props: PingModalProps) => {
             </span>
           )
         }
-        onClick={peerId ? handlePing : handleOpenModal}
+        onClick={address ? handlePing : handleOpenModal}
         disabled={props.disabled}
         pending={disableButton}
       />
@@ -159,11 +159,11 @@ export const PingModal = (props: PingModalProps) => {
         <SDialogContent>
           <TextField
             type="text"
-            name="peerId"
-            label="Peer ID"
-            placeholder="12D3Ko...Z3rz5F"
+            name="peerAddress"
+            label="Node address"
+            placeholder="0x154a...d6D9E7f3"
             onChange={handleChange}
-            value={peerId}
+            value={address}
             autoFocus
           />
         </SDialogContent>

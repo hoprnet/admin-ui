@@ -54,7 +54,7 @@ export const FundChannelModal = ({ ...props }: FundChannelModalModalProps) => {
         actionsAsync.fundChannelThunk({
           apiEndpoint: loginData.apiEndpoint!,
           apiToken: loginData.apiToken ? loginData.apiToken : '',
-          amount: weiValue,
+          amount: `${weiValue} wei wxHOPR`,
           channelId: channelId,
           timeout: 120_000, //TODO: put those values as default to HOPRd SDK, average is 50s
         }),

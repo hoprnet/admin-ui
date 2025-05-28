@@ -200,7 +200,7 @@ function AliasesPage() {
       <SubpageTitle
         title={`ALIASES (${parsedTableData.length})`}
         refreshFunction={handleRefresh}
-        reloading={aliasesFetching}
+      //  reloading={aliasesFetching}
         actions={
           <>
             <CreateAliasModal handleRefresh={handleRefresh} />
@@ -221,11 +221,11 @@ function AliasesPage() {
         }
       />
       <TablePro
-        data={parsedTableData}
-        search={true}
-        id={'node-aliases-table'}
-        header={header}
-        loading={parsedTableData.length === 0 && aliasesFetching}
+        // data={parsedTableData}
+        // search={true}
+        // id={'node-aliases-table'}
+        // header={header}
+        // loading={parsedTableData.length === 0 && aliasesFetching}
         orderByDefault="alias"
       />
     </Section>

@@ -3,7 +3,7 @@ import { useAppDispatch } from '../../store';
 import { observeData } from './observeData';
 import { nodeActionsAsync } from '../../store/slices/node';
 import { sendNotification } from './notifications';
-import { formatEther } from 'viem';
+import { formatEther, parseEther } from 'viem';
 
 /**
  * Checks if the new balance is greater than the previous balance.
@@ -40,25 +40,25 @@ export const handleBalanceNotification = ({
   sendNewNativeSafeBalanceNotification: (nativeSafeBalanceDifference: bigint) => void;
   sendNewHoprSafeBalanceNotification: (hoprSafeBalanceDifference: bigint) => void;
 }) => {
-  if (BigInt(newNodeBalances.native) < BigInt(minimumNodeBalances.native)) {
-    return sendNativeBalanceTooLowNotification(BigInt(newNodeBalances.native));
+  if (parseEther(newNodeBalances.native) < parseEther(minimumNodeBalances.native)) {
+    return sendNativeBalanceTooLowNotification(parseEther(newNodeBalances.native));
   }
 
   if (!prevNodeBalances) return;
   const nativeBalanceIsLarger = balanceHasIncreased(prevNodeBalances.native, newNodeBalances.native);
   if (nativeBalanceIsLarger) {
-    const nativeBalanceDifference = BigInt(newNodeBalances.native) - BigInt(prevNodeBalances.native);
+    const nativeBalanceDifference = parseEther(newNodeBalances.native) - parseEther(prevNodeBalances.native);
     sendNewNativeBalanceNotification(nativeBalanceDifference);
   }
   const nativeSafeBalanceIsLarger = balanceHasIncreased(prevNodeBalances.safeNative, newNodeBalances.safeNative);
   if (nativeSafeBalanceIsLarger) {
-    const nativeSafeBalanceDifference = BigInt(newNodeBalances.safeNative) - BigInt(prevNodeBalances.safeNative);
+    const nativeSafeBalanceDifference = parseEther(newNodeBalances.safeNative) - parseEther(prevNodeBalances.safeNative);
     sendNewNativeSafeBalanceNotification(nativeSafeBalanceDifference);
   }
 
   const hoprSafeBalanceIsLarger = balanceHasIncreased(prevNodeBalances.safeHopr, newNodeBalances.safeHopr);
   if (hoprSafeBalanceIsLarger) {
-    const hoprSafeBalanceDifference = BigInt(newNodeBalances.safeHopr) - BigInt(prevNodeBalances.safeHopr);
+    const hoprSafeBalanceDifference = parseEther(newNodeBalances.safeHopr) - parseEther(prevNodeBalances.safeHopr);
     sendNewHoprSafeBalanceNotification(hoprSafeBalanceDifference);
   }
 };

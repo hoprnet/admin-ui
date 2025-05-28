@@ -129,14 +129,14 @@ export const applicationMapNode: ApplicationMapType = [
         numberKey: 'numberOfPeers',
         fetchingKey: 'fetchingPeers',
       },
-      {
-        name: 'ALIASES',
-        path: 'aliases',
-        icon: <ContactPhone />,
-        element: <AliasesPage />,
-        loginNeeded: 'node',
-        numberKey: 'numberOfAliases',
-      },
+      // {
+      //   name: 'ALIASES',
+      //   path: 'aliases',
+      //   icon: <ContactPhone />,
+      //   element: <AliasesPage />,
+      //   loginNeeded: 'node',
+      //   numberKey: 'numberOfAliases',
+      // },
       // {
       //   name: 'MESSAGES',
       //   path: 'messages',
