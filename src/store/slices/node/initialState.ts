@@ -66,7 +66,9 @@ type InitialState = {
     data: AddressesType;
     isFetching: boolean;
   };
-  aliases: {};
+  aliases: {
+    [peerAddress: string]: string;
+  };
   balances: {
     data: {
       hopr: {
@@ -109,6 +111,20 @@ type InitialState = {
     isFetching: boolean;
     alreadyFetched: boolean;
   };
+  checks: {
+    peers: {
+      [peerAddress: string]: boolean;
+    },
+    channelsIn: {
+      [channelsId: string]: boolean;
+    },
+    channelsOut: {
+      [channelsId: string]: boolean;
+    },
+    sessions: {
+      [session: string]: boolean;
+    },
+  }
   configuration: {
     data: GetConfigurationResponseType | null;
     isFetching: boolean;
@@ -127,9 +143,6 @@ type InitialState = {
       [nodeAddress: string]: string;
     };
     peerIdToNodeAddress: {
-      [peerId: string]: string;
-    };
-    peerIdToAlias: {
       [peerId: string]: string;
     };
   };
@@ -298,6 +311,12 @@ export const initialState: InitialState = {
     isFetching: false,
     alreadyFetched: false,
   },
+  checks: {
+    peers: {},
+    channelsIn: {},
+    channelsOut: {},
+    sessions: {},
+  },
   configuration: {
     data: null,
     isFetching: false,
@@ -390,7 +409,6 @@ export const initialState: InitialState = {
     incomingChannelToNodeAddress: {},
     nodeAddressToPeerId: {},
     peerIdToNodeAddress: {},
-    peerIdToAlias: {},
   },
   apiEndpoint: null,
   nodeIsReady: {

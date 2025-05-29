@@ -39,7 +39,6 @@ function ChannelsPage() {
   const loginData = useAppSelector((store) => store.auth.loginData);
   const currentApiEndpoint = useAppSelector((store) => store.node.apiEndpoint);
   const nodeAddressToPeerIdLink = useAppSelector((store) => store.node.links.nodeAddressToPeerId);
-  const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
   const tabLabel = 'outgoing';
   const channelsData = channels?.outgoing;
 
@@ -64,10 +63,9 @@ function ChannelsPage() {
     return peerId!;
   };
 
-  const getAliasByPeerAddress = (nodeAddress: string): string => {
-    const peerId = getPeerIdFromPeerAddress(nodeAddress);
-    if (aliases && peerId && peerIdToAliasLink[peerId]) return `${peerIdToAliasLink[peerId]} (${nodeAddress})`;
-    return nodeAddress;
+  const getAliasByPeerAddress = (address: string): string => {
+    if (aliases && address && aliases[address]) return `${aliases[address]} (${address})`;
+    return address;
   };
 
   const handleExport = () => {
@@ -222,9 +220,7 @@ function ChannelsPage() {
         key: id,
         node: (
           <PeersInfo
-            peerId={''}
             nodeAddress={peerAddress}
-            shortenPeerIdIfAliasPresent
           />
         ),
         peerAddress: getAliasByPeerAddress(peerAddress as string),

@@ -37,6 +37,20 @@ const nodeSlice = createSlice({
         return message;
       });
     },
+    toggleCheckbox(state, action: PayloadAction<{ category: 'peers'|'channelsIn'|'channelsOut'|'sessions'; id: string, checked: boolean }>) {
+      const category = action.payload.category;
+      const id = action.payload.id;
+      const checked = action.payload.checked;
+      if(checked) {
+        state.checks[category][id] = true;
+      } else {
+        delete state.checks[category][id];
+      }
+    },
+    removeAllCheckboxes(state, action: PayloadAction<{ category: 'peers'|'channelsIn'|'channelsOut'|'sessions' }>) {
+      const category = action.payload.category;
+      state.checks[category] = {};
+    },
     // handle ws state
     updateMessagesWebsocketStatus(state, action: PayloadAction<typeof initialState.messagesWebsocketStatus>) {
       state.messagesWebsocketStatus = action.payload;

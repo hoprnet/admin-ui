@@ -29,7 +29,6 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const loginData = useAppSelector((store) => store.auth.loginData);
   const outgoingOpening = useAppSelector((store) => store.node.channels.parsed.outgoingOpening);
   const aliases = useAppSelector((store) => store.node.aliases);
-  const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
   const channelIsBeingOpened = props.peerAddress ? !!outgoingOpening[props.peerAddress] : false;
   const [openChannelModal, set_openChannelModal] = useState(false);
   const [amount, set_amount] = useState('');
@@ -43,9 +42,9 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
     };
   }, [openChannelModal, loginData, amount, peerAddress]);
 
-  const getAliasByPeerId = (peerId: string): string => {
-    if (aliases && peerId && peerIdToAliasLink[peerId]) return `${peerIdToAliasLink[peerId]} (${peerId})`;
-    return peerId;
+  const getAliasByAddress = (address: string): string => {
+    if (aliases && address && aliases[address]) return `${aliases[address]} (${address})`;
+    return address;
   };
 
   const handleOpenChannelDialog = () => {

@@ -15,8 +15,7 @@ import AddAliasIcon from '../../../future-hopr-lib-components/Icons/AddAlias';
 import Button from '../../../future-hopr-lib-components/Button';
 
 type CreateAliasModalProps = {
-  handleRefresh: () => void;
-  peerId?: string;
+  address?: string;
   disabled?: boolean;
   tooltip?: JSX.Element | string;
 };
@@ -26,9 +25,9 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   const loginData = useAppSelector((store) => store.auth.loginData);
   const aliases = useAppSelector((store) => store.node.aliases);
   const [alias, set_alias] = useState<string>('');
-  const [peerId, set_peerId] = useState<string>(props.peerId ? props.peerId : '');
+  const [address, set_address] = useState<string>(props.address ? props.address : '');
   const [duplicateAlias, set_duplicateAlias] = useState(false);
-  const [duplicatePeerId, set_duplicatePeerId] = useState(false);
+  const [duplicateAddress, set_duplicateAddress] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
   const aliasesArr = aliases ? Object.keys(aliases) : [];
@@ -36,9 +35,9 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   const aliasIncludesASpace = alias.includes(' ');
   const canAddAlias = !(
     alias.length === 0 ||
-    peerId.length === 0 ||
+    address.length === 0 ||
     duplicateAlias ||
-    duplicatePeerId ||
+    duplicateAddress ||
     aliasIncludesASpace
   );
 
@@ -47,20 +46,20 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
-  }, [loginData, alias, peerId]);
+  }, [loginData, alias, address]);
 
-  const setPropPeerId = () => {
-    if (props.peerId) set_peerId(props.peerId);
+  const setPropAddress = () => {
+    if (props.address) set_address(props.address);
   };
-  useEffect(setPropPeerId, [props.peerId]);
+  useEffect(setPropAddress, [props.address]);
 
-  const handleChangePeerId = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (aliasPeerIdsArr.includes(event.target.value)) {
-      set_duplicatePeerId(true);
+      set_duplicateAddress(true);
     } else {
-      set_duplicatePeerId(false);
+      set_duplicateAddress(false);
     }
-    set_peerId(event.target.value);
+    set_address(event.target.value);
   };
 
   const handleChangeAlias = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,9 +78,9 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
 
   const handleCloseModal = () => {
     set_duplicateAlias(false);
-    set_duplicatePeerId(false);
+    set_duplicateAddress(false);
     setOpenModal(false);
-    set_peerId(props.peerId ? props.peerId : '');
+    set_address(props.address ? props.address : '');
     set_alias('');
   };
 
@@ -178,15 +177,15 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
         <SDialogContent>
           <TextField
             type="text"
-            name="peerId"
-            label="Peer ID"
-            placeholder="12D3Ko...Z3rz5F"
-            onChange={handleChangePeerId}
-            value={peerId}
-            error={duplicatePeerId}
-            helperText={duplicatePeerId ? 'This Peer Id already has an alias!' : ''}
+            name="address"
+            label="Node address"
+            placeholder="0x154a...d6D9E7f3"
+            onChange={handleChangeAddress}
+            value={address}
+            error={duplicateAddress}
+            helperText={duplicateAddress ? 'This Peer Id already has an alias!' : ''}
             style={{ minHeight: '79px' }}
-            autoFocus={peerId === ''}
+            autoFocus={address === ''}
           />
           <TextField
             type="text"
@@ -204,7 +203,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
                 : ''
             }
             style={{ minHeight: '79px' }}
-            autoFocus={peerId !== ''}
+            autoFocus={address !== ''}
           />
         </SDialogContent>
         <DialogActions>

@@ -41,7 +41,6 @@ function ChannelsPage() {
   const nodeAddressToPeerIdLink = useAppSelector((store) => store.node.links.nodeAddressToPeerId);
   const nodeAddressToOutgoingChannelLink = useAppSelector((store) => store.node.links.nodeAddressToOutgoingChannel);
   const tickets = useAppSelector((store) => store.node.metricsParsed.tickets.incoming);
-  const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
   const tabLabel = 'incoming';
   const channelsData = channels?.incoming;
 
@@ -67,10 +66,9 @@ function ChannelsPage() {
     return peerId!;
   };
 
-  const getAliasByPeerAddress = (nodeAddress: string): string => {
-    const peerId = getPeerIdFromPeerAddress(nodeAddress);
-    if (aliases && peerId && peerIdToAliasLink[peerId]) return `${peerIdToAliasLink[peerId]} (${nodeAddress})`;
-    return nodeAddress;
+  const getAliasByPeerAddress = (address: string): string => {
+    if (aliases && address && aliases[address]) return `${aliases[address]} (${address})`;
+    return address;
   };
 
   const handleExport = () => {
@@ -102,12 +100,6 @@ function ChannelsPage() {
       name: 'Node Address',
       search: true,
       copy: true,
-      hidden: true,
-    },
-    {
-      key: 'peerId',
-      name: 'Peer Id',
-      search: true,
       hidden: true,
     },
     {
@@ -238,9 +230,7 @@ function ChannelsPage() {
         key: id,
         node: (
           <PeersInfo
-            peerId={peerId}
             nodeAddress={peerAddress}
-            shortenPeerIdIfAliasPresent
           />
         ),
         peerAddress: getAliasByPeerAddress(peerAddress as string),
@@ -264,22 +254,9 @@ function ChannelsPage() {
                 ) : undefined
               }
             />
-            {/* <CreateAliasModal
-              handleRefresh={handleRefresh}
-              peerId={peerId}
-              disabled={!peerId}
-              tooltip={
-                !peerId ? (
-                  <span>
-                    DISABLED
-                    <br />
-                    Unable to find
-                    <br />
-                    peerId
-                  </span>
-                ) : undefined
-              }
-            /> */}
+            <CreateAliasModal
+              address={peerAddress}
+            />
             {outgoingChannelOpened ? (
               <FundChannelModal channelId={id} />
             ) : (
