@@ -228,11 +228,7 @@ function ChannelsPage() {
       return {
         id: (index + 1).toString(),
         key: id,
-        node: (
-          <PeersInfo
-            nodeAddress={peerAddress}
-          />
-        ),
+        node: <PeersInfo nodeAddress={peerAddress} />,
         peerAddress: getAliasByPeerAddress(peerAddress as string),
         status: channelsIncomingObject[id].status,
         funds: `${channelsIncomingObject[id].balance} ${HOPR_TOKEN_USED}`,
@@ -254,9 +250,7 @@ function ChannelsPage() {
                 ) : undefined
               }
             />
-            <CreateAliasModal
-              address={peerAddress}
-            />
+            <CreateAliasModal address={peerAddress} />
             {outgoingChannelOpened ? (
               <FundChannelModal channelId={id} />
             ) : (

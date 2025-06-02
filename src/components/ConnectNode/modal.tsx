@@ -435,28 +435,23 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
           style={{ width: '100%' }}
           type={showPassword ? 'text' : 'password'}
           InputProps={{
-             endAdornment:
+            endAdornment: (
               <InputAdornment position="end">
                 <IconButton
-                  aria-label={
-                    showPassword ? 'hide the API token' : 'display the API token'
-                  }
-                  onClick={()=> setShowPassword((show) => !show)}
-                  onMouseDown={
-                    (event: React.MouseEvent<HTMLButtonElement>) => {
+                  aria-label={showPassword ? 'hide the API token' : 'display the API token'}
+                  onClick={() => setShowPassword((show) => !show)}
+                  onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
                     event.preventDefault();
-                    }
-                  }
-                  onMouseUp={
-                    (event: React.MouseEvent<HTMLButtonElement>) => {
+                  }}
+                  onMouseUp={(event: React.MouseEvent<HTMLButtonElement>) => {
                     event.preventDefault();
-                    }
-                  }
+                  }}
                   edge="end"
                 >
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
+            ),
           }}
         />
         <SaveTokenContainer>

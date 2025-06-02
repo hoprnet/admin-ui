@@ -116,9 +116,7 @@ function sortAddresses(
 ): string[] {
   if (!peers || !myAddress) return [];
   const connectedPeers = peers.connected;
-  const peerIdsWithAliases = Object.values(aliases).sort((a, b) =>
-    aliases[a] < aliases[b] ? -1 : 1,
-  );
+  const peerIdsWithAliases = Object.values(aliases).sort((a, b) => (aliases[a] < aliases[b] ? -1 : 1));
   if (peerIdsWithAliases.length === 0) return [myAddress, ...connectedPeers.map((peer) => peer.address).sort()];
   const peerIdsWithAliasesWithoutMyAddress = peerIdsWithAliases.filter((peerId) => peerId !== myAddress);
   const connectedPeersWithoutAliases = connectedPeers
@@ -413,9 +411,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
               set_destination(newValue);
             }}
             options={sendMessageAddressBook}
-            getOptionLabel={(address) =>
-              aliases[address] ? `${aliases[address]} (${address})` : address
-            }
+            getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
             autoSelect
             renderInput={(params) => (
               <TextField
@@ -565,9 +561,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                       });
                     }}
                     options={sendMessageAddressBook}
-                    getOptionLabel={(address) =>
-                      aliases[address] ? `${aliases[address]} (${address})` : address
-                    }
+                    getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
                     autoSelect
                     renderInput={(params) => (
                       <TextField
@@ -652,9 +646,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                       });
                     }}
                     options={sendMessageAddressBook}
-                    getOptionLabel={(address) =>
-                      aliases[address] ? `${aliases[address]} (${address})` : address
-                    }
+                    getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
                     autoSelect
                     renderInput={(params) => (
                       <TextField

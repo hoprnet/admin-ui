@@ -104,9 +104,7 @@ function PeersPage() {
     },
   ];
 
-  const peersWithAliases = (peers?.connected || []).filter(
-    (peer) => aliases && peer.address && aliases[peer.address],
-  );
+  const peersWithAliases = (peers?.connected || []).filter((peer) => aliases && peer.address && aliases[peer.address]);
   const peersWithAliasesSorted = peersWithAliases.sort((a, b) => {
     if (getAliasByAddress(b.address).toLowerCase() > getAliasByAddress(a.address).toLowerCase()) {
       return -1;
@@ -148,11 +146,7 @@ function PeersPage() {
 
     return {
       id: index + 1,
-      node: (
-        <PeersInfo
-          nodeAddress={peer.address}
-        />
-      ),
+      node: <PeersInfo nodeAddress={peer.address} />,
       address: getAliasByAddress(peer.address),
       peerAddress: peer.address,
       quality: <ProgressBar value={peer.quality} />,
@@ -160,9 +154,7 @@ function PeersPage() {
       actions: (
         <>
           <PingModal address={peer.address} />
-          <CreateAliasModal
-            address={peer.address}
-          />
+          <CreateAliasModal address={peer.address} />
           {nodeAddressToOutgoingChannelLink[peer.address] ? (
             <FundChannelModal channelId={nodeAddressToOutgoingChannelLink[peer.address]} />
           ) : (

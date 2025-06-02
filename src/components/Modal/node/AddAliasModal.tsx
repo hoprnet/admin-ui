@@ -75,7 +75,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
 
   const handleOpenModal = () => {
     (document.activeElement as HTMLInputElement).blur();
-    if(hasAlias) {
+    if (hasAlias) {
       set_alias(aliases[address]);
     }
     setOpenModal(true);
@@ -110,9 +110,9 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
             props.tooltip
           ) : (
             <span>
-              { hasAlias ? 'EDIT' : 'ADD' }
+              {hasAlias ? 'EDIT' : 'ADD'}
               <br />
-              { hasAlias ? '' : 'new ' } alias
+              {hasAlias ? '' : 'new '} alias
             </span>
           )
         }
@@ -125,7 +125,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
         disableScrollLock={true}
       >
         <TopBar>
-          <DialogTitle>{ hasAlias ? 'Edit' : 'Add' } Alias</DialogTitle>
+          <DialogTitle>{hasAlias ? 'Edit' : 'Add'} Alias</DialogTitle>
           <SIconButton
             aria-label="close modal"
             onClick={handleCloseModal}
@@ -175,7 +175,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
               marginTop: '-6px',
             }}
           >
-            { hasAlias ? 'Edit' : 'Add' }
+            {hasAlias ? 'Edit' : 'Add'}
           </Button>
         </DialogActions>
       </SDialog>

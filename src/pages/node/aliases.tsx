@@ -53,8 +53,8 @@ function AliasesPage() {
         nodeActions.setAlias({
           nodeAddress: data.address || data.nodeAddress,
           alias: data.alias,
-        })
-      )
+        }),
+      );
     }
   };
 
@@ -79,11 +79,7 @@ function AliasesPage() {
       id: nodeAddress,
       key: index.toString(),
       alias,
-      node: (
-        <PeersInfo
-          nodeAddress={nodeAddress}
-        />
-      ),
+      node: <PeersInfo nodeAddress={nodeAddress} />,
       lastSeen: <span style={{ whiteSpace: 'break-spaces' }}>{myNodeAddress === nodeAddress ? '-' : lastSeen}</span>,
       nodeAddress: nodeAddress,
       actions: (
@@ -164,7 +160,7 @@ function AliasesPage() {
     >
       <SubpageTitle
         title={`ALIASES (${parsedTableData.length})`}
-      //  refreshFunction={handleRefresh}
+        //  refreshFunction={handleRefresh}
         actions={
           <>
             <CreateAliasModal />
@@ -235,9 +231,7 @@ function CreateAliasForm() {
       />
       <button
         disabled={form.alias.length === 0 || form.peerId.length === 0}
-        onClick={() => {
-
-        }}
+        onClick={() => {}}
       >
         add
       </button>

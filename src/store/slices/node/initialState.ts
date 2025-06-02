@@ -114,17 +114,17 @@ type InitialState = {
   checks: {
     peers: {
       [peerAddress: string]: boolean;
-    },
+    };
     channelsIn: {
       [channelsId: string]: boolean;
-    },
+    };
     channelsOut: {
       [channelsId: string]: boolean;
-    },
+    };
     sessions: {
       [session: string]: boolean;
-    },
-  }
+    };
+  };
   configuration: {
     data: GetConfigurationResponseType | null;
     isFetching: boolean;

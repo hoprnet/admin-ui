@@ -218,11 +218,7 @@ function ChannelsPage() {
       return {
         id: (index + 1).toString(),
         key: id,
-        node: (
-          <PeersInfo
-            nodeAddress={peerAddress}
-          />
-        ),
+        node: <PeersInfo nodeAddress={peerAddress} />,
         peerAddress: getAliasByPeerAddress(peerAddress as string),
         status: channelsOutgoingObject[id].status as string,
         funds: `${channelsOutgoingObject[id].balance} ${HOPR_TOKEN_USED}`,
