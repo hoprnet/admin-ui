@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { DialogTitle, TextField, DialogActions, Alert } from '@mui/material';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import { useAppDispatch, useAppSelector } from '../../../store';
-import { actionsAsync } from '../../../store/slices/node/actionsAsync';
+import { nodeActions, nodeActionsAsync as actionsAsync } from '../../../store/slices/node';
 import { appActions } from '../../../store/slices/app';
 import CloseIcon from '@mui/icons-material/Close';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
@@ -13,6 +13,7 @@ const { sdkApiError } = hoprdUlils;
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
 import AddAliasIcon from '../../../future-hopr-lib-components/Icons/AddAlias';
 import Button from '../../../future-hopr-lib-components/Button';
+import { add } from 'lodash';
 
 type CreateAliasModalProps = {
   address?: string;
@@ -24,11 +25,13 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   const dispatch = useAppDispatch();
   const loginData = useAppSelector((store) => store.auth.loginData);
   const aliases = useAppSelector((store) => store.node.aliases);
+  const nodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const [alias, set_alias] = useState<string>('');
   const [address, set_address] = useState<string>(props.address ? props.address : '');
   const [duplicateAlias, set_duplicateAlias] = useState(false);
   const [duplicateAddress, set_duplicateAddress] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const hasAlias = !!aliases[address];
 
   const aliasesArr = aliases ? Object.keys(aliases) : [];
   const aliasPeerIdsArr = aliases ? Object.values(aliases) : [];
@@ -46,7 +49,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
-  }, [loginData, alias, address]);
+  }, [loginData, alias, nodeAddress, address]);
 
   const setPropAddress = () => {
     if (props.address) set_address(props.address);
@@ -73,6 +76,9 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
 
   const handleOpenModal = () => {
     (document.activeElement as HTMLInputElement).blur();
+    if(hasAlias) {
+      set_alias(aliases[address]);
+    }
     setOpenModal(true);
   };
 
@@ -85,54 +91,8 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   };
 
   const handleAddAlias = () => {
-    // if (loginData.apiEndpoint) {
-    //   dispatch(
-    //     actionsAsync.setAliasThunk({
-    //       alias: alias,
-    //       peerId: peerId,
-    //       apiEndpoint: loginData.apiEndpoint,
-    //       apiToken: loginData.apiToken ? loginData.apiToken : '',
-    //     }),
-    //   )
-    //     .unwrap()
-    //     .then(() => {
-    //       props.handleRefresh();
-    //       sendNotification({
-    //         notificationPayload: {
-    //           source: 'node',
-    //           name: `Alias ${alias} added to ${peerId}`,
-    //           url: null,
-    //           timeout: null,
-    //         },
-    //         toastPayload: { message: `Alias ${alias} added to ${peerId}` },
-    //         dispatch,
-    //       });
-    //     })
-    //     .catch((e) => {
-    //       let errMsg = `Alias ${alias} failed to add`;
-    //       if (e instanceof sdkApiError && e.hoprdErrorPayload?.status)
-    //         errMsg = errMsg + `.\n${e.hoprdErrorPayload.status}`;
-    //       if (e instanceof sdkApiError && e.hoprdErrorPayload?.error)
-    //         errMsg = errMsg + `.\n${e.hoprdErrorPayload.error}`;
-    //       console.error(errMsg, e);
-    //       sendNotification({
-    //         notificationPayload: {
-    //           source: 'node',
-    //           name: errMsg,
-    //           url: null,
-    //           timeout: null,
-    //         },
-    //         toastPayload: {
-    //           message: errMsg,
-    //           type: 'error',
-    //         },
-    //         dispatch,
-    //       });
-    //     })
-    //     .finally(() => {
-    //       handleCloseModal();
-    //     });
-    // }
+    dispatch(nodeActions.setAlias({ nodeAddress: address, alias }));
+    handleCloseModal();
   };
 
   function handleEnter(event: KeyboardEvent) {
@@ -151,9 +111,9 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
             props.tooltip
           ) : (
             <span>
-              ADD
+              { hasAlias ? 'EDIT' : 'ADD' }
               <br />
-              new alias
+              { hasAlias ? '' : 'new ' } alias
             </span>
           )
         }

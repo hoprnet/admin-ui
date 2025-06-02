@@ -26,6 +26,7 @@ const nodeSlice = createSlice({
       if (state.messages.data.length > 100)
         state.messages.data = state.messages.data.slice(state.messages.data.length - 100, state.messages.data.length);
     },
+    // handle checkboxes
     toggleMessageSeen(state, action: PayloadAction<(typeof initialState.messages.data)[0]>) {
       state.messages.data = state.messages.data.map((message) => {
         if (message.id === action.payload.id) {
@@ -50,6 +51,22 @@ const nodeSlice = createSlice({
     removeAllCheckboxes(state, action: PayloadAction<{ category: 'peers'|'channelsIn'|'channelsOut'|'sessions' }>) {
       const category = action.payload.category;
       state.checks[category] = {};
+    },
+    // handle aliases
+    setAlias(state, action: PayloadAction<{ nodeAddress: string; alias: string }>) {
+      const nodeAddress = action.payload.nodeAddress;
+      const alias = action.payload.alias;
+      if (!nodeAddress || !alias) return;
+      state.aliases = {
+        ...state.aliases,
+        [nodeAddress]: alias,
+      };
+    },
+    removeAlias(state, action: PayloadAction<string>) {
+      const nodeAddress = action.payload;
+      if (state.aliases[nodeAddress]) {
+        delete state.aliases[nodeAddress];
+      }
     },
     // handle ws state
     updateMessagesWebsocketStatus(state, action: PayloadAction<typeof initialState.messagesWebsocketStatus>) {
