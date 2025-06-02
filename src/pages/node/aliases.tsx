@@ -31,44 +31,30 @@ function AliasesPage() {
   const peersObject = useAppSelector((store) => store.node.peers.parsed.connected);
   const myNodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const loginData = useAppSelector((store) => store.auth.loginData);
-  const nodeAddressesWithAliases = Object.keys(aliases);
   const nodeAddressToOutgoingChannelLink = useAppSelector((store) => store.node.links.nodeAddressToOutgoingChannel);
-  const [importSuccess, set_importSuccess] = useState(false);
-  const [deleteSuccess, set_deleteSuccess] = useState(false);
-  const [importErrors, set_importErrors] = useState<
-    { status: string | undefined; error: string | undefined; alias: string }[]
-  >([]);
-  const [deleteErrors, set_deleteErrors] = useState<
-    { status: string | undefined; error: string | undefined; alias: string }[]
-  >([]);
-
-  useEffect(() => {
-
-  }, [loginData]);
-
-  const handleRefresh = () => {
-
-  };
 
   const handleExport = () => {
     if (aliases) {
       exportToCsv(
-        Object.keys(aliases).map((alias) => ({
-          alias: alias,
-          peerId: aliases[alias],
+        Object.keys(aliases).map((address) => ({
+          address,
+          alias: aliases[address],
         })),
-        'aliases.csv',
+        `aliases-${myNodeAddress}.csv`,
       );
     }
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleCSVUpload = async (parsedData: any[]) => {
-    if (!loginData.apiEndpoint) return;
+    if (!myNodeAddress) return;
     for (const data of parsedData) {
-      if (data.alias && data.peerId) {
-
-      }
+      dispatch(
+        nodeActions.setAlias({
+          nodeAddress: data.address || data.nodeAddress,
+          alias: data.alias,
+        })
+      )
     }
   };
 
@@ -178,7 +164,7 @@ function AliasesPage() {
     >
       <SubpageTitle
         title={`ALIASES (${parsedTableData.length})`}
-        refreshFunction={handleRefresh}
+      //  refreshFunction={handleRefresh}
         actions={
           <>
             <CreateAliasModal />
