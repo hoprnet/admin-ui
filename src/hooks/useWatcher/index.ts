@@ -7,6 +7,7 @@ import { observeNodeInfo } from './info';
 import { sendNotification } from '../../hooks/useWatcher/notifications';
 import { nodeActions, nodeActionsAsync } from '../../store/slices/node';
 import { checkHowChannelsHaveChanged } from './channels';
+import { isAddress } from 'viem';
 
 export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: number }) => {
   const dispatch = useAppDispatch();
@@ -16,6 +17,7 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
   const channelsParsed = useAppSelector((store) => store.node.channels.parsed);
   const firstChannelsCallWasSuccesfull = useAppSelector((store) => !!store.node.channels.data);
   const connected = useAppSelector((store) => store.auth.status.connected);
+  const nodeAddress = useAppSelector((store) => store.node.addresses.data.native);
 
   // flags to activate notifications
   const activeChannels = useAppSelector((store) => store.app.configuration.notifications.channels);
@@ -224,5 +226,12 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
     channelsParsed,
     prevOutgoingChannels,
     prevIncomingChannels,
+  ]);
+
+  // Aliases
+  useEffect(() => {
+    dispatch(nodeActions.loadAliasesFromLocalStorage(nodeAddress));
+  }, [
+    nodeAddress
   ]);
 };

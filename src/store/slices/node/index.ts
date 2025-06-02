@@ -2,6 +2,8 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { actionsAsync, createAsyncReducer } from './actionsAsync';
 import { createFetchingReducer } from './actionsFetching';
 import { initialState } from './initialState';
+import { isAddress, getAddress } from 'viem';
+import { loadStateFromLocalStorage, saveStateToLocalStorage } from '../../../utils/localStorage';
 
 const nodeSlice = createSlice({
   name: 'node',
@@ -53,20 +55,32 @@ const nodeSlice = createSlice({
       state.checks[category] = {};
     },
     // handle aliases
+    loadAliasesFromLocalStorage(state, action) {
+      const nodeAddress = action.payload;
+      if (!isAddress(nodeAddress)) return;
+      const nodeAddressValidated = getAddress(nodeAddress);
+      const aliases = loadStateFromLocalStorage(`node/aliases/${nodeAddressValidated}`);
+      state.aliases = aliases as {
+        [key: string]: string;
+      };
+    },
     setAlias(state, action: PayloadAction<{ nodeAddress: string; alias: string }>) {
       const nodeAddress = action.payload.nodeAddress;
       const alias = action.payload.alias;
-      if (!nodeAddress || !alias) return;
+      if (!nodeAddress || !alias || !isAddress(nodeAddress)) return;
+      const nodeAddressValidated = getAddress(nodeAddress);
       state.aliases = {
         ...state.aliases,
-        [nodeAddress]: alias,
+        [nodeAddressValidated]: alias,
       };
+      saveStateToLocalStorage(`node/aliases/${state.addresses.data.native}`, state.aliases);
     },
     removeAlias(state, action: PayloadAction<string>) {
       const nodeAddress = action.payload;
       if (state.aliases[nodeAddress]) {
         delete state.aliases[nodeAddress];
       }
+      saveStateToLocalStorage(`node/aliases/${state.addresses.data.native}`, state.aliases);
     },
     // handle ws state
     updateMessagesWebsocketStatus(state, action: PayloadAction<typeof initialState.messagesWebsocketStatus>) {

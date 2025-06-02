@@ -2,18 +2,15 @@ import { useState, useEffect } from 'react';
 import { DialogTitle, TextField, DialogActions, Alert } from '@mui/material';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import { useAppDispatch, useAppSelector } from '../../../store';
-import { nodeActions, nodeActionsAsync as actionsAsync } from '../../../store/slices/node';
-import { appActions } from '../../../store/slices/app';
+import { nodeActions } from '../../../store/slices/node';
 import CloseIcon from '@mui/icons-material/Close';
-import { sendNotification } from '../../../hooks/useWatcher/notifications';
 import { utils as hoprdUlils } from '@hoprnet/hopr-sdk';
-const { sdkApiError } = hoprdUlils;
+import { isAddress } from 'viem';
 
 // HOPR Components
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
 import AddAliasIcon from '../../../future-hopr-lib-components/Icons/AddAlias';
 import Button from '../../../future-hopr-lib-components/Button';
-import { add } from 'lodash';
 
 type CreateAliasModalProps = {
   address?: string;
@@ -28,6 +25,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
   const nodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const [alias, set_alias] = useState<string>('');
   const [address, set_address] = useState<string>(props.address ? props.address : '');
+  const isAddressValid = isAddress(address);
   const [duplicateAlias, set_duplicateAlias] = useState(false);
   const [duplicateAddress, set_duplicateAddress] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -41,7 +39,8 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
     address.length === 0 ||
     duplicateAlias ||
     duplicateAddress ||
-    aliasIncludesASpace
+    aliasIncludesASpace ||
+    !isAddressValid
   );
 
   useEffect(() => {
@@ -126,7 +125,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
         disableScrollLock={true}
       >
         <TopBar>
-          <DialogTitle>Add Alias</DialogTitle>
+          <DialogTitle>{ hasAlias ? 'Edit' : 'Add' } Alias</DialogTitle>
           <SIconButton
             aria-label="close modal"
             onClick={handleCloseModal}
@@ -176,7 +175,7 @@ export const CreateAliasModal = (props: CreateAliasModalProps) => {
               marginTop: '-6px',
             }}
           >
-            Add
+            { hasAlias ? 'Edit' : 'Add' }
           </Button>
         </DialogActions>
       </SDialog>
