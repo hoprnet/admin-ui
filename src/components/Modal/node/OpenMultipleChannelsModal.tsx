@@ -224,7 +224,7 @@ export const OpenMultipleChannelsModal = () => {
           <STextField
             label="Peer Ids"
             type="string"
-            placeholder="0x154a...d6D9E7f3,12D3Ko...wxd4zv,12D3Ko...zF8c7u"
+            placeholder="0x154a...d6D9E7f3,0x10a...54Ee2662,0x207...45Ef2613"
             value={peerIds.join(',\n')}
             multiline
             rows={8}
