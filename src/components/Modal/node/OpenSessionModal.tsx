@@ -115,15 +115,20 @@ function sortAddresses(
   },
 ): string[] {
   if (!peers || !myAddress) return [];
-  const connectedPeers = peers.connected;
-  const peerIdsWithAliases = Object.values(aliases).sort((a, b) => (aliases[a] < aliases[b] ? -1 : 1));
-  if (peerIdsWithAliases.length === 0) return [myAddress, ...connectedPeers.map((peer) => peer.address).sort()];
-  const peerIdsWithAliasesWithoutMyAddress = peerIdsWithAliases.filter((peerId) => peerId !== myAddress);
-  const connectedPeersWithoutAliases = connectedPeers
-    .filter((peer) => !aliases[peer.address])
+  const filteredPeers = peers.connected
+    .filter((peer) => peer.address !== myAddress)
     .map((peer) => peer.address)
     .sort();
-  return [myAddress, ...peerIdsWithAliasesWithoutMyAddress, ...connectedPeersWithoutAliases];
+  const sortedAliases = Object.values(aliases).sort((a, b) => (aliases[a] < aliases[b] ? -1 : 1));
+  if (sortedAliases.length === 0) return [myAddress, ...filteredPeers];
+  // TODO: put that directly in the store
+  const aliasToNodeAddressMap = {} as Record<string, string>;
+  Object.keys(aliases).forEach((nodeAddress) => {
+    aliasToNodeAddressMap[aliases[nodeAddress]] = nodeAddress;
+  });
+  const sortedPeersWithAliases = sortedAliases.map((alias) => aliasToNodeAddressMap[alias]);
+  const peersWithoutAliases = filteredPeers.filter((nodeAddress) => !aliases[nodeAddress]);
+  return [myAddress, ...sortedPeersWithAliases, ...peersWithoutAliases];
 }
 
 export const OpenSessionModal = (props: OpenSessionModalProps) => {

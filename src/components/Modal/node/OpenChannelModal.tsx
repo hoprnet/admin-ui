@@ -1,13 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { DialogActions, DialogTitle, InputAdornment, TextField } from '@mui/material';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
 import { HOPR_TOKEN_USED } from '../../../../config';
 import { utils } from '@hoprnet/hopr-sdk';
+import type { GetPeersResponseType, OpenSessionPayloadType } from '@hoprnet/hopr-sdk';
 import { parseEther } from 'viem';
 const { sdkApiError } = utils;
+
+// Mui
+import {
+  DialogTitle,
+  DialogActions,
+  CircularProgress,
+  TextField,
+  SelectChangeEvent,
+  Select,
+  MenuItem,
+  Autocomplete,
+  Tooltip,
+  IconButton as IconButtonMui,
+  InputAdornment,
+  Radio,
+} from '@mui/material';
 
 // HOPR Components
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
@@ -24,6 +40,31 @@ type OpenChannelModalProps = {
   tooltip?: JSX.Element | string;
 };
 
+// order of peers: me, aliases (sorted by aliases), peers (sorted by peersIds)
+function sortAddresses(
+  peers: GetPeersResponseType | null,
+  myAddress: string | null,
+  aliases: {
+    [alias: string]: string;
+  },
+): string[] {
+  if (!peers || !myAddress) return [];
+  const filteredPeers = peers.announced
+    .filter((peer) => peer.address !== myAddress)
+    .map((peer) => peer.address)
+    .sort();
+  const sortedAliases = Object.values(aliases).sort((a, b) => (aliases[a] < aliases[b] ? -1 : 1));
+  if (sortedAliases.length === 0) return filteredPeers;
+  // TODO: put that directly in the store
+  const aliasToNodeAddressMap = {} as Record<string, string>;
+  Object.keys(aliases).forEach((nodeAddress) => {
+    aliasToNodeAddressMap[aliases[nodeAddress]] = nodeAddress;
+  });
+  const sortedPeersWithAliases = sortedAliases.map((alias) => aliasToNodeAddressMap[alias]);
+  const peersWithoutAliases = filteredPeers.filter((nodeAddress) => !aliases[nodeAddress]);
+  return [...sortedPeersWithAliases, ...peersWithoutAliases];
+}
+
 export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const dispatch = useAppDispatch();
   const loginData = useAppSelector((store) => store.auth.loginData);
@@ -34,6 +75,9 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const [amount, set_amount] = useState('');
   const [peerAddress, set_peerAddress] = useState(props.peerAddress ? props.peerAddress : '');
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerAddress);
+  const peers = useAppSelector((store) => store.node.peers.data);
+  const myAddress = useAppSelector((store) => store.node.addresses.data.native);
+  const addressBook = sortAddresses(peers, myAddress, aliases);
 
   useEffect(() => {
     window.addEventListener('keydown', handleEnter as EventListener);
@@ -41,11 +85,6 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
   }, [openChannelModal, loginData, amount, peerAddress]);
-
-  const getAliasByAddress = (address: string): string => {
-    if (aliases && address && aliases[address]) return `${aliases[address]} (${address})`;
-    return address;
-  };
 
   const handleOpenChannelDialog = () => {
     (document.activeElement as HTMLInputElement).blur();
@@ -148,13 +187,30 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
           </SIconButton>
         </TopBar>
         <SDialogContent>
-          <TextField
-            label="Node Address"
+          <Autocomplete
             value={peerAddress}
-            placeholder="0x4f5a...1728"
-            onChange={(e) => set_peerAddress(e.target.value)}
-            sx={{ mt: '6px' }}
-            autoFocus={peerAddress === ''}
+            onChange={(event, newValue) => {
+              if (newValue) set_peerAddress(newValue);
+            }}
+            options={addressBook}
+            getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
+            autoSelect
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Node address"
+                placeholder="Select Node address"
+                fullWidth
+                autoFocus={peerAddress === ''}
+              />
+            )}
+            // renderOption={(option)=>{
+            //   return (
+            //     <span>
+            //       {JSON.stringify(option)}
+            //     </span>
+            //   )
+            // }}
           />
           <TextField
             label="Amount"

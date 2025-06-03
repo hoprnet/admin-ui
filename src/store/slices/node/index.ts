@@ -69,9 +69,8 @@ const nodeSlice = createSlice({
       const nodeAddress = action.payload;
       if (!isAddress(nodeAddress)) return;
       const nodeAddressValidated = getAddress(nodeAddress);
-      const aliasesString = loadStateFromLocalStorage(`node/aliases/${nodeAddressValidated}`) as string;
-      if (aliasesString) {
-        const aliases = JSON.parse(aliasesString);
+      const aliases = loadStateFromLocalStorage(`node/aliases/${nodeAddressValidated}`);
+      if (aliases) {
         state.aliases = aliases as {
           [key: string]: string;
         };
