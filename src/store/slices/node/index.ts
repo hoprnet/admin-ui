@@ -78,6 +78,9 @@ const nodeSlice = createSlice({
           const alias = aliases[nodeAddress];
           state.links.aliasToNodeAddress[alias] = nodeAddress;
         });
+        const sortedAliases = Object.values(aliases).sort();
+        state.links.sortedAliases = sortedAliases;
+        state.links.nodeAddressesWithAliases = Object.keys(aliases);
       }
     },
     setAlias(state, action: PayloadAction<{ nodeAddress: string; alias: string }>) {
@@ -88,6 +91,9 @@ const nodeSlice = createSlice({
       delete state.links.aliasToNodeAddress[state.aliases[nodeAddressValidated]];
       state.aliases[nodeAddressValidated] = alias;
       state.links.aliasToNodeAddress[alias] = nodeAddressValidated;
+      const sortedAliases = Object.values(state.aliases).sort();
+      state.links.sortedAliases = sortedAliases;
+      state.links.nodeAddressesWithAliases = Object.keys(state.aliases);
       saveStateToLocalStorage(`node/aliases/${state.addresses.data.native}`, state.aliases);
     },
     removeAlias(state, action: PayloadAction<string>) {
@@ -95,6 +101,9 @@ const nodeSlice = createSlice({
       if (state.aliases[nodeAddress]) {
         delete state.links.aliasToNodeAddress[state.aliases[nodeAddress]];
         delete state.aliases[nodeAddress];
+        const sortedAliases = Object.values(state.aliases).sort();
+        state.links.sortedAliases = sortedAliases;
+        state.links.nodeAddressesWithAliases = Object.keys(state.aliases);
       }
       saveStateToLocalStorage(`node/aliases/${state.addresses.data.native}`, state.aliases);
     },

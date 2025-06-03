@@ -132,8 +132,8 @@ const getInfoThunk = createAsyncThunk<GetInfoResponseType | undefined, BasePaylo
 
 const getAddressesThunk = createAsyncThunk<
   | {
-      native: string;
-    }
+    native: string;
+  }
   | undefined,
   BasePayloadType & { force?: boolean },
   { state: RootState }
@@ -462,9 +462,9 @@ const withdrawThunk = createAsyncThunk<string | undefined, WithdrawPayloadType, 
 
 const closeChannelThunk = createAsyncThunk<
   | {
-      channelStatus: string;
-      receipt?: string | undefined;
-    }
+    channelStatus: string;
+    receipt?: string | undefined;
+  }
   | undefined,
   CloseChannelPayloadType,
   { state: RootState }
@@ -1079,6 +1079,14 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         connected: [],
       };
       state.peers.data = action.payload;
+      const sortedConnectedPeers = action.payload?.connected
+        .map((peer) => peer.address)
+        .sort();
+      const sortedAnnouncedPeers = action.payload?.announced
+        .map((peer) => peer.address)
+        .sort();
+      state.peers.parsed.connectedSorted = sortedConnectedPeers || [];
+      state.peers.parsed.announcedSorted = sortedAnnouncedPeers || [];
     }
 
     if (!state.peers.alreadyFetched) state.peers.alreadyFetched = true;

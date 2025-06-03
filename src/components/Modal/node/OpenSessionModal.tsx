@@ -106,31 +106,6 @@ const Splitscreen = styled.div`
   justify-content: space-between;
 `;
 
-// order of peers: me, aliases (sorted by aliases), peers (sorted by peersIds)
-function sortAddresses(
-  peers: GetPeersResponseType | null,
-  myAddress: string | null,
-  aliases: {
-    [peerId: string]: string;
-  },
-): string[] {
-  if (!peers || !myAddress) return [];
-  const filteredPeers = peers.connected
-    .filter((peer) => peer.address !== myAddress)
-    .map((peer) => peer.address)
-    .sort();
-  const sortedAliases = Object.values(aliases).sort((a, b) => (aliases[a] < aliases[b] ? -1 : 1));
-  if (sortedAliases.length === 0) return [myAddress, ...filteredPeers];
-  // TODO: put that directly in the store
-  const aliasToNodeAddressMap = {} as Record<string, string>;
-  Object.keys(aliases).forEach((nodeAddress) => {
-    aliasToNodeAddressMap[aliases[nodeAddress]] = nodeAddress;
-  });
-  const sortedPeersWithAliases = sortedAliases.map((alias) => aliasToNodeAddressMap[alias]);
-  const peersWithoutAliases = filteredPeers.filter((nodeAddress) => !aliases[nodeAddress]);
-  return [myAddress, ...sortedPeersWithAliases, ...peersWithoutAliases];
-}
-
 export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const dispatch = useAppDispatch();
 
@@ -147,9 +122,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const aliases = useAppSelector((store) => store.node.aliases);
-  const peers = useAppSelector((store) => store.node.peers.data);
-  const myAddress = useAppSelector((store) => store.node.addresses.data.native);
-  const sendMessageAddressBook = sortAddresses(peers, myAddress, aliases);
+
   const [destination, set_destination] = useState<string | null>(props.destination ? props.destination : null);
   const [listenHost, set_listenHost] = useState<string>('');
   const [sessionTarget, set_sessionTarget] = useState<string>('');
@@ -157,6 +130,17 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const [intermediateReturnPath, set_intermediateReturnPath] = useState<(string | null)[]>([null]);
   const fullForwardPath = [...intermediateForwardPath, destination];
   const fullReturnPath = [...intermediateReturnPath, destination];
+
+  const myAddress = useAppSelector((store) => store.node.addresses.data.native || '');
+  const sortedAliases = useAppSelector((store) => store.node.links.sortedAliases);
+  const aliasToNodeAddress = useAppSelector((store) => store.node.links.aliasToNodeAddress);
+  const sortedConnectedPeers = useAppSelector((store) => store.node.peers.parsed.connectedSorted);
+  const nodeAddressesWithAliases = useAppSelector((store) => store.node.links.nodeAddressesWithAliases);
+  const addressBook = [
+    myAddress,
+    ...sortedAliases.map((alias) => aliasToNodeAddress[alias]),
+    ...sortedConnectedPeers.filter(nodeAddress => nodeAddress !== myAddress && !nodeAddressesWithAliases.includes(nodeAddress))
+  ];
 
   // Errors
   const destinationMissing = !destination || (!!destination && destination.length === 0);
@@ -415,7 +399,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
             onChange={(event, newValue) => {
               set_destination(newValue);
             }}
-            options={sendMessageAddressBook}
+            options={addressBook}
             getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
             autoSelect
             renderInput={(params) => (
@@ -565,7 +549,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                         return tmp;
                       });
                     }}
-                    options={sendMessageAddressBook}
+                    options={addressBook}
                     getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
                     autoSelect
                     renderInput={(params) => (
@@ -650,7 +634,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                         return tmp;
                       });
                     }}
-                    options={sendMessageAddressBook}
+                    options={addressBook}
                     getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
                     autoSelect
                     renderInput={(params) => (

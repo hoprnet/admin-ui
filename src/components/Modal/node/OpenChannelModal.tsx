@@ -40,31 +40,6 @@ type OpenChannelModalProps = {
   tooltip?: JSX.Element | string;
 };
 
-// order of peers: me, aliases (sorted by aliases), peers (sorted by peersIds)
-function sortAddresses(
-  peers: GetPeersResponseType | null,
-  myAddress: string | null,
-  aliases: {
-    [alias: string]: string;
-  },
-): string[] {
-  if (!peers || !myAddress) return [];
-  const filteredPeers = peers.announced
-    .filter((peer) => peer.address !== myAddress)
-    .map((peer) => peer.address)
-    .sort();
-  const sortedAliases = Object.values(aliases).sort((a, b) => (aliases[a] < aliases[b] ? -1 : 1));
-  if (sortedAliases.length === 0) return filteredPeers;
-  // TODO: put that directly in the store
-  const aliasToNodeAddressMap = {} as Record<string, string>;
-  Object.keys(aliases).forEach((nodeAddress) => {
-    aliasToNodeAddressMap[aliases[nodeAddress]] = nodeAddress;
-  });
-  const sortedPeersWithAliases = sortedAliases.map((alias) => aliasToNodeAddressMap[alias]);
-  const peersWithoutAliases = filteredPeers.filter((nodeAddress) => !aliases[nodeAddress]);
-  return [...sortedPeersWithAliases, ...peersWithoutAliases];
-}
-
 export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const dispatch = useAppDispatch();
   const loginData = useAppSelector((store) => store.auth.loginData);
@@ -77,7 +52,15 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerAddress);
   const peers = useAppSelector((store) => store.node.peers.data);
   const myAddress = useAppSelector((store) => store.node.addresses.data.native);
-  const addressBook = sortAddresses(peers, myAddress, aliases);
+  const sortedAliases = useAppSelector((store) => store.node.links.sortedAliases);
+  const aliasToNodeAddress = useAppSelector((store) => store.node.links.aliasToNodeAddress);
+  const sortedAnnouncedPeers = useAppSelector((store) => store.node.peers.parsed.announcedSorted);
+  const nodeAddressesWithAliases = useAppSelector((store) => store.node.links.nodeAddressesWithAliases);
+  const addressBook = [
+    myAddress,
+    ...sortedAliases.map((alias) => aliasToNodeAddress[alias]),
+    ...sortedAnnouncedPeers.filter(nodeAddress => nodeAddress !== myAddress && !nodeAddressesWithAliases.includes(nodeAddress))
+  ];
 
   useEffect(() => {
     window.addEventListener('keydown', handleEnter as EventListener);

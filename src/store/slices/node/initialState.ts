@@ -142,6 +142,8 @@ type InitialState = {
     aliasToNodeAddress: {
       [alias: string]: string;
     };
+    sortedAliases: string[],
+    nodeAddressesWithAliases: string[],
   };
   messages: {
     data: Message[];
@@ -409,6 +411,8 @@ export const initialState: InitialState = {
     nodeAddressToIncomingChannel: {},
     incomingChannelToNodeAddress: {},
     aliasToNodeAddress: {},
+    sortedAliases: [],
+    nodeAddressesWithAliases: [],
   },
   apiEndpoint: null,
   nodeIsReady: {
