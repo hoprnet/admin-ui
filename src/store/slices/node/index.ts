@@ -69,11 +69,15 @@ const nodeSlice = createSlice({
       const nodeAddress = action.payload;
       if (!isAddress(nodeAddress)) return;
       const nodeAddressValidated = getAddress(nodeAddress);
-      const aliases = loadStateFromLocalStorage(`node/aliases/${nodeAddressValidated}`);
-      if (aliases) {
-        state.aliases = aliases as {
+      const aliases = loadStateFromLocalStorage(`node/aliases/${nodeAddressValidated}`) as {
           [key: string]: string;
-        };
+      } | null;
+      if (aliases) {
+        state.aliases = aliases;
+        Object.keys(aliases).forEach((nodeAddress) => {
+          const alias = aliases[nodeAddress];
+          state.links.aliasToNodeAddress[alias] = nodeAddress;
+        });
       }
     },
     setAlias(state, action: PayloadAction<{ nodeAddress: string; alias: string }>) {
@@ -81,15 +85,15 @@ const nodeSlice = createSlice({
       const alias = action.payload.alias;
       if (!nodeAddress || !alias || !isAddress(nodeAddress)) return;
       const nodeAddressValidated = getAddress(nodeAddress);
-      state.aliases = {
-        ...state.aliases,
-        [nodeAddressValidated]: alias,
-      };
+      delete state.links.aliasToNodeAddress[state.aliases[nodeAddressValidated]];
+      state.aliases[nodeAddressValidated] = alias;
+      state.links.aliasToNodeAddress[alias] = nodeAddressValidated;
       saveStateToLocalStorage(`node/aliases/${state.addresses.data.native}`, state.aliases);
     },
     removeAlias(state, action: PayloadAction<string>) {
       const nodeAddress = action.payload;
       if (state.aliases[nodeAddress]) {
+        delete state.links.aliasToNodeAddress[state.aliases[nodeAddress]];
         delete state.aliases[nodeAddress];
       }
       saveStateToLocalStorage(`node/aliases/${state.addresses.data.native}`, state.aliases);

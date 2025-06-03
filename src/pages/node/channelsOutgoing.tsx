@@ -38,7 +38,6 @@ function ChannelsPage() {
   const aliases = useAppSelector((store) => store.node.aliases);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const currentApiEndpoint = useAppSelector((store) => store.node.apiEndpoint);
-  const nodeAddressToPeerIdLink = useAppSelector((store) => store.node.links.nodeAddressToPeerId);
   const tabLabel = 'outgoing';
   const channelsData = channels?.outgoing;
 
@@ -56,11 +55,6 @@ function ChannelsPage() {
         apiToken: loginData.apiToken ? loginData.apiToken : '',
       }),
     );
-  };
-
-  const getPeerIdFromPeerAddress = (nodeAddress: string): string => {
-    const peerId = nodeAddressToPeerIdLink[nodeAddress];
-    return peerId!;
   };
 
   const getAliasByPeerAddress = (address: string): string => {

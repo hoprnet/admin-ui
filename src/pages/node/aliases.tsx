@@ -89,6 +89,9 @@ function AliasesPage() {
             disabled={nodeAddress === myNodeAddress}
             tooltip={nodeAddress === myNodeAddress ? `You can't ping yourself` : undefined}
           />
+          <CreateAliasModal
+            address={nodeAddress}
+          />
           {nodeAddress && nodeAddressToOutgoingChannelLink[nodeAddress] ? (
             <FundChannelModal channelId={nodeAddressToOutgoingChannelLink[nodeAddress]} />
           ) : (

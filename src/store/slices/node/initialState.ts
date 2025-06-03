@@ -139,11 +139,8 @@ type InitialState = {
     incomingChannelToNodeAddress: {
       [channelId: string]: string;
     };
-    nodeAddressToPeerId: {
-      [nodeAddress: string]: string;
-    };
-    peerIdToNodeAddress: {
-      [peerId: string]: string;
+    aliasToNodeAddress: {
+      [alias: string]: string;
     };
   };
   messages: {
@@ -174,6 +171,8 @@ type InitialState = {
           reportedVersion: string;
         };
       };
+      connectedSorted: string[];
+      announcedSorted: string[];
     };
     isFetching: boolean;
     alreadyFetched: boolean;
@@ -332,6 +331,8 @@ export const initialState: InitialState = {
     data: null,
     parsed: {
       connected: {},
+      connectedSorted: [],
+      announcedSorted: [],
     },
     isFetching: false,
     alreadyFetched: false,
@@ -407,8 +408,7 @@ export const initialState: InitialState = {
     nodeAddressToOutgoingChannel: {},
     nodeAddressToIncomingChannel: {},
     incomingChannelToNodeAddress: {},
-    nodeAddressToPeerId: {},
-    peerIdToNodeAddress: {},
+    aliasToNodeAddress: {},
   },
   apiEndpoint: null,
   nodeIsReady: {

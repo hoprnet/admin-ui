@@ -38,7 +38,6 @@ function ChannelsPage() {
   const aliases = useAppSelector((store) => store.node.aliases);
   const currentApiEndpoint = useAppSelector((store) => store.node.apiEndpoint);
   const loginData = useAppSelector((store) => store.auth.loginData);
-  const nodeAddressToPeerIdLink = useAppSelector((store) => store.node.links.nodeAddressToPeerId);
   const nodeAddressToOutgoingChannelLink = useAppSelector((store) => store.node.links.nodeAddressToOutgoingChannel);
   const tickets = useAppSelector((store) => store.node.metricsParsed.tickets.incoming);
   const tabLabel = 'incoming';
@@ -59,11 +58,6 @@ function ChannelsPage() {
         apiToken: loginData.apiToken ? loginData.apiToken : '',
       }),
     );
-  };
-
-  const getPeerIdFromPeerAddress = (nodeAddress: string): string => {
-    const peerId = nodeAddressToPeerIdLink[nodeAddress];
-    return peerId!;
   };
 
   const getAliasByPeerAddress = (address: string): string => {
@@ -216,7 +210,6 @@ function ChannelsPage() {
         channelsIncomingObject[id].peerAddress &&
         !!nodeAddressToOutgoingChannelLink[channelsIncomingObject[id].peerAddress as string]
       );
-      const peerId = getPeerIdFromPeerAddress(channelsIncomingObject[id].peerAddress as string);
       const peerAddress = channelsIncomingObject[id].peerAddress;
 
       const totalTicketsPerChannel = `${formatEther(
