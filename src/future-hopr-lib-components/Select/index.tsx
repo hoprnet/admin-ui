@@ -57,7 +57,6 @@ type Props = SelectMuiProps & {
 };
 
 const Select: React.FC<Props> = (props) => {
-  console.log('props.values', props.values);
   return (
     <SFormControl
       style={props.style}
