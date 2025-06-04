@@ -776,10 +776,10 @@
   resolved "https://registry.npmjs.org/@graphql-typed-document-node/core/-/core-3.2.0.tgz"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hoprnet/hopr-sdk@3.0.0-alpha.12":
-  version "3.0.0-alpha.12"
-  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-sdk/-/hopr-sdk-3.0.0-alpha.12.tgz#e79be9365184fa2ca8af1adc01a21015e8ebfffb"
-  integrity sha512-iT8n4UPUJvpLA85RhGdzJhG9XYKz5KhYDR9JdjG/cdam6hUiv2+V6aF2vOO2xG7V8Q+/1ZxCufvfWuEGLynoxw==
+"@hoprnet/hopr-sdk@3.0.0-alpha.14":
+  version "3.0.0-alpha.14"
+  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-sdk/-/hopr-sdk-3.0.0-alpha.14.tgz#4362e3c6ee9d55e39d6ef9baefd115e3eaed4108"
+  integrity sha512-mlGhW9Neu7KoH92T0L76LdyuwRw6MctkPPlrJJyjSyVkyW/XcSIBnWHs/X7Av60Tcla4jNCA4oA2S8L7kfS8eQ==
   dependencies:
     debug "^4.3.4"
     isomorphic-ws "^5.0.0"

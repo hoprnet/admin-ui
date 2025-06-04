@@ -88,6 +88,16 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
       });
     }, intervalDuration);
 
+    const watchMetricsInterval = setInterval(() => {
+      if (!apiEndpoint) return;
+      return dispatch(
+        nodeActionsAsync.getPrometheusMetricsThunk({
+          apiEndpoint,
+          apiToken: apiToken ? apiToken : '',
+        }),
+      );
+    }, intervalDuration);
+
     const watchSessionsInterval = setInterval(() => {
       if (!apiEndpoint) return;
       return dispatch(

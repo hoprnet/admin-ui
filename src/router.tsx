@@ -324,6 +324,12 @@ const LayoutEnhanced = () => {
             }),
           );
           dispatch(
+            nodeActionsAsync.getPrometheusMetricsThunk({
+              apiEndpoint,
+              apiToken: apiToken ? apiToken : '',
+            }),
+          );
+          dispatch(
             nodeActionsAsync.getTicketPriceThunk({
               apiEndpoint,
               apiToken: apiToken ? apiToken : '',
