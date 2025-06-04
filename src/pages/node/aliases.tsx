@@ -9,7 +9,6 @@ const { sdkApiError } = utils;
 import Section from '../../future-hopr-lib-components/Section';
 import { SubpageTitle } from '../../components/SubpageTitle';
 import IconButton from '../../future-hopr-lib-components/Button/IconButton';
-import { SendMessageModal } from '../../components/Modal/node/SendMessageModal.tsx_';
 import RemoveAliasIcon from '../../future-hopr-lib-components/Icons/RemoveAlias';
 import TablePro from '../../future-hopr-lib-components/Table/table-pro';
 import PeersInfo from '../../future-hopr-lib-components/PeerInfo';
@@ -24,6 +23,7 @@ import { OpenSessionModal } from '../../components/Modal/node/OpenSessionModal';
 //Mui
 import GetAppIcon from '@mui/icons-material/GetApp';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
+import { nodeActions } from '../../store/slices/node';
 
 function AliasesPage() {
   const dispatch = useAppDispatch();
@@ -31,57 +31,36 @@ function AliasesPage() {
   const peersObject = useAppSelector((store) => store.node.peers.parsed.connected);
   const myNodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const loginData = useAppSelector((store) => store.auth.loginData);
-  const peerIdToNodeAddressLink = useAppSelector((store) => store.node.links.peerIdToNodeAddress);
-  const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
-  const peerIdsWithAliases = Object.keys(peerIdToAliasLink);
   const nodeAddressToOutgoingChannelLink = useAppSelector((store) => store.node.links.nodeAddressToOutgoingChannel);
-  const [importSuccess, set_importSuccess] = useState(false);
-  const [deleteSuccess, set_deleteSuccess] = useState(false);
-  const [importErrors, set_importErrors] = useState<
-    { status: string | undefined; error: string | undefined; alias: string }[]
-  >([]);
-  const [deleteErrors, set_deleteErrors] = useState<
-    { status: string | undefined; error: string | undefined; alias: string }[]
-  >([]);
-
-  useEffect(() => {
-
-  }, [loginData]);
-
-  const handleRefresh = () => {
-
-  };
-
-  const getNodeAddressByPeerId = (peerId: string): string | undefined => {
-    if (peerId === hoprAddress && typeof myNodeAddress === 'string') return myNodeAddress;
-    return peerIdToNodeAddressLink[peerId];
-  };
 
   const handleExport = () => {
     if (aliases) {
       exportToCsv(
-        Object.keys(aliases).map((alias) => ({
-          alias: alias,
-          peerId: aliases[alias],
+        Object.keys(aliases).map((address) => ({
+          address,
+          alias: aliases[address],
         })),
-        'aliases.csv',
+        `aliases-${myNodeAddress}.csv`,
       );
     }
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleCSVUpload = async (parsedData: any[]) => {
-    if (!loginData.apiEndpoint) return;
+    if (!myNodeAddress) return;
     for (const data of parsedData) {
-      if (data.alias && data.peerId) {
-
-      }
+      dispatch(
+        nodeActions.setAlias({
+          nodeAddress: data.address || data.nodeAddress,
+          alias: data.alias,
+        }),
+      );
     }
   };
 
-  const parsedTableData = Object.entries(aliases ?? {}).map(([alias, peerId], key) => {
-    const peerAddress = getNodeAddressByPeerId(peerId);
-    const lastSeenNumeric = peerId && peersObject[peerId]?.lastSeen;
+  const parsedTableData = Object.keys(aliases ?? {}).map((nodeAddress, index) => {
+    const alias = aliases[nodeAddress];
+    const lastSeenNumeric = nodeAddress && peersObject[nodeAddress]?.lastSeen;
     const lastSeen =
       (lastSeenNumeric as number) > 0
         ? new Date(lastSeenNumeric)
@@ -97,54 +76,43 @@ function AliasesPage() {
         : 'Not seen';
 
     return {
-      id: peerId,
-      key: key.toString(),
+      id: nodeAddress,
+      key: index.toString(),
       alias,
-      node: (
-        <PeersInfo
-          peerId={peerId}
-          nodeAddress={peerAddress ?? ''}
-        />
-      ),
-      lastSeen: <span style={{ whiteSpace: 'break-spaces' }}>{peerId === hoprAddress ? '-' : lastSeen}</span>,
-      peerId,
-      peerAddress: peerAddress ?? '',
+      node: <PeersInfo nodeAddress={nodeAddress} />,
+      lastSeen: <span style={{ whiteSpace: 'break-spaces' }}>{myNodeAddress === nodeAddress ? '-' : lastSeen}</span>,
+      nodeAddress: nodeAddress,
       actions: (
         <>
           <PingModal
-            peerId={peerId}
-            disabled={peerId === hoprAddress}
-            tooltip={peerId === hoprAddress ? `You can't ping yourself` : undefined}
+            address={nodeAddress}
+            disabled={nodeAddress === myNodeAddress}
+            tooltip={nodeAddress === myNodeAddress ? `You can't ping yourself` : undefined}
           />
-          {peerAddress && nodeAddressToOutgoingChannelLink[peerAddress] ? (
-            <FundChannelModal channelId={nodeAddressToOutgoingChannelLink[peerAddress]} />
+          <CreateAliasModal address={nodeAddress} />
+          {nodeAddress && nodeAddressToOutgoingChannelLink[nodeAddress] ? (
+            <FundChannelModal channelId={nodeAddressToOutgoingChannelLink[nodeAddress]} />
           ) : (
             <OpenChannelModal
-              peerAddress={peerAddress}
-              disabled={peerId === hoprAddress}
-              tooltip={peerId === hoprAddress ? `You can't open a channel to yourself` : undefined}
+              peerAddress={nodeAddress}
+              disabled={nodeAddress === myNodeAddress}
+              tooltip={nodeAddress === myNodeAddress ? `You can't open a channel to yourself` : undefined}
             />
           )}
-          <OpenSessionModal peerId={peerId} />
-          <SendMessageModal peerId={peerId} />
-          <DeleteAliasButton
-            onSuccess={() => {
-              set_deleteSuccess(true);
+          <OpenSessionModal destination={nodeAddress} />
+          <IconButton
+            iconComponent={<RemoveAliasIcon />}
+            aria-label="delete alias"
+            tooltipText={
+              <span>
+                DELETE
+                <br />
+                alias
+              </span>
+            }
+            onClick={() => {
+              dispatch(nodeActions.removeAlias(nodeAddress));
             }}
-            onError={(e) => {
-              set_deleteSuccess(false);
-              set_deleteErrors([
-                ...deleteErrors,
-                {
-                  alias: String(alias),
-                  error: e.hoprdErrorPayload?.error,
-                  status: e.hoprdErrorPayload?.status,
-                },
-              ]);
-            }}
-            alias={alias}
-            disabled={peerId === hoprAddress}
-            tooltip={peerId === hoprAddress ? `You can't remove this alias` : undefined}
           />
         </>
       ),
@@ -169,13 +137,7 @@ function AliasesPage() {
       maxWidth: '20px',
     },
     {
-      key: 'peerId',
-      name: 'Peer Id',
-      search: true,
-      hidden: true,
-    },
-    {
-      key: 'peerAddress',
+      key: 'nodeAddress',
       name: 'Node Address',
       search: true,
       maxWidth: '60px',
@@ -199,11 +161,10 @@ function AliasesPage() {
     >
       <SubpageTitle
         title={`ALIASES (${parsedTableData.length})`}
-        refreshFunction={handleRefresh}
-      //  reloading={aliasesFetching}
+        //  refreshFunction={handleRefresh}
         actions={
           <>
-            <CreateAliasModal handleRefresh={handleRefresh} />
+            <CreateAliasModal />
             <CSVUploader onParse={handleCSVUpload} />
             <IconButton
               iconComponent={<GetAppIcon />}
@@ -221,66 +182,14 @@ function AliasesPage() {
         }
       />
       <TablePro
-        // data={parsedTableData}
+        data={parsedTableData}
         // search={true}
         // id={'node-aliases-table'}
-        // header={header}
+        header={header}
         // loading={parsedTableData.length === 0 && aliasesFetching}
         orderByDefault="alias"
       />
     </Section>
-  );
-}
-
-function DeleteAliasButton({
-  alias,
-  onError,
-  onSuccess,
-  disabled,
-  tooltip,
-}: {
-  alias: string;
-  onError: (e: typeof sdkApiError.prototype) => void;
-  onSuccess: () => void;
-  disabled?: boolean;
-  tooltip?: string;
-}) {
-  const dispatch = useAppDispatch();
-  const loginData = useAppSelector((store) => store.auth.loginData);
-
-  return (
-    <IconButton
-      iconComponent={<RemoveAliasIcon />}
-      aria-label="delete alias"
-      tooltipText={
-        tooltip ? (
-          tooltip
-        ) : (
-          <span>
-            DELETE
-            <br />
-            alias
-          </span>
-        )
-      }
-      onClick={() => {
-        if (loginData.apiEndpoint) {
-        //   dispatch(
-        //     actionsAsync.removeAliasThunk({
-        //       alias,
-        //       apiEndpoint: loginData.apiEndpoint,
-        //       apiToken: loginData.apiToken ? loginData.apiToken : '',
-        //     }),
-        //   )
-        //     .unwrap()
-        //     .then(() => {
-        //       onSuccess();
-        //     })
-        //     .catch((e) => onError(e));
-        // }
-      }}
-      disabled={disabled}
-    />
   );
 }
 
@@ -323,9 +232,7 @@ function CreateAliasForm() {
       />
       <button
         disabled={form.alias.length === 0 || form.peerId.length === 0}
-        onClick={() => {
-
-        }}
+        onClick={() => {}}
       >
         add
       </button>

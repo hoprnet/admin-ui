@@ -106,28 +106,6 @@ const Splitscreen = styled.div`
   justify-content: space-between;
 `;
 
-// order of peers: me, aliases (sorted by aliases), peers (sorted by peersIds)
-function sortAddresses(
-  peers: GetPeersResponseType | null,
-  myAddress: string | null,
-  peerIdToAliasLink: {
-    [peerId: string]: string;
-  },
-): string[] {
-  if (!peers || !myAddress) return [];
-  const connectedPeers = peers.connected;
-  const peerIdsWithAliases = Object.keys(peerIdToAliasLink).sort((a, b) =>
-    peerIdToAliasLink[a] < peerIdToAliasLink[b] ? -1 : 1,
-  );
-  if (peerIdsWithAliases.length === 0) return [myAddress, ...connectedPeers.map((peer) => peer.address).sort()];
-  const peerIdsWithAliasesWithoutMyAddress = peerIdsWithAliases.filter((peerId) => peerId !== myAddress);
-  const connectedPeersWithoutAliases = connectedPeers
-    .filter((peer) => !peerIdToAliasLink[peer.address])
-    .map((peer) => peer.address)
-    .sort();
-  return [myAddress, ...peerIdsWithAliasesWithoutMyAddress, ...connectedPeersWithoutAliases];
-}
-
 export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const dispatch = useAppDispatch();
 
@@ -144,10 +122,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const aliases = useAppSelector((store) => store.node.aliases);
-  const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
-  const peers = useAppSelector((store) => store.node.peers.data);
-  const myAddress = useAppSelector((store) => store.node.addresses.data.native);
-  const sendMessageAddressBook = sortAddresses(peers, myAddress, peerIdToAliasLink);
+
   const [destination, set_destination] = useState<string | null>(props.destination ? props.destination : null);
   const [listenHost, set_listenHost] = useState<string>('');
   const [sessionTarget, set_sessionTarget] = useState<string>('');
@@ -155,6 +130,19 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const [intermediateReturnPath, set_intermediateReturnPath] = useState<(string | null)[]>([null]);
   const fullForwardPath = [...intermediateForwardPath, destination];
   const fullReturnPath = [...intermediateReturnPath, destination];
+
+  const myAddress = useAppSelector((store) => store.node.addresses.data.native || '');
+  const sortedAliases = useAppSelector((store) => store.node.links.sortedAliases);
+  const aliasToNodeAddress = useAppSelector((store) => store.node.links.aliasToNodeAddress);
+  const sortedAnnouncedPeers = useAppSelector((store) => store.node.peers.parsed.announcedSorted);
+  const nodeAddressesWithAliases = useAppSelector((store) => store.node.links.nodeAddressesWithAliases);
+  const addressBook = [
+    myAddress,
+    ...sortedAliases.map((alias) => aliasToNodeAddress[alias]),
+    ...sortedAnnouncedPeers.filter(
+      (nodeAddress) => nodeAddress !== myAddress && !nodeAddressesWithAliases.includes(nodeAddress),
+    ),
+  ];
 
   // Errors
   const destinationMissing = !destination || (!!destination && destination.length === 0);
@@ -413,10 +401,8 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
             onChange={(event, newValue) => {
               set_destination(newValue);
             }}
-            options={sendMessageAddressBook}
-            getOptionLabel={(peerId) =>
-              peerIdToAliasLink[peerId] ? `${peerIdToAliasLink[peerId]} (${peerId})` : peerId
-            }
+            options={addressBook}
+            getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
             autoSelect
             renderInput={(params) => (
               <TextField
@@ -565,10 +551,8 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                         return tmp;
                       });
                     }}
-                    options={sendMessageAddressBook}
-                    getOptionLabel={(peerId) =>
-                      peerIdToAliasLink[peerId] ? `${peerIdToAliasLink[peerId]} (${peerId})` : peerId
-                    }
+                    options={addressBook}
+                    getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
                     autoSelect
                     renderInput={(params) => (
                       <TextField
@@ -652,10 +636,8 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                         return tmp;
                       });
                     }}
-                    options={sendMessageAddressBook}
-                    getOptionLabel={(peerId) =>
-                      peerIdToAliasLink[peerId] ? `${peerIdToAliasLink[peerId]} (${peerId})` : peerId
-                    }
+                    options={addressBook}
+                    getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
                     autoSelect
                     renderInput={(params) => (
                       <TextField

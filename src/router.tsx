@@ -17,7 +17,7 @@ import { nodeActions, nodeActionsAsync } from './store/slices/node';
 
 // Sections
 import NodeLandingPage from './pages/node/landingPage';
-//import AliasesPage from './pages/node/aliases';
+import AliasesPage from './pages/node/aliases';
 import InfoPage from './pages/node/info';
 //import MessagesPage from './pages/node/messages';
 import PeersPage from './pages/node/peers';
@@ -129,14 +129,14 @@ export const applicationMapNode: ApplicationMapType = [
         numberKey: 'numberOfPeers',
         fetchingKey: 'fetchingPeers',
       },
-      // {
-      //   name: 'ALIASES',
-      //   path: 'aliases',
-      //   icon: <ContactPhone />,
-      //   element: <AliasesPage />,
-      //   loginNeeded: 'node',
-      //   numberKey: 'numberOfAliases',
-      // },
+      {
+        name: 'ALIASES',
+        path: 'aliases',
+        icon: <ContactPhone />,
+        element: <AliasesPage />,
+        loginNeeded: 'node',
+        numberKey: 'numberOfAliases',
+      },
       // {
       //   name: 'MESSAGES',
       //   path: 'messages',

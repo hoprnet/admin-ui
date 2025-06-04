@@ -66,7 +66,9 @@ type InitialState = {
     data: AddressesType;
     isFetching: boolean;
   };
-  aliases: {};
+  aliases: {
+    [peerAddress: string]: string;
+  };
   balances: {
     data: {
       hopr: {
@@ -109,6 +111,20 @@ type InitialState = {
     isFetching: boolean;
     alreadyFetched: boolean;
   };
+  checks: {
+    peers: {
+      [peerAddress: string]: boolean;
+    };
+    channelsIn: {
+      [channelsId: string]: boolean;
+    };
+    channelsOut: {
+      [channelsId: string]: boolean;
+    };
+    sessions: {
+      [session: string]: boolean;
+    };
+  };
   configuration: {
     data: GetConfigurationResponseType | null;
     isFetching: boolean;
@@ -123,15 +139,11 @@ type InitialState = {
     incomingChannelToNodeAddress: {
       [channelId: string]: string;
     };
-    nodeAddressToPeerId: {
-      [nodeAddress: string]: string;
+    aliasToNodeAddress: {
+      [alias: string]: string;
     };
-    peerIdToNodeAddress: {
-      [peerId: string]: string;
-    };
-    peerIdToAlias: {
-      [peerId: string]: string;
-    };
+    sortedAliases: string[];
+    nodeAddressesWithAliases: string[];
   };
   messages: {
     data: Message[];
@@ -161,6 +173,8 @@ type InitialState = {
           reportedVersion: string;
         };
       };
+      connectedSorted: string[];
+      announcedSorted: string[];
     };
     isFetching: boolean;
     alreadyFetched: boolean;
@@ -298,6 +312,12 @@ export const initialState: InitialState = {
     isFetching: false,
     alreadyFetched: false,
   },
+  checks: {
+    peers: {},
+    channelsIn: {},
+    channelsOut: {},
+    sessions: {},
+  },
   configuration: {
     data: null,
     isFetching: false,
@@ -313,6 +333,8 @@ export const initialState: InitialState = {
     data: null,
     parsed: {
       connected: {},
+      connectedSorted: [],
+      announcedSorted: [],
     },
     isFetching: false,
     alreadyFetched: false,
@@ -388,9 +410,9 @@ export const initialState: InitialState = {
     nodeAddressToOutgoingChannel: {},
     nodeAddressToIncomingChannel: {},
     incomingChannelToNodeAddress: {},
-    nodeAddressToPeerId: {},
-    peerIdToNodeAddress: {},
-    peerIdToAlias: {},
+    aliasToNodeAddress: {},
+    sortedAliases: [],
+    nodeAddressesWithAliases: [],
   },
   apiEndpoint: null,
   nodeIsReady: {

@@ -1,13 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { DialogActions, DialogTitle, InputAdornment, TextField } from '@mui/material';
 import { SDialog, SDialogContent, SIconButton, TopBar } from '../../../future-hopr-lib-components/Modal/styled';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { actionsAsync } from '../../../store/slices/node/actionsAsync';
 import { sendNotification } from '../../../hooks/useWatcher/notifications';
 import { HOPR_TOKEN_USED } from '../../../../config';
 import { utils } from '@hoprnet/hopr-sdk';
+import type { GetPeersResponseType, OpenSessionPayloadType } from '@hoprnet/hopr-sdk';
 import { parseEther } from 'viem';
 const { sdkApiError } = utils;
+
+// Mui
+import {
+  DialogTitle,
+  DialogActions,
+  CircularProgress,
+  TextField,
+  SelectChangeEvent,
+  Select,
+  MenuItem,
+  Autocomplete,
+  Tooltip,
+  IconButton as IconButtonMui,
+  InputAdornment,
+  Radio,
+} from '@mui/material';
 
 // HOPR Components
 import IconButton from '../../../future-hopr-lib-components/Button/IconButton';
@@ -29,12 +45,24 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const loginData = useAppSelector((store) => store.auth.loginData);
   const outgoingOpening = useAppSelector((store) => store.node.channels.parsed.outgoingOpening);
   const aliases = useAppSelector((store) => store.node.aliases);
-  const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
   const channelIsBeingOpened = props.peerAddress ? !!outgoingOpening[props.peerAddress] : false;
   const [openChannelModal, set_openChannelModal] = useState(false);
   const [amount, set_amount] = useState('');
   const [peerAddress, set_peerAddress] = useState(props.peerAddress ? props.peerAddress : '');
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerAddress);
+  const peers = useAppSelector((store) => store.node.peers.data);
+  const myAddress = useAppSelector((store) => store.node.addresses.data.native || '');
+  const sortedAliases = useAppSelector((store) => store.node.links.sortedAliases);
+  const aliasToNodeAddress = useAppSelector((store) => store.node.links.aliasToNodeAddress);
+  const sortedAnnouncedPeers = useAppSelector((store) => store.node.peers.parsed.announcedSorted);
+  const nodeAddressesWithAliases = useAppSelector((store) => store.node.links.nodeAddressesWithAliases);
+  const addressBook = [
+    myAddress,
+    ...sortedAliases.map((alias) => aliasToNodeAddress[alias]),
+    ...sortedAnnouncedPeers.filter(
+      (nodeAddress) => nodeAddress !== myAddress && !nodeAddressesWithAliases.includes(nodeAddress),
+    ),
+  ];
 
   useEffect(() => {
     window.addEventListener('keydown', handleEnter as EventListener);
@@ -42,11 +70,6 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
       window.removeEventListener('keydown', handleEnter as EventListener);
     };
   }, [openChannelModal, loginData, amount, peerAddress]);
-
-  const getAliasByPeerId = (peerId: string): string => {
-    if (aliases && peerId && peerIdToAliasLink[peerId]) return `${peerIdToAliasLink[peerId]} (${peerId})`;
-    return peerId;
-  };
 
   const handleOpenChannelDialog = () => {
     (document.activeElement as HTMLInputElement).blur();
@@ -138,6 +161,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
         open={openChannelModal}
         onClose={handleCloseModal}
         disableScrollLock={true}
+        maxWidth={'800px'}
       >
         <TopBar>
           <DialogTitle>Open Outgoing Channel</DialogTitle>
@@ -149,13 +173,30 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
           </SIconButton>
         </TopBar>
         <SDialogContent>
-          <TextField
-            label="Node Address"
+          <Autocomplete
             value={peerAddress}
-            placeholder="0x4f5a...1728"
-            onChange={(e) => set_peerAddress(e.target.value)}
-            sx={{ mt: '6px' }}
-            autoFocus={peerAddress === ''}
+            onChange={(event, newValue) => {
+              if (newValue) set_peerAddress(newValue);
+            }}
+            options={addressBook}
+            getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
+            autoSelect
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Node address"
+                placeholder="Select Node address"
+                fullWidth
+                autoFocus={peerAddress === ''}
+              />
+            )}
+            // renderOption={(option)=>{
+            //   return (
+            //     <span>
+            //       {JSON.stringify(option)}
+            //     </span>
+            //   )
+            // }}
           />
           <TextField
             label="Amount"

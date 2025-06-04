@@ -19,10 +19,12 @@ import Button from '../../future-hopr-lib-components/Button';
 import StyledGrayButton from '../../future-hopr-lib-components/Button/gray';
 
 // MUI
-import { Tooltip, IconButton } from '@mui/material';
+import { Tooltip, IconButton, InputAdornment, Autocomplete } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility';
 
 type ParsedNode = {
   name: string;
@@ -141,6 +143,7 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
   const loginData = useAppSelector((store) => store.auth.loginData);
   const loginPending = useAppSelector((store) => store.auth.status.connecting);
   const [searchParams, set_searchParams] = useSearchParams();
+  const [showPassword, setShowPassword] = useState(false);
   const [localName, set_localName] = useState(loginData.localName ? loginData.localName : '');
   const [jazzIcon, set_jazzIcon] = useState(loginData.jazzIcon ? loginData.jazzIcon : null);
   const [apiEndpoint, set_apiEndpoint] = useState(loginData.apiEndpoint ? loginData.apiEndpoint : '');
@@ -430,6 +433,26 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
             set_apiToken(event.target.value);
           }}
           style={{ width: '100%' }}
+          type={showPassword ? 'text' : 'password'}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label={showPassword ? 'hide the API token' : 'display the API token'}
+                  onClick={() => setShowPassword((show) => !show)}
+                  onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                    event.preventDefault();
+                  }}
+                  onMouseUp={(event: React.MouseEvent<HTMLButtonElement>) => {
+                    event.preventDefault();
+                  }}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <SaveTokenContainer>
           <Checkbox

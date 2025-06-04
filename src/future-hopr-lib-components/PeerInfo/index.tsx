@@ -12,10 +12,7 @@ import CopyIcon from '@mui/icons-material/ContentCopy';
 import LaunchIcon from '@mui/icons-material/Launch';
 
 interface Props {
-  peerId?: string;
   nodeAddress?: string;
-  shortenPeerId?: boolean;
-  shortenPeerIdIfAliasPresent?: boolean;
 }
 
 const Container = styled.div`
@@ -28,22 +25,12 @@ const Container = styled.div`
 `;
 
 const PeersInfo: React.FC<Props> = (props) => {
-  const { peerId, nodeAddress, ...rest } = props;
+  const { nodeAddress, ...rest } = props;
   const aliases = useAppSelector((store) => store.node.aliases);
-  const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
 
-  const getAliasByPeerId = (peerId: string): string | JSX.Element => {
-    const aliasPresent = aliases && peerId && peerIdToAliasLink[peerId];
-    const shortPeerId = peerId && `${peerId.substring(0, 6)}...${peerId.substring(peerId.length - 8, peerId.length)}`;
-    const displayPeerId =
-      props.shortenPeerId || (props.shortenPeerIdIfAliasPresent && aliasPresent) ? shortPeerId : peerId;
-    if (aliasPresent)
-      return (
-        <>
-          <strong>{aliasPresent}</strong> ({displayPeerId})
-        </>
-      );
-    return displayPeerId;
+  const getAliasByAddress = (address: string): string => {
+    if (aliases && address && aliases[address]) return `${aliases[address]} (${address})`;
+    return address;
   };
 
   const noCopyPaste = !(
@@ -62,16 +49,7 @@ const PeersInfo: React.FC<Props> = (props) => {
         data-src={nodeAddress}
       />
       <div>
-        <span>{peerId && getAliasByPeerId(peerId)}</span>{' '}
-        <SmallActionButton
-          onClick={() => navigator.clipboard.writeText(peerId as string)}
-          disabled={noCopyPaste}
-          tooltip={noCopyPaste ? 'Clipboard not supported on HTTP' : 'Copy Peer Id'}
-        >
-          <CopyIcon />
-        </SmallActionButton>
-        <br />
-        <span>{nodeAddress}</span>{' '}
+        <span>{nodeAddress && getAliasByAddress(nodeAddress)}</span>{' '}
         <SmallActionButton
           onClick={() => navigator.clipboard.writeText(nodeAddress as string)}
           disabled={noCopyPaste}

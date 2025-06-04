@@ -29,7 +29,6 @@ function PeersPage() {
   const peersFetching = useAppSelector((store) => store.node.peers.isFetching);
   const aliases = useAppSelector((store) => store.node.aliases);
   const nodeAddressToOutgoingChannelLink = useAppSelector((store) => store.node.links.nodeAddressToOutgoingChannel);
-  const peerIdToAliasLink = useAppSelector((store) => store.node.links.peerIdToAlias);
 
   useEffect(() => {
     handleRefresh();
@@ -46,9 +45,9 @@ function PeersPage() {
     );
   };
 
-  const getAliasByPeerId = (peerId: string): string => {
-    if (aliases && peerId && peerIdToAliasLink[peerId]) return `${peerIdToAliasLink[peerId]} (${peerId})`;
-    return peerId;
+  const getAliasByAddress = (address: string): string => {
+    if (aliases && address && aliases[address]) return `${aliases[address]} (${address})`;
+    return address;
   };
 
   const handleExport = () => {
@@ -80,13 +79,7 @@ function PeersPage() {
       maxWidth: '300px',
     },
     {
-      key: 'peerId',
-      name: 'Peer Id',
-      search: true,
-      hidden: true,
-    },
-    {
-      key: 'peerAddress',
+      key: 'address',
       name: 'Node Address',
       search: true,
       hidden: true,
@@ -111,20 +104,18 @@ function PeersPage() {
     },
   ];
 
-  const peersWithAliases = (peers?.connected || []).filter(
-    (peer) => aliases && peer.address && peerIdToAliasLink[peer.address],
-  );
+  const peersWithAliases = (peers?.connected || []).filter((peer) => aliases && peer.address && aliases[peer.address]);
   const peersWithAliasesSorted = peersWithAliases.sort((a, b) => {
-    if (getAliasByPeerId(b.address).toLowerCase() > getAliasByPeerId(a.address).toLowerCase()) {
+    if (getAliasByAddress(b.address).toLowerCase() > getAliasByAddress(a.address).toLowerCase()) {
       return -1;
     }
-    if (getAliasByPeerId(b.address).toLowerCase() < getAliasByPeerId(a.address).toLowerCase()) {
+    if (getAliasByAddress(b.address).toLowerCase() < getAliasByAddress(a.address).toLowerCase()) {
       return 1;
     }
     return 0;
   });
   const peersWithoutAliases = (peers?.connected || []).filter(
-    (peer) => aliases && peer.address && !peerIdToAliasLink[peer.address],
+    (peer) => aliases && peer.address && !aliases[peer.address],
   );
   const peersWithoutAliasesSorted = peersWithoutAliases.sort((a, b) => {
     if (b.address > a.address) {
@@ -155,24 +146,15 @@ function PeersPage() {
 
     return {
       id: index + 1,
-      node: (
-        <PeersInfo
-          peerId={''}
-          nodeAddress={peer.address}
-          shortenPeerIdIfAliasPresent
-        />
-      ),
-      peerId: getAliasByPeerId(peer.address),
+      node: <PeersInfo nodeAddress={peer.address} />,
+      address: getAliasByAddress(peer.address),
       peerAddress: peer.address,
       quality: <ProgressBar value={peer.quality} />,
       lastSeen: <span style={{ whiteSpace: 'break-spaces' }}>{lastSeen}</span>,
       actions: (
         <>
           <PingModal address={peer.address} />
-          {/* <CreateAliasModal
-            handleRefresh={handleRefresh}
-            peerId={peer.address}
-          /> */}
+          <CreateAliasModal address={peer.address} />
           {nodeAddressToOutgoingChannelLink[peer.address] ? (
             <FundChannelModal channelId={nodeAddressToOutgoingChannelLink[peer.address]} />
           ) : (
