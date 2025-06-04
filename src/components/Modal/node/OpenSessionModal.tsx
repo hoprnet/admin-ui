@@ -134,12 +134,14 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const myAddress = useAppSelector((store) => store.node.addresses.data.native || '');
   const sortedAliases = useAppSelector((store) => store.node.links.sortedAliases);
   const aliasToNodeAddress = useAppSelector((store) => store.node.links.aliasToNodeAddress);
-  const sortedConnectedPeers = useAppSelector((store) => store.node.peers.parsed.connectedSorted);
+  const sortedAnnouncedPeers = useAppSelector((store) => store.node.peers.parsed.announcedSorted);
   const nodeAddressesWithAliases = useAppSelector((store) => store.node.links.nodeAddressesWithAliases);
   const addressBook = [
     myAddress,
     ...sortedAliases.map((alias) => aliasToNodeAddress[alias]),
-    ...sortedConnectedPeers.filter(nodeAddress => nodeAddress !== myAddress && !nodeAddressesWithAliases.includes(nodeAddress))
+    ...sortedAnnouncedPeers.filter(
+      (nodeAddress) => nodeAddress !== myAddress && !nodeAddressesWithAliases.includes(nodeAddress),
+    ),
   ];
 
   // Errors

@@ -51,7 +51,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const [peerAddress, set_peerAddress] = useState(props.peerAddress ? props.peerAddress : '');
   const canOpen = !(!amount || parseFloat(amount) <= 0 || !peerAddress);
   const peers = useAppSelector((store) => store.node.peers.data);
-  const myAddress = useAppSelector((store) => store.node.addresses.data.native);
+  const myAddress = useAppSelector((store) => store.node.addresses.data.native || '');
   const sortedAliases = useAppSelector((store) => store.node.links.sortedAliases);
   const aliasToNodeAddress = useAppSelector((store) => store.node.links.aliasToNodeAddress);
   const sortedAnnouncedPeers = useAppSelector((store) => store.node.peers.parsed.announcedSorted);
@@ -59,7 +59,9 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
   const addressBook = [
     myAddress,
     ...sortedAliases.map((alias) => aliasToNodeAddress[alias]),
-    ...sortedAnnouncedPeers.filter(nodeAddress => nodeAddress !== myAddress && !nodeAddressesWithAliases.includes(nodeAddress))
+    ...sortedAnnouncedPeers.filter(
+      (nodeAddress) => nodeAddress !== myAddress && !nodeAddressesWithAliases.includes(nodeAddress),
+    ),
   ];
 
   useEffect(() => {
@@ -159,6 +161,7 @@ export const OpenChannelModal = ({ ...props }: OpenChannelModalProps) => {
         open={openChannelModal}
         onClose={handleCloseModal}
         disableScrollLock={true}
+        maxWidth={'800px'}
       >
         <TopBar>
           <DialogTitle>Open Outgoing Channel</DialogTitle>

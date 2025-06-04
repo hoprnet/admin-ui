@@ -142,8 +142,8 @@ type InitialState = {
     aliasToNodeAddress: {
       [alias: string]: string;
     };
-    sortedAliases: string[],
-    nodeAddressesWithAliases: string[],
+    sortedAliases: string[];
+    nodeAddressesWithAliases: string[];
   };
   messages: {
     data: Message[];

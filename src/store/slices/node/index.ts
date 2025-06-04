@@ -70,7 +70,7 @@ const nodeSlice = createSlice({
       if (!isAddress(nodeAddress)) return;
       const nodeAddressValidated = getAddress(nodeAddress);
       const aliases = loadStateFromLocalStorage(`node/aliases/${nodeAddressValidated}`) as {
-          [key: string]: string;
+        [key: string]: string;
       } | null;
       if (aliases) {
         state.aliases = aliases;
@@ -78,7 +78,9 @@ const nodeSlice = createSlice({
           const alias = aliases[nodeAddress];
           state.links.aliasToNodeAddress[alias] = nodeAddress;
         });
-        const sortedAliases = Object.values(aliases).sort();
+        const sortedAliases = Object.values(aliases).sort((a, b) =>
+          a.localeCompare(b, undefined, { sensitivity: 'base' }),
+        );
         state.links.sortedAliases = sortedAliases;
         state.links.nodeAddressesWithAliases = Object.keys(aliases);
       }
@@ -91,7 +93,9 @@ const nodeSlice = createSlice({
       delete state.links.aliasToNodeAddress[state.aliases[nodeAddressValidated]];
       state.aliases[nodeAddressValidated] = alias;
       state.links.aliasToNodeAddress[alias] = nodeAddressValidated;
-      const sortedAliases = Object.values(state.aliases).sort();
+      const sortedAliases = Object.values(state.aliases).sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: 'base' }),
+      );
       state.links.sortedAliases = sortedAliases;
       state.links.nodeAddressesWithAliases = Object.keys(state.aliases);
       saveStateToLocalStorage(`node/aliases/${state.addresses.data.native}`, state.aliases);
@@ -101,7 +105,9 @@ const nodeSlice = createSlice({
       if (state.aliases[nodeAddress]) {
         delete state.links.aliasToNodeAddress[state.aliases[nodeAddress]];
         delete state.aliases[nodeAddress];
-        const sortedAliases = Object.values(state.aliases).sort();
+        const sortedAliases = Object.values(state.aliases).sort((a, b) =>
+          a.localeCompare(b, undefined, { sensitivity: 'base' }),
+        );
         state.links.sortedAliases = sortedAliases;
         state.links.nodeAddressesWithAliases = Object.keys(state.aliases);
       }
