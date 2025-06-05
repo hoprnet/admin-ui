@@ -2,6 +2,7 @@ import { useEffect, useState, KeyboardEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { formatEther } from 'viem';
 import { rounder, rounder2 } from '../../utils/functions';
+import yaml from 'js-yaml';
 
 // HOPR Components
 import { SubpageTitle } from '../../components/SubpageTitle';
@@ -48,7 +49,7 @@ const updateStrategyString = (originalString: string, key: string, value: string
 function SettingsPage() {
   const dispatch = useAppDispatch();
   const prevNotificationSettings = useAppSelector((store) => store.app.configuration.notifications);
-  const strategies = useAppSelector((store) => store.node.configuration.data?.hopr?.strategy);
+  const strategy = useAppSelector((store) => store.node.configuration.data?.hopr?.strategy);
   const configuration = useAppSelector((store) => store.node.configuration.data);
   const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
   const [strategiesString, set_strategiesString] = useState<string | null>(null);
@@ -77,31 +78,34 @@ function SettingsPage() {
 
   // Usage in useEffect
   useEffect(() => {
-    if (!strategies || !ticketPrice) return;
+    if (!strategy || !ticketPrice) return;
+
+    let strategyTMP = {hopr: {strategy: JSON.parse(JSON.stringify(strategy))}};
+    delete strategyTMP.hopr.strategy['parsedStrategies']
 
     try {
       const configs: StrategyConfig[] = [
         {
           path: ['AutoFunding', 'min_stake_threshold'],
-          value: strategies.strategies?.AutoFunding?.min_stake_threshold?.replace(' HOPR', ''),
+          value: strategy.strategies?.AutoFunding?.min_stake_threshold?.replace(' wxHOPR', ''),
         },
         {
           path: ['AutoFunding', 'funding_amount'],
-          value: strategies.strategies?.AutoFunding?.funding_amount?.replace(' HOPR', ''),
+          value: strategy.strategies?.AutoFunding?.funding_amount?.replace(' wxHOPR', ''),
         },
         {
           path: ['AutoRedeeming', 'minimum_redeem_ticket_value'],
-          value: strategies.strategies?.AutoRedeeming?.minimum_redeem_ticket_value?.replace(' HOPR', ''),
+          value: strategy.strategies?.AutoRedeeming?.minimum_redeem_ticket_value?.replace(' wxHOPR', ''),
         },
         {
           path: ['AutoRedeeming', 'on_close_redeem_single_tickets_value_min'],
-          value: strategies.strategies?.AutoRedeeming?.on_close_redeem_single_tickets_value_min?.replace(' HOPR', ''),
+          value: strategy.strategies?.AutoRedeeming?.on_close_redeem_single_tickets_value_min?.replace(' wxHOPR', ''),
         },
       ];
 
       console.log('configs', configs);
 
-      let result = JSON.stringify(strategies, null, 2);
+      let result = yaml.dump(strategyTMP);
 
       for (const config of configs) {
         if (config.value) {
@@ -114,13 +118,13 @@ function SettingsPage() {
     } catch (e) {
       console.warn('Error while counting strategies against current ticket price.', e);
     }
-  }, [strategies, ticketPrice]);
+  }, [strategy, ticketPrice]);
 
   useEffect(() => {
     if (configuration) {
       let tmp = JSON.parse(JSON.stringify(configuration));
       tmp.hopr['strategy'] && delete tmp.hopr['strategy'];
-      tmp = JSON.stringify(tmp, null, 2);
+      tmp = yaml.dump(tmp, null, 2);
       set_configurationString(tmp);
     }
   }, [configuration]);
@@ -239,7 +243,7 @@ function SettingsPage() {
               </td>
             </tr>
 
-            {/* <tr>
+            <tr>
               <th>Strategies</th>
               <td>
                 {strategiesString && (
@@ -260,7 +264,7 @@ function SettingsPage() {
                   />
                 )}
               </td>
-            </tr> */}
+            </tr>
           </tbody>
         </TableExtended>
       </Paper>

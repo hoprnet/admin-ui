@@ -27,6 +27,7 @@
     "fathom-client": "^3.5.0",
     "graphql": "^16.8.0",
     "graphql-request": "^6.1.0",
+    "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "md5": "^2.3.0",
     "node-stdlib-browser": "^1.2.0",
