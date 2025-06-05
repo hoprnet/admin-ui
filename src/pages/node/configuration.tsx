@@ -105,14 +105,15 @@ function SettingsPage() {
 
       console.log('configs', configs);
 
-      let result = yaml.dump(strategyTMP);
+      // TODO: update this block to the new structure
+      // for (const config of configs) {
+      //   if (config.value) {
+      //     const tickets = calculateTickets(config.value, ticketPrice);
+      //     result = updateStrategyString(result, config.path[1], config.value, tickets);
+      //   }
+      // }
 
-      for (const config of configs) {
-        if (config.value) {
-          const tickets = calculateTickets(config.value, ticketPrice);
-          result = updateStrategyString(result, config.path[1], config.value, tickets);
-        }
-      }
+      const result = yaml.dump(strategyTMP);
 
       set_strategiesString(result);
     } catch (e) {
