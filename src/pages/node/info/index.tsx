@@ -248,7 +248,7 @@ function InfoPage() {
             <tr>
               <th>
                 <Tooltip
-                  title="The sync process of your node with the blockchain"
+                  title="The sync process indexer data source"
                   notWide
                 >
                   <span>Indexer data source</span>
@@ -684,7 +684,7 @@ function InfoPage() {
               </th>
               <td>{nodeStartedTime}</td>
             </tr>
-            {/* <NodeUptime /> */}
+            <NodeUptime />
           </tbody>
         </TableExtended>
 

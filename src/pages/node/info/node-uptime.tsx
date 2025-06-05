@@ -4,10 +4,11 @@ import { useAppSelector } from '../../../store';
 import Row from './row';
 
 function NodeUptime() {
-  const nodeStartedEpoch = useAppSelector((store) => store.node.metrics.data.parsed?.hopr_up?.data[0]) as number;
+  const nodeStartedEpoch = useAppSelector((store) => store.node.metrics.data.parsed?.hopr_start_time?.data[0]) as number;
   const [nodeTimeUp, set_nodeTimeUp] = useState(nodeStartedEpoch > 0 ? getUptime(nodeStartedEpoch) : '-');
 
   useEffect(() => {
+    console.log('NodeUptime useEffect', nodeStartedEpoch);
     set_nodeTimeUp(getUptime(nodeStartedEpoch));
     let interval: any;
     interval = setInterval(() => {
