@@ -10,7 +10,6 @@ function NodeUptime() {
   const [nodeTimeUp, set_nodeTimeUp] = useState(nodeStartedEpoch > 0 ? getUptime(nodeStartedEpoch) : '-');
 
   useEffect(() => {
-    console.log('NodeUptime useEffect', nodeStartedEpoch);
     set_nodeTimeUp(getUptime(nodeStartedEpoch));
     let interval: any;
     interval = setInterval(() => {
