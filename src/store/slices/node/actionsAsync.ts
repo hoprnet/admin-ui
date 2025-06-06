@@ -184,8 +184,6 @@ const getBalancesThunk = createAsyncThunk<
     dispatch(nodeActionsFetching.setBalancesFetching(true));
     try {
       const balances = await getBalances(payload);
-      balances.safeHopr = Date.now().toString(); // Simulate a change in native balance for testing purposes
-      console.log('getBalancesThunk', balances);
       return balances;
     } catch (e) {
       if (e instanceof sdkApiError) {

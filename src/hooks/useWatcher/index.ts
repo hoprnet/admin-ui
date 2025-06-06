@@ -86,7 +86,7 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
         },
         dispatch,
       });
-    }, 500);
+    }, intervalDuration);
 
     const watchMetricsInterval = setInterval(() => {
       if (!apiEndpoint) return;
