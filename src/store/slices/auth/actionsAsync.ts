@@ -12,12 +12,16 @@ export const loginThunk = createAsyncThunk<
   { apiToken: string; apiEndpoint: string; force?: boolean },
   { state: RootState; rejectValue: { data: string; type: 'API_ERROR' | 'NOT_ELIGIBLE_ERROR' | 'FETCH_ERROR' } }
 >('auth/login', async (payload, { rejectWithValue, dispatch }) => {
+  if (payload.force) {
+    return { force: true };
+  }
+
   const { apiEndpoint, apiToken } = payload;
 
-  let addresses, balances;
+  let info, addresses, balances;
 
   try {
-    const calls = await Promise.all([
+    const calls = await Promise.allSettled([
       getInfo({
         apiEndpoint: apiEndpoint,
         apiToken: apiToken,
@@ -32,11 +36,15 @@ export const loginThunk = createAsyncThunk<
       }),
     ]);
 
-    const info = calls[0] as GetInfoResponseType;
-    addresses = calls[1] as GetAddressesResponseType;
-    balances = calls[1] as GetBalancesResponseType;
+    if (calls[0].status === 'fulfilled') info = calls[0].value as GetInfoResponseType;
+    if (calls[1].status === 'fulfilled') addresses = calls[1].value as GetAddressesResponseType;
+    if (calls[2].status === 'fulfilled') balances = calls[2].value as GetBalancesResponseType;
 
-    if (!payload.force && !info.isEligible) {
+    if (calls[0].status === 'rejected') throw new sdkApiError(calls[0].reason);
+    if (calls[1].status === 'rejected') throw new sdkApiError(calls[1].reason);
+    if (calls[2].status === 'rejected') throw new sdkApiError(calls[2].reason);
+
+    if (!payload.force && !info?.isEligible) {
       const e = new Error();
       e.name = 'NOT_ELIGIBLE_ERROR';
       e.message =
@@ -48,17 +56,13 @@ export const loginThunk = createAsyncThunk<
 
     return info;
   } catch (e) {
-    console.log('Error during loginThunk', e);
+    console.error('Error during loginThunk', e);
 
     if (e instanceof sdkApiError && e.hoprdErrorPayload?.status === 'UNAUTHORIZED') {
       return rejectWithValue({
         data: e.hoprdErrorPayload?.status ?? e.hoprdErrorPayload?.error,
         type: 'API_ERROR',
       });
-    }
-
-    if (payload.force) {
-      return { force: true };
     }
 
     if (e instanceof sdkApiError && e.hoprdErrorPayload?.error?.includes('get_peer_multiaddresses')) {
