@@ -80,8 +80,8 @@ function SettingsPage() {
   useEffect(() => {
     if (!strategy || !ticketPrice) return;
 
-    let strategyTMP = {hopr: {strategy: JSON.parse(JSON.stringify(strategy))}};
-    delete strategyTMP.hopr.strategy['parsedStrategies']
+    let strategyTMP = { hopr: { strategy: JSON.parse(JSON.stringify(strategy)) } };
+    delete strategyTMP.hopr.strategy['parsedStrategies'];
 
     try {
       const configs: StrategyConfig[] = [
