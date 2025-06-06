@@ -81,6 +81,7 @@
   "packageManager": "yarn@1.22.19",
   "devDependencies": {
     "@types/canvas-confetti": "^1.6.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.14.197",
     "@types/md5": "^2.3.2",
     "@types/react-timeago": "^4.1.4",

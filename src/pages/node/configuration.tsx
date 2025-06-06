@@ -103,7 +103,7 @@ function SettingsPage() {
         },
       ];
 
-      console.log('configs', configs);
+      // console.log('configs', configs);
 
       // TODO: update this block to the new structure
       // for (const config of configs) {
@@ -125,7 +125,7 @@ function SettingsPage() {
     if (configuration) {
       let tmp = JSON.parse(JSON.stringify(configuration));
       tmp.hopr['strategy'] && delete tmp.hopr['strategy'];
-      tmp = yaml.dump(tmp, null, 2);
+      tmp = yaml.dump(tmp);
       set_configurationString(tmp);
     }
   }, [configuration]);
