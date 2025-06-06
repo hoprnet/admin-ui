@@ -56,6 +56,7 @@ function InfoPage() {
       ? new Date(nodeStartedEpoch * 1000).toJSON().replace('T', ' ').replace('Z', ' UTC')
       : '-';
   const nodeSync = useAppSelector((store) => store.node.metricsParsed.nodeSync);
+  const indexerDataSource = useAppSelector((store) => store.node.metricsParsed.indexerDataSource); // >=3.0.0
   const blockNumberFromInfo = useAppSelector((store) => store.node.info.data?.indexerBlock); // >=2.2.0
   const indexerLastLogBlock = useAppSelector((store) => store.node.info.data?.indexerLastLogBlock); // >=2.2.0
   const indexerLastLogChecksum = useAppSelector((store) => store.node.info.data?.indexerLastLogChecksum); // >=2.2.0
@@ -65,6 +66,22 @@ function InfoPage() {
   useEffect(() => {
     fetchInfoData();
   }, [apiEndpoint, apiToken]);
+
+  useEffect(() => {
+    const watchSync = setInterval(() => {
+      if (!apiEndpoint || (nodeSync && nodeSync === 1)) return;
+      return dispatch(
+        nodeActionsAsync.getPrometheusMetricsThunk({
+          apiEndpoint,
+          apiToken: apiToken ? apiToken : '',
+        }),
+      );
+    }, 5_000);
+
+    return () => {
+      clearInterval(watchSync);
+    };
+  }, [nodeSync, apiEndpoint, apiToken]);
 
   const fetchInfoData = () => {
     if (!apiEndpoint) return;
@@ -217,7 +234,7 @@ function InfoPage() {
               </th>
               <td>{info?.isEligible ? 'Yes' : 'No'}</td>
             </tr>
-            {/* <tr>
+            <tr>
               <th>
                 <Tooltip
                   title="The sync process of your node with the blockchain"
@@ -227,7 +244,18 @@ function InfoPage() {
                 </Tooltip>
               </th>
               <td>{nodeSync && typeof nodeSync === 'number' ? <ProgressBar value={nodeSync} /> : '-'}</td>
-            </tr> */}
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
+                  title="The sync process indexer data source"
+                  notWide
+                >
+                  <span>Indexer data source</span>
+                </Tooltip>
+              </th>
+              <td>{indexerDataSource || '-'}</td>
+            </tr>
             <tr>
               <th>
                 <Tooltip
@@ -645,7 +673,7 @@ function InfoPage() {
               </th>
               <td>{version?.replaceAll('"', '')}</td>
             </tr>
-            {/* <tr key="node-startdate">
+            <tr key="node-startdate">
               <th>
                 <Tooltip
                   title="Date when you node was started"
@@ -655,8 +683,8 @@ function InfoPage() {
                 </Tooltip>
               </th>
               <td>{nodeStartedTime}</td>
-            </tr> */}
-            {/* <NodeUptime /> */}
+            </tr>
+            <NodeUptime />
           </tbody>
         </TableExtended>
 

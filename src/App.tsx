@@ -33,6 +33,7 @@ function App() {
         <ToastContainer
           position="bottom-right"
           limit={10}
+          style={{ maxHeight: 'calc(100vh - 100px)' }}
         />
         <RouterProvider router={router} />
         <VersionComponent>UI version: {packageJson.version}</VersionComponent>
