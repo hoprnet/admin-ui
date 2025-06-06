@@ -86,7 +86,7 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
         },
         dispatch,
       });
-    }, intervalDuration);
+    }, 500);
 
     const watchMetricsInterval = setInterval(() => {
       if (!apiEndpoint) return;
@@ -111,6 +111,7 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
     return () => {
       clearInterval(watchIsNodeReadyInterval);
       clearInterval(watchChannelsInterval);
+      clearInterval(watchMetricsInterval);
       clearInterval(watchNodeInfoInterval);
       clearInterval(watchNodeBalancesInterval);
       clearInterval(watchSessionsInterval);

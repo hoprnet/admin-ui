@@ -182,7 +182,7 @@ function SettingsPage() {
                     />{' '}
                     True
                   </div>
-                  <div>
+                  {/* <div>
                     Message: False
                     <Switch
                       checked={localNotificationSettings?.message}
@@ -197,7 +197,7 @@ function SettingsPage() {
                       color="primary"
                     />{' '}
                     True
-                  </div>
+                  </div> */}
                   <div>
                     Node Balance: False
                     <Switch

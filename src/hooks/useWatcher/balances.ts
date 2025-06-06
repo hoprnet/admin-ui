@@ -12,8 +12,10 @@ import { formatEther, parseEther } from 'viem';
  * @param newBalance The new balance as a string.
  * @returns A boolean indicating whether the new balance is greater than the previous balance.
  */
-export const balanceHasIncreased = (prevBalance: string, newBalance: string) =>
-  BigInt(prevBalance) < BigInt(newBalance);
+export const balanceHasIncreased = (prevBalance: string, newBalance: string) =>{
+  return parseEther(prevBalance) < parseEther(newBalance);
+}
+
 
 /**
  * Handles balance notifications.
@@ -140,6 +142,7 @@ export const observeNodeBalances = ({
           });
         },
         sendNewHoprSafeBalanceNotification: (hoprSafeBalanceDifference) => {
+          console.log('hoprSafeBalanceDifference', hoprSafeBalanceDifference);
           const message = `Safe received ${formatEther(hoprSafeBalanceDifference)} wxHopr`;
           sendNotification({
             notificationPayload: {
