@@ -53,8 +53,7 @@
     "format": "prettier --write src/ .github/ *.ts *.json *.md",
     "format:ci": "prettier --check src/ .github/ *.ts *.json *.md",
     "lint": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint:ci": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
-    "login": "npx google-artifactregistry-auth"
+    "lint:ci": "eslint \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "eslintConfig": {
     "extends": [
