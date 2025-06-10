@@ -1,12 +1,12 @@
 {
   "name": "hopr-admin",
-  "version": "3.0.0-alpha.4",
+  "version": "3.0.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.0",
-    "@hoprnet/hopr-sdk": "3.0.0-alpha.14",
+    "@hoprnet/hopr-sdk": "next",
     "@metamask/jazzicon": "^2.0.0",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.0",
@@ -21,7 +21,7 @@
     "@types/node": "^16.7.13",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "apexcharts": "^3.41.0",
+    "apexcharts": "^4.7.0",
     "canvas-confetti": "^1.6.0",
     "dayjs": "^1.11.9",
     "fathom-client": "^3.5.0",
@@ -55,7 +55,8 @@
     "format": "prettier --write src/ .github/ *.ts *.json *.md",
     "format:ci": "prettier --check src/ .github/ *.ts *.json *.md",
     "lint": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint:ci": "eslint \"src/**/*.{js,jsx,ts,tsx}\""
+    "lint:ci": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
+    "login": "npx google-artifactregistry-auth"
   },
   "eslintConfig": {
     "extends": [
