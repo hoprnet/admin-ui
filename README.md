@@ -1,5 +1,13 @@
 ## Available Scripts
 
+To login to GCP registry, do
+
+`gcloud auth list`
+
+and then
+
+`npm run login`
+
 In the project directory, you can run:
 
 ### `yarn`
