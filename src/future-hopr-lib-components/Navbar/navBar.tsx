@@ -14,10 +14,12 @@ interface AppBarProps extends MuiAppBarProps {
   webapp?: boolean;
 }
 
+const navBarHeight = 44;
+
 
 const AppBar = styled(({ tallerNavBarOnMobile, webapp, ...rest }: AppBarProps) => <MuiAppBar {...rest} />)`
   background: white;
-  height: 44px;
+  height: ${navBarHeight}px;
   border-bottom: 1px lightgray solid;
   box-shadow: unset;
   z-index: 1201;
@@ -31,7 +33,6 @@ const AppBar = styled(({ tallerNavBarOnMobile, webapp, ...rest }: AppBarProps) =
     props.tallerNavBarOnMobile &&
     `
     @media screen and (max-width: 520px) {
-    //  height: 100px;
       position: static;
     }
   `}
@@ -69,7 +70,7 @@ const FlexBox = styled(Box)`
 
 const Logo = styled.div`
   width: 90px;
-  height: 44px;
+  height: ${navBarHeight}px;
   display: flex;
   align-items: center;
   justify-content: center;

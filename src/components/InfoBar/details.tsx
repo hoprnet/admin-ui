@@ -80,7 +80,7 @@ const Data = styled.div`
   border-radius: 1rem 1rem 1rem 1rem;
   flex-grow: 1;
   &.nodeOnly {
-    width: 66px;
+    width: 72px;
     margin-top: 40px;
   }
   p.double {

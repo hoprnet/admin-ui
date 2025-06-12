@@ -6,6 +6,7 @@ import { css } from '@emotion/react';
 import { Outlet } from 'react-router-dom';
 import { useMediaQuery } from '@mui/material';
 import { environment } from '../../../config';
+import { drawerWidth, minDrawerWidth } from './drawer';
 
 // Components
 import NavBar from '../Navbar/navBar';
@@ -37,7 +38,7 @@ const Content = styled.div<ContentType>`
 
   transition: margin-left 0.4s ease-out;
   @media (min-width: 500px) {
-    margin-left: ${(props) => (props.openedNavigationDrawer ? '240px' : '56px')};
+    margin-left: ${(props) => (props.openedNavigationDrawer ? `${drawerWidth}px` : `${minDrawerWidth}px`)};
   }
 
   ${(props) =>
