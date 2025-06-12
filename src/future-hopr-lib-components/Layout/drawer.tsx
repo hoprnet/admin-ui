@@ -92,7 +92,7 @@ const StyledListItemButton = styled(ListItemButton)`
   height: 48px;
   fill: rgba(0, 0, 0, 0.54);
   width: 100%;
-  padding-right: 10px;
+  padding-right: 7px;
   padding-left: 14px;
   .MuiListItemIcon-root {
     min-width: 38px;
