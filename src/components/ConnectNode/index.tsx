@@ -23,7 +23,7 @@ const Container = styled(Button)`
   display: flex;
   flex-direction: row;
   gap: 10px;
-  height: 59px;
+  height: 42px;
   width: 240px;
   border-radius: 0;
   div {
@@ -35,12 +35,12 @@ const Container = styled(Button)`
     width: 100%;
   }
   .image-container {
-    height: 50px;
+    height: 48px;
     margin-left: 8px;
     width: 50px;
     img {
-      height: 38px;
-      width: 38px;
+      height: 34px;
+      width: 34px;
       border-radius: 50px;
     }
   }

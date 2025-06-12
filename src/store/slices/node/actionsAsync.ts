@@ -548,7 +548,7 @@ const openMultipleChannelsThunk = createAsyncThunk(
         apiEndpoint: payload.apiEndpoint,
         apiToken: payload.apiToken,
         timeout: payload.timeout,
-        peerAddresses: payload.peerIds,
+        destinations: payload.peerIds,
         amount: payload.amount,
       });
       if (typeof res === 'undefined')

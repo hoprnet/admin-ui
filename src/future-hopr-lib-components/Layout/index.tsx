@@ -32,7 +32,7 @@ type ContentType = {
 };
 
 const Content = styled.div<ContentType>`
-  margin-top: 60px;
+  margin-top: 43px;
   margin-left: 0;
 
   transition: margin-left 0.4s ease-out;

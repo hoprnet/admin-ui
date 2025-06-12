@@ -24,7 +24,7 @@ const minDrawerWidth = 56;
 const StyledDrawer = styled(MuiDrawer)`
   .MuiDrawer-paper {
     box-sizing: border-box;
-    padding-top: 59px;
+    padding-top: 43px;
     transition: width 0.4s ease-out;
     overflow-x: hidden;
     scrollbar-width: none;
