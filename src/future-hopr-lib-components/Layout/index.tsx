@@ -7,6 +7,7 @@ import { Outlet } from 'react-router-dom';
 import { useMediaQuery } from '@mui/material';
 import { environment } from '../../../config';
 import { drawerWidth, minDrawerWidth } from './drawer';
+import { navBarHeight } from '../Navbar/navBar';
 
 // Components
 import NavBar from '../Navbar/navBar';
@@ -21,7 +22,7 @@ import { loadStateFromLocalStorage, saveStateToLocalStorage } from '../../utils/
 const SLayout = styled.div`
   &.webapp {
     .Section.full-height-min {
-      min-height: calc(100vh - 60px - 80px + 40px);
+      min-height: calc(100vh - ${navBarHeight}px - 80px + 40px);
     }
   }
 `;
