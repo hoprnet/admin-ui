@@ -298,6 +298,12 @@ function ConnectNodeModal(props: ConnectNodeModalProps) {
           }),
         );
         dispatch(
+          nodeActionsAsync.getPrometheusMetricsThunk({
+            apiEndpoint,
+            apiToken: apiToken ? apiToken : '',
+          }),
+        );
+        dispatch(
           nodeActionsAsync.getTicketPriceThunk({
             apiToken,
             apiEndpoint,

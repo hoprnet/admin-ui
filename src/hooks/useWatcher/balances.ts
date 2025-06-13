@@ -12,8 +12,9 @@ import { formatEther, parseEther } from 'viem';
  * @param newBalance The new balance as a string.
  * @returns A boolean indicating whether the new balance is greater than the previous balance.
  */
-export const balanceHasIncreased = (prevBalance: string, newBalance: string) =>
-  BigInt(prevBalance) < BigInt(newBalance);
+export const balanceHasIncreased = (prevBalance: string, newBalance: string) => {
+  return parseEther(prevBalance) < parseEther(newBalance);
+};
 
 /**
  * Handles balance notifications.
@@ -110,54 +111,59 @@ export const observeNodeBalances = ({
         prevNodeBalances: previousState,
         minimumNodeBalances,
         sendNewNativeBalanceNotification: (nativeBalanceDifference) => {
+          const message = `Node received ${formatEther(nativeBalanceDifference)} xDai`;
           sendNotification({
             notificationPayload: {
               source: 'node',
-              name: 'Node received xDai',
+              name: message,
               url: null,
               timeout: null,
             },
-            toastPayload: { message: `Node received ${formatEther(nativeBalanceDifference)} xDai` },
+            toastPayload: { message },
             dispatch,
           });
         },
         sendNativeBalanceTooLowNotification: (newNativeBalance) => {
+          const message = `Node xDai level is low, node has ${formatEther(
+            BigInt(newNativeBalance),
+          )} and should have ${formatEther(BigInt(minimumNodeBalances.native))}`;
           sendNotification({
             notificationPayload: {
               source: 'node',
-              name: 'Your xDai level is low, HOPRd node might stop working soon. Top up xDai',
+              name: message,
               url: null,
               timeout: null,
             },
             toastPayload: {
-              message: `Node xDai level is low, node has ${formatEther(
-                BigInt(newNativeBalance),
-              )} and should have ${formatEther(BigInt(minimumNodeBalances.native))}`,
+              message,
             },
             dispatch,
           });
         },
         sendNewHoprSafeBalanceNotification: (hoprSafeBalanceDifference) => {
+          console.log('hoprSafeBalanceDifference', hoprSafeBalanceDifference);
+          const message = `Safe received ${formatEther(hoprSafeBalanceDifference)} wxHopr`;
           sendNotification({
             notificationPayload: {
               source: 'safe',
-              name: 'Safe received wxHopr',
+              name: message,
               url: null,
               timeout: null,
             },
-            toastPayload: { message: `Safe received ${formatEther(hoprSafeBalanceDifference)} wxHopr` },
+            toastPayload: { message },
             dispatch,
           });
         },
         sendNewNativeSafeBalanceNotification: (nativeSafeBalanceDifference) => {
+          const message = `Safe received ${formatEther(nativeSafeBalanceDifference)} xDai`;
           sendNotification({
             notificationPayload: {
               source: 'safe',
-              name: 'Safe received xDai',
+              name: message,
               url: null,
               timeout: null,
             },
-            toastPayload: { message: `Safe received ${formatEther(nativeSafeBalanceDifference)} xDai` },
+            toastPayload: { message },
             dispatch,
           });
         },

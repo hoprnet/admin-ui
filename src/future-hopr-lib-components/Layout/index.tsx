@@ -6,6 +6,8 @@ import { css } from '@emotion/react';
 import { Outlet } from 'react-router-dom';
 import { useMediaQuery } from '@mui/material';
 import { environment } from '../../../config';
+import { drawerWidth, minDrawerWidth } from './drawer';
+import { navBarHeight } from '../Navbar/navBar';
 
 // Components
 import NavBar from '../Navbar/navBar';
@@ -20,7 +22,7 @@ import { loadStateFromLocalStorage, saveStateToLocalStorage } from '../../utils/
 const SLayout = styled.div`
   &.webapp {
     .Section.full-height-min {
-      min-height: calc(100vh - 60px - 80px + 40px);
+      min-height: calc(100vh - ${navBarHeight}px - 80px + 40px);
     }
   }
 `;
@@ -32,12 +34,12 @@ type ContentType = {
 };
 
 const Content = styled.div<ContentType>`
-  margin-top: 60px;
+  margin-top: 43px;
   margin-left: 0;
 
   transition: margin-left 0.4s ease-out;
   @media (min-width: 500px) {
-    margin-left: ${(props) => (props.openedNavigationDrawer ? '240px' : '56px')};
+    margin-left: ${(props) => (props.openedNavigationDrawer ? `${drawerWidth}px` : `${minDrawerWidth}px`)};
   }
 
   ${(props) =>

@@ -54,6 +54,7 @@ const StyledAccordion = styled(Accordion)`
 const SAccordionSummary = styled(AccordionSummary)`
   border-bottom: 2px solid #414141;
   padding: 0;
+  font-size: 11px;
 
   &.Mui-expanded {
     min-height: 48px;

@@ -19,8 +19,8 @@ import { useAppDispatch, useAppSelector } from '../../store';
 import { appActions } from '../../store/slices/app';
 
 const Container = styled.div`
-  height: 59px;
-  width: 59px;
+  height: 42px;
+  width: 42px;
   border-left: 1px lightgray solid;
   border-right: 1px lightgray solid;
 `;
@@ -29,7 +29,7 @@ const SBadge = styled(Badge)`
   width: 100%;
   height: 100%;
   .MuiBadge-badge {
-    transform: scale(1) translate(-23%, 56%);
+    transform: scale(0.9) translate(-11%, 27%);
     background-color: #0000b4;
   }
 `;
@@ -39,8 +39,8 @@ const SIconButton = styled(MuiIconButton)`
   height: 100%;
   border-radius: 0;
   svg {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
   }
 `;
 

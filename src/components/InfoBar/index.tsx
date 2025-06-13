@@ -27,7 +27,6 @@ const SInfoBar = styled.div`
   right: 0;
   height: 100vh;
   box-sizing: border-box;
-  padding-top: 48px;
   &.node {
     background: #ffffa0;
     border: 0;

@@ -88,6 +88,16 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
       });
     }, intervalDuration);
 
+    const watchMetricsInterval = setInterval(() => {
+      if (!apiEndpoint) return;
+      return dispatch(
+        nodeActionsAsync.getPrometheusMetricsThunk({
+          apiEndpoint,
+          apiToken: apiToken ? apiToken : '',
+        }),
+      );
+    }, intervalDuration);
+
     const watchSessionsInterval = setInterval(() => {
       if (!apiEndpoint) return;
       return dispatch(
@@ -101,6 +111,7 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
     return () => {
       clearInterval(watchIsNodeReadyInterval);
       clearInterval(watchChannelsInterval);
+      clearInterval(watchMetricsInterval);
       clearInterval(watchNodeInfoInterval);
       clearInterval(watchNodeBalancesInterval);
       clearInterval(watchSessionsInterval);
@@ -108,30 +119,30 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
   }, [connected, apiEndpoint, apiToken, isNodeReady, prevNodeBalances, prevNodeInfo, prevOutgoingChannels]);
 
   // Messages
-  useEffect(() => {
-    if (!connected) return;
-    if (messages && messages.length > 0) {
-      messages.forEach((msgReceived, index) => {
-        const hasToNotify = !msgReceived.notified;
-        if (hasToNotify) {
-          if (activeMessage) {
-            const notification = `Message received: ${msgReceived.body}`;
-            sendNotification({
-              notificationPayload: {
-                source: 'node',
-                name: notification,
-                url: null,
-                timeout: null,
-              },
-              toastPayload: { message: notification },
-              dispatch,
-            });
-          }
-          dispatch(nodeActions.setMessageNotified(index));
-        }
-      });
-    }
-  }, [connected, activeMessage, messages]);
+  // useEffect(() => {
+  //   if (!connected) return;
+  //   if (messages && messages.length > 0) {
+  //     messages.forEach((msgReceived, index) => {
+  //       const hasToNotify = !msgReceived.notified;
+  //       if (hasToNotify) {
+  //         if (activeMessage) {
+  //           const notification = `Message received: ${msgReceived.body}`;
+  //           sendNotification({
+  //             notificationPayload: {
+  //               source: 'node',
+  //               name: notification,
+  //               url: null,
+  //               timeout: null,
+  //             },
+  //             toastPayload: { message: notification },
+  //             dispatch,
+  //           });
+  //         }
+  //         dispatch(nodeActions.setMessageNotified(index));
+  //       }
+  //     });
+  //   }
+  // }, [connected, activeMessage, messages]);
 
   // Channels
   useEffect(() => {
@@ -165,7 +176,6 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
 
     const changesOutgoing = checkHowChannelsHaveChanged(prevOutgoingChannels, channelsParsed.outgoing);
     if (changesOutgoing.length !== 0) {
-      console.log('changes channels outgoing', changesOutgoing);
       for (let i = 0; i < changesOutgoing.length; i++) {
         let notificationText: null | string = null;
         if (changesOutgoing[i].status === 'Open') {
@@ -193,7 +203,6 @@ export const useWatcher = ({ intervalDuration = 60_000 }: { intervalDuration?: n
 
     const changesIncoming = checkHowChannelsHaveChanged(prevIncomingChannels, channelsParsed.incoming);
     if (changesIncoming.length !== 0) {
-      console.log('changes channels incoming', changesIncoming);
       for (let i = 0; i < changesIncoming.length; i++) {
         let notificationText: null | string = null;
         if (changesIncoming[i].status === 'Open') {

@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { useEffect } from 'react';
-import Chart from 'react-apexcharts';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { actionsAsync } from '../../store/slices/node/actionsAsync';
 import { exportToFile } from '../../utils/helpers';
