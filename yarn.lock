@@ -719,10 +719,10 @@
   resolved "https://registry.npmjs.org/@graphql-typed-document-node/core/-/core-3.2.0.tgz"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hoprnet/hopr-sdk@3.0.0-pr.148-20250610110552":
-  version "3.0.0-pr.148-20250610110552"
-  resolved "https://europe-west3-npm.pkg.dev/hoprassociation/npm/@hoprnet/hopr-sdk/-/@hoprnet/hopr-sdk-3.0.0-pr.148-20250610110552.tgz#e4cdf7be120d07311cf0f4e1ea4e9b61ee67d7ac"
-  integrity sha512-NUyrn0LA9yDgspOIJ1CU41xrUnl6N5kL7Vfj51j0TeT3vTA8fq4EMa00gjmJOs++NCEaFBZ1osSKpmqnQBxEIw==
+"@hoprnet/hopr-sdk@3.0.0-alpha.15":
+  version "3.0.0-alpha.15"
+  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-sdk/-/hopr-sdk-3.0.0-alpha.15.tgz#e2c8b33a7d60a1410cda62855ceaadb3c90b533a"
+  integrity sha512-BdT9ZWStlUMmHGRmAdQe7jKEK6y8uz88cuv5Tse1yHYi14FmaUKDAI/3sjQK+Vgx4UJHTV5CHOWKJtuQWR1FcA==
   dependencies:
     debug "^4.3.4"
     isomorphic-ws "^5.0.0"
@@ -5234,7 +5234,7 @@ isomorphic-unfetch@3.1.0:
 
 isomorphic-ws@^5.0.0:
   version "5.0.0"
-  resolved "https://registry.npmjs.org/isomorphic-ws/-/isomorphic-ws-5.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-5.0.0.tgz#e5529148912ecb9b451b46ed44d53dae1ce04bbf"
   integrity sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==
 
 isows@1.0.3:
@@ -8213,7 +8213,7 @@ ws@8.13.0:
   resolved "https://registry.npmjs.org/ws/-/ws-8.13.0.tgz"
   integrity sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==
 
-ws@8.18.2, ws@^8.16.0:
+ws@8.18.2:
   version "8.18.2"
   resolved "https://registry.npmjs.org/ws/-/ws-8.18.2.tgz"
   integrity sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==
@@ -8231,6 +8231,11 @@ ws@^7.5.1:
   version "7.5.10"
   resolved "https://registry.npmjs.org/ws/-/ws-7.5.10.tgz"
   integrity sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ==
+
+ws@^8.16.0:
+  version "8.18.3"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.18.3.tgz#b56b88abffde62791c639170400c93dcb0c95472"
+  integrity sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==
 
 xhr-request-promise@^0.1.2:
   version "0.1.3"
@@ -8323,9 +8328,9 @@ zksync-web3@^0.14.3:
   integrity sha512-kYehMD/S6Uhe1g434UnaMN+sBr9nQm23Ywn0EUP5BfQCsbjcr3ORuS68PosZw8xUTu3pac7G6YMSnNHk+fwzvg==
 
 zod@^3.22.4:
-  version "3.25.57"
-  resolved "https://registry.npmjs.org/zod/-/zod-3.25.57.tgz"
-  integrity sha512-6tgzLuwVST5oLUxXTmBqoinKMd3JeesgbgseXeFasKKj8Q1FCZrHnbqJOyiEvr4cVAlbug+CgIsmJ8cl/pU5FA==
+  version "3.25.76"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.25.76.tgz#26841c3f6fd22a6a2760e7ccb719179768471e34"
+  integrity sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==
 
 zustand@^4.3.1:
   version "4.5.7"

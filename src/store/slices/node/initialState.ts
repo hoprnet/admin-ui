@@ -170,7 +170,6 @@ type InitialState = {
           lastSeenLatency: number;
           backoff: number;
           isNew: boolean;
-          reportedVersion: string;
         };
       };
       connectedSorted: string[];

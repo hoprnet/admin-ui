@@ -1234,13 +1234,11 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         state.pings[pingExists] = {
           latency: action.payload.latency,
           peerId: action.payload.peerId,
-          reportedVersion: action.payload.reportedVersion,
         };
       } else {
         state.pings.push({
           latency: action.payload.latency,
           peerId: action.payload.peerId,
-          reportedVersion: action.payload.reportedVersion,
         });
       }
     }
