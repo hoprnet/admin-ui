@@ -74,10 +74,16 @@ jobs:
           jq --arg version "${{ steps.variables.outputs.PR_VERSION }}" '.version = $version' package.json > package.tmp.json
           mv package.tmp.json ./package.json
 
+      - name: Print package.json version
+        run: |
+          cat ./package.json
+
       - name: Build and push docker image
         uses: docker/build-push-action@v6
         with:
+          run-before:
           push: true
+          no-cache: true
           build-args: |
             BUILDKIT_PROGRESS=plain  # Forces full output
           tags: ${{ vars.DOCKER_IMAGE_REGISTRY }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ steps.variables.outputs.PR_VERSION }}
