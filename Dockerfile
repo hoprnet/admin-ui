@@ -12,7 +12,6 @@ RUN apt-get update && \
 WORKDIR /app
 
 COPY package.json .
-RUN cat package.json
 COPY yarn.lock .
 
 RUN jq .version package.json -r > /app/version.txt
