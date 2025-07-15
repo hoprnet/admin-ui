@@ -65,8 +65,15 @@ jobs:
       - name: Get PR version
         id: variables
         run: |
-          PR_VERSION="$(jq -r '.version' ./package.json)-pr.${{ github.event.pull_request.number }}"
+          BUILD_DATE=$(date +%Y%m%d%H%M%S)
+          PR_VERSION="$(jq -r '.version' ./package.json)-pr.${{ github.event.pull_request.number }}-pr.${{ BUILD_DATE }}"
           echo "PR_VERSION=${PR_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Update package.json version with PR version
+        run: |
+          jq --arg version "${{ steps.variables.outputs.PR_VERSION }}" '.version = $version' package.json > package.tmp.json
+          mv package.tmp.json ./package.json
+          cat package.json
 
       - name: Build and push docker image
         uses: docker/build-push-action@v6

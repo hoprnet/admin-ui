@@ -15,6 +15,7 @@ COPY package.json .
 COPY yarn.lock .
 
 RUN jq .version package.json -r > /app/version.txt
+RUN cat /app/version.txt
 RUN yarn --frozen-lockfile --network-timeout 1000000
 
 FROM --platform=linux/amd64 node:20-bullseye-slim AS build
