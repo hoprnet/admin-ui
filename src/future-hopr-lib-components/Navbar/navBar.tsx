@@ -14,9 +14,11 @@ interface AppBarProps extends MuiAppBarProps {
   webapp?: boolean;
 }
 
+export const navBarHeight = 44;
+
 const AppBar = styled(({ tallerNavBarOnMobile, webapp, ...rest }: AppBarProps) => <MuiAppBar {...rest} />)`
   background: white;
-  height: 60px;
+  height: ${navBarHeight}px;
   border-bottom: 1px lightgray solid;
   box-shadow: unset;
   z-index: 1201;
@@ -30,7 +32,6 @@ const AppBar = styled(({ tallerNavBarOnMobile, webapp, ...rest }: AppBarProps) =
     props.tallerNavBarOnMobile &&
     `
     @media screen and (max-width: 520px) {
-    //  height: 100px;
       position: static;
     }
   `}
@@ -54,11 +55,11 @@ const Container = styled.div<{ webapp?: boolean }>`
 const FlexBox = styled(Box)`
   align-items: center;
   display: flex;
-  gap: 1rem;
+  gap: 8px;
 
   .MuiIconButton-root {
-    height: 48px;
-    width: 48px;
+    height: 42px;
+    width: 42px;
     &:hover {
       background-color: rgba(0, 0, 180, 0.1);
       transition: background-color 0.4s ease;
@@ -67,24 +68,15 @@ const FlexBox = styled(Box)`
 `;
 
 const Logo = styled.div`
-  width: 92px;
-  height: 52px;
+  width: 90px;
+  height: ${navBarHeight}px;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* a {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden; */
   img {
-    height: 50px;
+    height: 40px;
     width: auto;
-    margin-left: 10px;
   }
-  //  }
 `;
 
 const NavBar: React.FC<{

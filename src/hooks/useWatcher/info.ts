@@ -43,15 +43,16 @@ export const observeNodeInfo = ({
     isDataDifferent: (newNodeInfo) =>
       !!previousState && newNodeInfo.connectivityStatus !== previousState.connectivityStatus,
     notificationHandler: (newNodeInfo) => {
+      const message = `Node connectivity status updated from ${previousState?.connectivityStatus} to ${newNodeInfo?.connectivityStatus}`;
       sendNotification({
         notificationPayload: {
-          name: `Node connectivity status is now ${newNodeInfo?.connectivityStatus}`,
+          name: message,
           source: 'node',
           url: null,
           timeout: null,
         },
         toastPayload: {
-          message: `Node connectivity status updated from ${previousState?.connectivityStatus} to ${newNodeInfo?.connectivityStatus}`,
+          message,
         },
         dispatch,
       });

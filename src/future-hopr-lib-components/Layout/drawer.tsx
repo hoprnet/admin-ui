@@ -18,20 +18,20 @@ import Details from '../../components/InfoBar/details';
 import { rounder2 } from '../../utils/functions';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-const drawerWidth = 240;
-const minDrawerWidth = 56;
+export const drawerWidth = 200;
+export const minDrawerWidth = 50;
 
 const StyledDrawer = styled(MuiDrawer)`
   .MuiDrawer-paper {
     box-sizing: border-box;
-    padding-top: 59px;
+    padding-top: 43px;
     transition: width 0.4s ease-out;
     overflow-x: hidden;
     scrollbar-width: none;
     &::-webkit-scrollbar {
       display: none;
     }
-
+    width: ${drawerWidth}px;
     width: ${(props) => (props.open ? `${drawerWidth}px` : `${minDrawerWidth}px`)};
 
     ${(props) =>
@@ -82,7 +82,7 @@ const StyledDrawer = styled(MuiDrawer)`
 const StyledListSubheader = styled(ListSubheader)`
   align-items: center;
   display: flex;
-  height: 64px;
+  height: 48px;
   letter-spacing: 0.2px;
   user-select: none;
   color: #777;
@@ -92,13 +92,18 @@ const StyledListItemButton = styled(ListItemButton)`
   height: 48px;
   fill: rgba(0, 0, 0, 0.54);
   width: 100%;
-  padding-right: 10px;
+  padding-right: 7px;
+  padding-left: 14px;
   .MuiListItemIcon-root {
-    min-width: 48px;
+    min-width: 38px;
     svg {
       width: 24px;
       height: 24px;
     }
+  }
+  .MuiTypography-root {
+    font-size: 14px;
+    white-space: nowrap;
   }
   &.Mui-selected {
     color: #0000b4;

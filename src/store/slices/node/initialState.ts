@@ -170,7 +170,6 @@ type InitialState = {
           lastSeenLatency: number;
           backoff: number;
           isNew: boolean;
-          reportedVersion: string;
         };
       };
       connectedSorted: string[];
@@ -229,6 +228,7 @@ type InitialState = {
     nodeStartEpoch: number | null;
     checksum: string | null;
     blockNumber: number | null;
+    indexerDataSource: string | null;
   };
   messagesWebsocketStatus: WebsocketConnectionStatus;
   redeemAllTickets: {
@@ -386,6 +386,7 @@ export const initialState: InitialState = {
     nodeStartEpoch: null,
     checksum: null,
     blockNumber: null,
+    indexerDataSource: null,
   },
   messagesWebsocketStatus: null,
   redeemAllTickets: {

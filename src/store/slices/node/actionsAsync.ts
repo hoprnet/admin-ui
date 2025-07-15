@@ -63,6 +63,7 @@ const {
   getConfiguration,
   getEntryNodes,
   getInfo,
+  getMetrics,
   getPeers,
   getTicketStatistics,
   getToken,
@@ -183,7 +184,6 @@ const getBalancesThunk = createAsyncThunk<
     dispatch(nodeActionsFetching.setBalancesFetching(true));
     try {
       const balances = await getBalances(payload);
-      console.log('getBalancesThunk', balances);
       return balances;
     } catch (e) {
       if (e instanceof sdkApiError) {
@@ -548,7 +548,7 @@ const openMultipleChannelsThunk = createAsyncThunk(
         apiEndpoint: payload.apiEndpoint,
         apiToken: payload.apiToken,
         timeout: payload.timeout,
-        peerAddresses: payload.peerIds,
+        destinations: payload.peerIds,
         amount: payload.amount,
       });
       if (typeof res === 'undefined')
@@ -709,6 +709,30 @@ const deleteTokenThunk = createAsyncThunk<
   {
     condition: (_payload, { getState }) => {
       const isFetching = getState().node.tokens.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
+  },
+);
+
+const getPrometheusMetricsThunk = createAsyncThunk<string | undefined, BasePayloadType, { state: RootState }>(
+  'node/getPrometheusMetrics',
+  async (payload, { rejectWithValue, dispatch }) => {
+    dispatch(nodeActionsFetching.setMetricsFetching(true));
+    try {
+      const res = await getMetrics(payload);
+      return res;
+    } catch (e) {
+      if (e instanceof sdkApiError) {
+        return rejectWithValue(e);
+      }
+      return rejectWithValue({ status: JSON.stringify(e) });
+    }
+  },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().node.metrics.isFetching;
       if (isFetching) {
         return false;
       }
@@ -1210,13 +1234,11 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
         state.pings[pingExists] = {
           latency: action.payload.latency,
           peerId: action.payload.peerId,
-          reportedVersion: action.payload.reportedVersion,
         };
       } else {
         state.pings.push({
           latency: action.payload.latency,
           peerId: action.payload.peerId,
-          reportedVersion: action.payload.reportedVersion,
         });
       }
     }
@@ -1231,6 +1253,95 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   builder.addCase(deleteTokenThunk.rejected, (state) => {
     state.tokens.isFetching = false;
+  });
+  // getPrometheusMetrics
+  builder.addCase(getPrometheusMetricsThunk.fulfilled, (state, action) => {
+    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
+    if (action.payload) {
+      state.metrics.data.raw = action.payload;
+      const jsonMetrics = parseMetrics(action.payload);
+      state.metrics.data.parsed = jsonMetrics;
+      state.metricsParsed.nodeSync = (jsonMetrics?.hopr_indexer_sync_progress?.data[0] as number) || null;
+
+      // count tickets
+      state.metricsParsed.tickets.incoming = {
+        redeemed: {},
+        unredeemed: {},
+      };
+      if (
+        jsonMetrics?.hopr_tickets_incoming_statistics?.categories &&
+        jsonMetrics?.hopr_tickets_incoming_statistics?.data
+      ) {
+        const categories = jsonMetrics.hopr_tickets_incoming_statistics.categories;
+        const data = jsonMetrics?.hopr_tickets_incoming_statistics?.data;
+        for (let i = 0; i < categories.length; i++) {
+          const channel = categories[i]
+            .match(/channel="0x[a-f0-9]+"/gi)[0]
+            .replace(`channel="`, ``)
+            .replace(`"`, ``);
+          const statistic = categories[i]
+            .match(/statistic="[a-z_]+"/g)[0]
+            .replace(`statistic="`, ``)
+            .replace(`"`, ``);
+          const value = data[i];
+
+          if (value) {
+            if (statistic === 'unredeemed') {
+              state.metricsParsed.tickets.incoming.unredeemed[channel] = {
+                value: `${value}`,
+                formatted: formatEther(BigInt(`${value}`)),
+              };
+            } else if (statistic === 'redeemed') {
+              state.metricsParsed.tickets.incoming.redeemed[channel] = {
+                value: `${value}`,
+                formatted: formatEther(BigInt(`${value}`)),
+              };
+            }
+          }
+        }
+      }
+
+      // get checksum
+      if (jsonMetrics?.hopr_indexer_block_number && jsonMetrics?.hopr_indexer_checksum) {
+        try {
+          const hopr_indexer_block_number = jsonMetrics.hopr_indexer_block_number?.data[0];
+          const hopr_indexer_checksum = jsonMetrics.hopr_indexer_checksum?.data[0];
+          const checksum = hopr_indexer_checksum.toString(16);
+
+          state.metricsParsed.checksum = checksum;
+          state.metricsParsed.blockNumber = hopr_indexer_block_number;
+        } catch (e) {
+          console.error('Error getting blockNumber and checksum');
+        }
+      }
+
+      // indexer data source
+      if (jsonMetrics?.hopr_indexer_data_source) {
+        try {
+          const hoprIndexerDataSourceIndex = jsonMetrics.hopr_indexer_data_source?.data.findIndex(
+            (elem: number) => elem === 1,
+          );
+          const hoprIndexerDataSource = jsonMetrics.hopr_indexer_data_source?.categories[hoprIndexerDataSourceIndex];
+          state.metricsParsed.indexerDataSource = hoprIndexerDataSource.replace('{source="', '').replace('"}', '');
+        } catch (e) {
+          console.error('Error getting node indexer data source');
+        }
+      }
+
+      // nodeStartEpoch
+      if (jsonMetrics?.hopr_start_time) {
+        try {
+          const nodeStartEpoch = jsonMetrics.hopr_start_time?.data[0];
+          state.metricsParsed.nodeStartEpoch = nodeStartEpoch;
+        } catch (e) {
+          console.error('Error getting node startup epoch');
+        }
+      }
+    }
+    state.metrics.isFetching = false;
+  });
+  builder.addCase(getPrometheusMetricsThunk.rejected, (state) => {
+    state.metrics.isFetching = false;
   });
   // redeemChannelTickets
   builder.addCase(redeemChannelTicketsThunk.fulfilled, (state) => {
@@ -1279,6 +1390,7 @@ export const actionsAsync = {
   getPeerInfoThunk,
   getTicketStatisticsThunk,
   getTokenThunk,
+  getPrometheusMetricsThunk,
   getEntryNodesThunk,
   getVersionThunk,
   withdrawThunk,
