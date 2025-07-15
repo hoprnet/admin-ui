@@ -81,7 +81,6 @@ jobs:
       - name: Build and push docker image
         uses: docker/build-push-action@v6
         with:
-          run-before:
           push: true
           no-cache: true
           build-args: |
