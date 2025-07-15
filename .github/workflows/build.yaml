@@ -83,6 +83,8 @@ jobs:
         with:
           push: true
           no-cache: true
+          context: .
+          file: Dockerfile
           build-args: |
             BUILDKIT_PROGRESS=plain  # Forces full output
           tags: ${{ vars.DOCKER_IMAGE_REGISTRY }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ steps.variables.outputs.PR_VERSION }}
