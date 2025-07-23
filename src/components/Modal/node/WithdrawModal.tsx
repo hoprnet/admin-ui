@@ -143,7 +143,7 @@ const WithdrawModal = ({ initialCurrency }: WithdrawModalProps) => {
       set_transactionHash('');
       await dispatch(
         nodeActionsAsync.withdrawThunk({
-          amount: `${parseEther(amount).toString()} ${currency === 'NATIVE' ? 'xDai' : 'wxHOPR'}`,
+          amount: `${parseEther(amount).toString()} ${currency === 'NATIVE' ? 'wei xDai' : 'wei wxHOPR'}`,
           address: recipient,
           apiEndpoint,
           apiToken: apiToken ? apiToken : '',
