@@ -41,6 +41,8 @@ import {
   type GetMinimumNetworkProbabilityResponseType,
   type OpenSessionPayloadType,
   type CloseSessionPayloadType,
+  type ChannelCorruptedType,
+  type GetChannelsCorruptedResponseType
 } from '@hoprnet/hopr-sdk';
 import { parseMetrics } from '../../../utils/metrics';
 import { RootState } from '../..';
@@ -60,6 +62,7 @@ const {
   getChannel,
   getChannelTickets,
   getChannels,
+  getChannelsCorrupted,
   getConfiguration,
   getEntryNodes,
   getInfo,
@@ -233,12 +236,15 @@ const getBalanceInAllSafeChannelsThunk = createAsyncThunk<
   },
 );
 
-const getChannelsThunk = createAsyncThunk<GetChannelsResponseType | undefined, BasePayloadType, { state: RootState }>(
+const getChannelsThunk = createAsyncThunk<{channels: GetChannelsResponseType | undefined, channelsCorrupted: GetChannelsCorruptedResponseType | undefined}, BasePayloadType, { state: RootState }>(
   'node/getChannels',
   async (payload, { rejectWithValue, dispatch }) => {
     try {
-      const channels = await getChannels(payload);
-      return channels;
+      const [channels, channelsCorrupted] = await Promise.all([getChannels(payload), getChannelsCorrupted(payload)]);
+      return {
+        channels,
+        channelsCorrupted,
+      };
     } catch (e) {
       if (e instanceof sdkApiError) {
         return rejectWithValue(e);
@@ -949,12 +955,13 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   builder.addCase(getChannelsThunk.fulfilled, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    if (action.payload) {
-      console.log('getChannelsThunk', action.payload);
-      state.channels.data = action.payload;
-      if (action.payload.outgoing.length > 0) {
+    const channels = action.payload.channels;
+    if (channels) {
+      console.log('getChannels', channels);
+      state.channels.data = channels;
+      if (channels.outgoing.length > 0) {
         let balance = BigInt(0);
-        action.payload.outgoing.forEach((channel) => (balance += parseEther(channel.balance)));
+        channels.outgoing.forEach((channel) => (balance += parseEther(channel.balance)));
         state.balances.data.channels = {
           value: balance.toString(),
           formatted: formatEther(balance),
@@ -991,49 +998,77 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.links.nodeAddressToOutgoingChannel = {};
 
       // Regenerate channels
-      for (let i = 0; i < action.payload.outgoing.length; i++) {
-        const channelId = action.payload.outgoing[i].id;
-        const nodeAddress = action.payload.outgoing[i].peerAddress;
+      for (let i = 0; i < channels.outgoing.length; i++) {
+        const channelId = channels.outgoing[i].id;
+        const nodeAddress = channels.outgoing[i].peerAddress;
         state.links.nodeAddressToOutgoingChannel[nodeAddress] = channelId;
 
         if (!state.channels.parsed.outgoing[channelId]) {
           state.channels.parsed.outgoing[channelId] = {
-            balance: action.payload.outgoing[i].balance,
+            balance: channels.outgoing[i].balance,
             peerAddress: nodeAddress,
-            status: action.payload.outgoing[i].status,
+            status: channels.outgoing[i].status,
             isClosing: areClosingOutgoing.includes(channelId),
           };
         } else {
-          state.channels.parsed.outgoing[channelId].balance = action.payload.outgoing[i].balance;
+          state.channels.parsed.outgoing[channelId].balance = channels.outgoing[i].balance;
           state.channels.parsed.outgoing[channelId].peerAddress = nodeAddress;
-          state.channels.parsed.outgoing[channelId].status = action.payload.outgoing[i].status;
+          state.channels.parsed.outgoing[channelId].status = channels.outgoing[i].status;
           state.channels.parsed.outgoing[channelId].isClosing = areClosingOutgoing.includes(channelId);
         }
       }
 
       state.channels.parsed.incoming = {};
-      for (let i = 0; i < action.payload.incoming.length; i++) {
-        const channelId = action.payload.incoming[i].id;
-        const nodeAddress = action.payload.incoming[i].peerAddress;
+      for (let i = 0; i < channels.incoming.length; i++) {
+        const channelId = channels.incoming[i].id;
+        const nodeAddress = channels.incoming[i].peerAddress;
         state.links.nodeAddressToIncomingChannel[nodeAddress] = channelId;
         state.links.incomingChannelToNodeAddress[channelId] = nodeAddress;
 
         if (!state.channels.parsed.incoming[channelId]) {
           state.channels.parsed.incoming[channelId] = {
-            balance: action.payload.incoming[i].balance,
+            balance: channels.incoming[i].balance,
             peerAddress: nodeAddress,
-            status: action.payload.incoming[i].status,
+            status: channels.incoming[i].status,
             tickets: 0,
             ticketBalance: '0',
             isClosing: areClosingIncoming.includes(channelId),
           };
         } else {
-          state.channels.parsed.incoming[channelId].balance = action.payload.incoming[i].balance;
+          state.channels.parsed.incoming[channelId].balance = channels.incoming[i].balance;
           state.channels.parsed.incoming[channelId].peerAddress = nodeAddress;
-          state.channels.parsed.incoming[channelId].status = action.payload.incoming[i].status;
+          state.channels.parsed.incoming[channelId].status = channels.incoming[i].status;
           state.channels.parsed.incoming[channelId].isClosing = areClosingIncoming.includes(channelId);
         }
       }
+    }
+
+//    const channelsCorrupted = action.payload.channelsCorrupted;
+    const channelsCorrupted = [
+      {
+        "balance": "10 wxHOPR",
+        "channelEpoch": 1,
+        "channelId": "0x04efc1481d3f106b88527b3844ba40042b823218a9cd29d1aa11c2c2ef8f538e",
+        "closureTime": 0,
+        "destination": "0x188c4462b75e46f0c7262d7f48d182447b93a93c",
+        "source": "0x84ee78434C62881836b0f79BDcD329687aCd887D",
+        "status": "Open",
+        "ticketIndex": 0
+      },  {
+        "balance": "10 wxHOPR",
+        "channelEpoch": 1,
+        "channelId": "0x04efc1481d3f106b88527b3844ba40042b823218a9cd29d1aa11c2c2ef8f538f",
+        "closureTime": 0,
+        "destination": "0x84ee78434C62881836b0f79BDcD329687aCd887D",
+        "source": "0x07eaf07d6624f741e04f4092a755a9027aaab7f6",
+        "status": "Open",
+        "ticketIndex": 0
+      }
+    ] as ChannelCorruptedType[];
+
+    if (channelsCorrupted) {
+      console.log('getChannelsCorrupted', channelsCorrupted);
+      state.channels.corrupted = channelsCorrupted;
     }
 
     if (!state.channels.alreadyFetched) state.channels.alreadyFetched = true;

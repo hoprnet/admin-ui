@@ -237,6 +237,31 @@ function InfoPage() {
             <tr>
               <th>
                 <Tooltip
+                  title={
+                    <ul
+                      style={{
+                        margin: 0,
+                        padding: '0 0 0 16px',
+                      }}
+                    >
+                      <span style={{ margin: '0 0 0 -16px' }}>Possible statuses:</span>
+                      <li>Unknown: Node has just been started recently</li>
+                      <li>Red: No connection</li>
+                      <li>Orange: low-quality connection</li>
+                      <li>Yellow/Green: High-quality node</li>
+                    </ul>
+                  }
+                >
+                  <span>Connectivity status</span>
+                </Tooltip>
+              </th>
+              <td>
+                <ColorStatus className={`status-${info?.connectivityStatus}`}>{info?.connectivityStatus}</ColorStatus>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
                   title="The sync process of your node with the blockchain"
                   notWide
                 >
@@ -259,49 +284,13 @@ function InfoPage() {
             <tr>
               <th>
                 <Tooltip
-                  title="The blockchain network your node is using for on-chain transactions"
+                  title="The RPC provider address your node uses sync"
                   notWide
                 >
-                  <span>Blockchain network</span>
+                  <span>Provider address</span>
                 </Tooltip>
               </th>
-              <td>{info?.chain}</td>
-            </tr>
-            <tr>
-              <th>
-                <Tooltip
-                  title="The network/environment your node is running in"
-                  notWide
-                >
-                  <span>Hopr network</span>
-                </Tooltip>
-              </th>
-              <td>{info?.network}</td>
-            </tr>
-            <tr>
-              <th>
-                <Tooltip
-                  title={
-                    <ul
-                      style={{
-                        margin: 0,
-                        padding: '0 0 0 16px',
-                      }}
-                    >
-                      <span style={{ margin: '0 0 0 -16px' }}>Possible statuses:</span>
-                      <li>Unknown: Node has just been started recently</li>
-                      <li>Red: No connection</li>
-                      <li>Orange: low-quality connection</li>
-                      <li>Yellow/Green: High-quality node</li>
-                    </ul>
-                  }
-                >
-                  <span>Connectivity status</span>
-                </Tooltip>
-              </th>
-              <td>
-                <ColorStatus className={`status-${info?.connectivityStatus}`}>{info?.connectivityStatus}</ColorStatus>
-              </td>
+              <td>{info?.provider}</td>
             </tr>
             <tr>
               <th>
@@ -328,13 +317,24 @@ function InfoPage() {
             <tr>
               <th>
                 <Tooltip
-                  title="The RPC provider address your node uses sync"
+                  title="The network/environment your node is running in"
                   notWide
                 >
-                  <span>Provider address</span>
+                  <span>Hopr network</span>
                 </Tooltip>
               </th>
-              <td>{info?.provider}</td>
+              <td>{info?.network}</td>
+            </tr>
+            <tr>
+              <th>
+                <Tooltip
+                  title="The blockchain network your node is using for on-chain transactions"
+                  notWide
+                >
+                  <span>Blockchain network</span>
+                </Tooltip>
+              </th>
+              <td>{info?.chain}</td>
             </tr>
             <tr>
               <th>

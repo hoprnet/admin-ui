@@ -719,10 +719,10 @@
   resolved "https://registry.npmjs.org/@graphql-typed-document-node/core/-/core-3.2.0.tgz"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hoprnet/hopr-sdk@3.0.0-pr.148-20250709144009":
-  version "3.0.0-pr.148-20250709144009"
-  resolved "https://europe-west3-npm.pkg.dev/hoprassociation/npm/@hoprnet/hopr-sdk/-/@hoprnet/hopr-sdk-3.0.0-pr.148-20250709144009.tgz#cf1e07610a95c9e32102444ccad5355cbdd43d28"
-  integrity sha512-Z6UYZdATZ6bJnhYSKlSU4CmL6fFkIaEHf4PpKdxg5+9I3CTp4AU6vDC3fFXFTabY/57xaOrwWug2J8oQYrEITg==
+"@hoprnet/hopr-sdk@3.0.0-pr.148-20250806151707":
+  version "3.0.0-pr.148-20250806151707"
+  resolved "https://europe-west3-npm.pkg.dev/hoprassociation/npm/@hoprnet/hopr-sdk/-/@hoprnet/hopr-sdk-3.0.0-pr.148-20250806151707.tgz#9add0dc053053c60fb9a88f8dbeb75928e4314bd"
+  integrity sha512-FIjw2qafUHQjsStuwoXKNyjOcqFbxyJRdJWaby5cL/LG5JaZQ5tK6oLyLacHJK6EU4Vui7z8+T+BmBjz1RBcYw==
   dependencies:
     debug "^4.3.4"
     isomorphic-ws "^5.0.0"
