@@ -103,19 +103,22 @@ function SettingsPage() {
         },
       ];
 
-      // console.log('configs', configs);
+      let strategiesString = yaml.dump(strategyTMP);
 
-      // TODO: update this block to the new structure
-      // for (const config of configs) {
-      //   if (config.value) {
-      //     const tickets = calculateTickets(config.value, ticketPrice);
-      //     result = updateStrategyString(result, config.path[1], config.value, tickets);
-      //   }
-      // }
+      // * Add ! in front of the strategy name to make yaml copy-paste friendly
+      const strategiesSet = [];
+      if(strategyTMP.hopr.strategy.strategies) {
+        for (let i = 0; i < strategyTMP.hopr.strategy.strategies.length; i++) {
+          const strategyName =  Object.keys(strategyTMP.hopr.strategy.strategies[i])[0];
+          strategiesSet.push(strategyName);
+        }
+      }
+      strategiesSet.forEach((strategyName) => {
+        strategiesString = strategiesString.replace(`- ${strategyName}`, `- !${strategyName}`);
+      });
+      // **********************************************************************
 
-      const result = yaml.dump(strategyTMP);
-
-      set_strategiesString(result);
+      set_strategiesString(strategiesString);
     } catch (e) {
       console.warn('Error while counting strategies against current ticket price.', e);
     }
