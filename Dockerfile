@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:20-bullseye-slim AS deps
+FROM --platform=linux/amd64 node:22-bullseye-slim AS deps
 
 SHELL ["/bin/bash", "-lc"]
 
@@ -17,7 +17,7 @@ COPY yarn.lock .
 RUN jq .version package.json -r > /app/version.txt
 RUN yarn --frozen-lockfile --network-timeout 1000000
 
-FROM --platform=linux/amd64 node:20-bullseye-slim AS build
+FROM --platform=linux/amd64 node:22-bullseye-slim AS build
 
 WORKDIR /app
 
