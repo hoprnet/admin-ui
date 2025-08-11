@@ -312,6 +312,12 @@ const LayoutEnhanced = () => {
             }),
           );
           dispatch(
+            nodeActionsAsync.getChannelsCorruptedThunk({
+              apiEndpoint,
+              apiToken: apiToken ? apiToken : '',
+            }),
+          );
+          dispatch(
             nodeActionsAsync.getTicketStatisticsThunk({
               apiEndpoint,
               apiToken: apiToken ? apiToken : '',

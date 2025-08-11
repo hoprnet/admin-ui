@@ -9,7 +9,6 @@ import type {
   GetConfigurationResponseType,
   GetMinimumNetworkProbabilityResponseType,
   GetSessionsResponseType,
-  ChannelCorruptedType
 } from '@hoprnet/hopr-sdk';
 
 export type Message = {
@@ -109,7 +108,10 @@ type InitialState = {
         [peerAddress: string]: boolean;
       };
     };
-    corrupted: ChannelCorruptedType[];
+    corrupted: {
+      data: String[],
+      isFetching: boolean,
+    },
     isFetching: boolean;
     alreadyFetched: boolean;
   };
@@ -311,7 +313,10 @@ export const initialState: InitialState = {
       outgoing: {},
       outgoingOpening: {},
     },
-    corrupted: [],
+    corrupted: {
+      data: [],
+      isFetching: false,
+    },
     isFetching: false,
     alreadyFetched: false,
   },

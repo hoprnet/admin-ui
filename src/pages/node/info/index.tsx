@@ -34,6 +34,11 @@ const TdActionIcons = styled.td`
   align-items: center;
 `;
 
+const TD = styled.td`
+
+`;
+
+
 function InfoPage() {
   const dispatch = useAppDispatch();
   const { apiEndpoint, apiToken } = useAppSelector((store) => store.auth.loginData);
@@ -62,6 +67,7 @@ function InfoPage() {
   const indexerLastLogChecksum = useAppSelector((store) => store.node.info.data?.indexerLastLogChecksum); // >=2.2.0
   const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
   const minimumNetworkProbability = useAppSelector((store) => store.node.probability.data);
+  const channelsCorrupted = useAppSelector((store) => store.node.channels.corrupted.data.length > 0);
 
   useEffect(() => {
     fetchInfoData();
@@ -94,6 +100,12 @@ function InfoPage() {
     );
     dispatch(
       nodeActionsAsync.getChannelsThunk({
+        apiEndpoint,
+        apiToken: apiToken ? apiToken : '',
+      }),
+    );
+    dispatch(
+      nodeActionsAsync.getChannelsCorruptedThunk({
         apiEndpoint,
         apiToken: apiToken ? apiToken : '',
       }),
@@ -290,7 +302,15 @@ function InfoPage() {
                   <span>Provider address</span>
                 </Tooltip>
               </th>
-              <td>{info?.provider}</td>
+              <td>
+                {
+                  channelsCorrupted ?
+                    <span style={{ color: 'red', fontWeight: 'bold' }}>
+                      Faulty RPC | {info?.provider}
+                    </span> :
+                    info?.provider
+                }
+              </td>
             </tr>
             <tr>
               <th>
