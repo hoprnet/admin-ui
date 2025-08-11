@@ -108,6 +108,10 @@ type InitialState = {
         [peerAddress: string]: boolean;
       };
     };
+    corrupted: {
+      data: String[];
+      isFetching: boolean;
+    };
     isFetching: boolean;
     alreadyFetched: boolean;
   };
@@ -308,6 +312,10 @@ export const initialState: InitialState = {
       incoming: {},
       outgoing: {},
       outgoingOpening: {},
+    },
+    corrupted: {
+      data: [],
+      isFetching: false,
     },
     isFetching: false,
     alreadyFetched: false,

@@ -2,6 +2,7 @@ import { useEffect, useState, KeyboardEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { formatEther } from 'viem';
 import { rounder, rounder2 } from '../../utils/functions';
+import { exportToFile } from '../../utils/helpers';
 import yaml from 'js-yaml';
 
 // HOPR Components
@@ -10,11 +11,13 @@ import { TableExtended } from '../../future-hopr-lib-components/Table/columed-da
 import Section from '../../future-hopr-lib-components/Section';
 import Button from '../../future-hopr-lib-components/Button';
 import CodeCopyBox from '../../components/Code/CodeCopyBox';
+import IconButton from '../../future-hopr-lib-components/Button/IconButton';
 
 // Mui
 import { Paper, Switch } from '@mui/material';
 import styled from '@emotion/styled';
 import { appActions } from '../../store/slices/app';
+import GetAppIcon from '@mui/icons-material/GetApp';
 
 const NotificationsContainer = styled.div`
   display: flex;
@@ -52,6 +55,7 @@ function SettingsPage() {
   const strategy = useAppSelector((store) => store.node.configuration.data?.hopr?.strategy);
   const configuration = useAppSelector((store) => store.node.configuration.data);
   const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
+  const myNodeAddress = useAppSelector((store) => store.node.addresses.data.native);
   const [strategiesString, set_strategiesString] = useState<string | null>(null);
   const [configurationString, set_configurationString] = useState<string | null>(null);
   const [localNotificationSettings, set_localNotificationSettings] = useState<typeof prevNotificationSettings>();
@@ -103,19 +107,40 @@ function SettingsPage() {
         },
       ];
 
-      // console.log('configs', configs);
+      let strategiesString = yaml.dump(strategyTMP);
 
-      // TODO: update this block to the new structure
-      // for (const config of configs) {
-      //   if (config.value) {
-      //     const tickets = calculateTickets(config.value, ticketPrice);
-      //     result = updateStrategyString(result, config.path[1], config.value, tickets);
-      //   }
-      // }
+      // * Add ! in front of the strategy name to make yaml copy-paste friendly
+      const strategiesSet = [];
+      if (strategyTMP.hopr.strategy.strategies) {
+        for (let i = 0; i < strategyTMP.hopr.strategy.strategies.length; i++) {
+          const strategyName = Object.keys(strategyTMP.hopr.strategy.strategies[i])[0];
+          strategiesSet.push(strategyName);
+          try {
+            const strategyDetails = strategyTMP.hopr.strategy.strategies[i][strategyName];
+            const strategyDetailsKeys = Object.keys(strategyDetails);
+            for (const key of strategyDetailsKeys) {
+              const strategyValue = strategyDetails[key];
+              if (typeof strategyValue !== 'string') continue;
+              if (
+                strategyValue.includes(' wxHOPR') ||
+                strategyValue.includes('>') ||
+                strategyValue.includes('<') ||
+                strategyValue.includes('=')
+              ) {
+                strategiesString = strategiesString.replace(`${key}: ${strategyValue}`, `${key}: "${strategyValue}"`);
+              }
+            }
+          } catch (e) {
+            console.warn(`Error while processing strategy details for ${strategyName}`, e);
+          }
+        }
+      }
+      strategiesSet.forEach((strategyName) => {
+        strategiesString = strategiesString.replace(`- ${strategyName}:`, `- !${strategyName}`);
+      });
+      // **********************************************************************
 
-      const result = yaml.dump(strategyTMP);
-
-      set_strategiesString(result);
+      set_strategiesString(strategiesString);
     } catch (e) {
       console.warn('Error while counting strategies against current ticket price.', e);
     }
@@ -141,6 +166,12 @@ function SettingsPage() {
       handleSaveSettings();
     }
   }
+
+  const handleExport = () => {
+    if (strategiesString) {
+      exportToFile(strategiesString, `strategies-${myNodeAddress}.yaml`, 'text/yaml');
+    }
+  };
 
   return (
     <Section
@@ -245,7 +276,20 @@ function SettingsPage() {
             </tr>
 
             <tr>
-              <th>Strategies</th>
+              <th>
+                Strategies
+                <IconButton
+                  iconComponent={<GetAppIcon />}
+                  tooltipText={
+                    <span>
+                      EXPORT
+                      <br />
+                      strategies
+                    </span>
+                  }
+                  onClick={handleExport}
+                />
+              </th>
               <td>
                 {strategiesString && (
                   <CodeCopyBox

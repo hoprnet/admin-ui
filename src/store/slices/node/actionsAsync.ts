@@ -41,6 +41,7 @@ import {
   type GetMinimumNetworkProbabilityResponseType,
   type OpenSessionPayloadType,
   type CloseSessionPayloadType,
+  type GetChannelsCorruptedResponseType,
 } from '@hoprnet/hopr-sdk';
 import { parseMetrics } from '../../../utils/metrics';
 import { RootState } from '../..';
@@ -60,6 +61,7 @@ const {
   getChannel,
   getChannelTickets,
   getChannels,
+  getChannelsCorrupted,
   getConfiguration,
   getEntryNodes,
   getInfo,
@@ -249,6 +251,33 @@ const getChannelsThunk = createAsyncThunk<GetChannelsResponseType | undefined, B
   {
     condition: (_payload, { getState }) => {
       const isFetching = getState().node.channels.isFetching;
+      if (isFetching) {
+        return false;
+      }
+    },
+  },
+);
+
+const getChannelsCorruptedThunk = createAsyncThunk<
+  GetChannelsCorruptedResponseType | undefined,
+  BasePayloadType,
+  { state: RootState }
+>(
+  'node/getChannelsCorrupted',
+  async (payload, { rejectWithValue, dispatch }) => {
+    try {
+      const channelsCorrupted = await getChannelsCorrupted(payload);
+      return channelsCorrupted;
+    } catch (e) {
+      if (e instanceof sdkApiError) {
+        return rejectWithValue(e);
+      }
+      return rejectWithValue({ status: JSON.stringify(e) });
+    }
+  },
+  {
+    condition: (_payload, { getState }) => {
+      const isFetching = getState().node.channels.corrupted.isFetching;
       if (isFetching) {
         return false;
       }
@@ -949,12 +978,13 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   builder.addCase(getChannelsThunk.fulfilled, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    if (action.payload) {
-      console.log('getChannelsThunk', action.payload);
-      state.channels.data = action.payload;
-      if (action.payload.outgoing.length > 0) {
+    const channels = action.payload;
+    if (channels) {
+      console.log('getChannels', channels);
+      state.channels.data = channels;
+      if (channels.outgoing.length > 0) {
         let balance = BigInt(0);
-        action.payload.outgoing.forEach((channel) => (balance += parseEther(channel.balance)));
+        channels.outgoing.forEach((channel) => (balance += parseEther(channel.balance)));
         state.balances.data.channels = {
           value: balance.toString(),
           formatted: formatEther(balance),
@@ -991,46 +1021,46 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       state.links.nodeAddressToOutgoingChannel = {};
 
       // Regenerate channels
-      for (let i = 0; i < action.payload.outgoing.length; i++) {
-        const channelId = action.payload.outgoing[i].id;
-        const nodeAddress = action.payload.outgoing[i].peerAddress;
+      for (let i = 0; i < channels.outgoing.length; i++) {
+        const channelId = channels.outgoing[i].id;
+        const nodeAddress = channels.outgoing[i].peerAddress;
         state.links.nodeAddressToOutgoingChannel[nodeAddress] = channelId;
 
         if (!state.channels.parsed.outgoing[channelId]) {
           state.channels.parsed.outgoing[channelId] = {
-            balance: action.payload.outgoing[i].balance,
+            balance: channels.outgoing[i].balance,
             peerAddress: nodeAddress,
-            status: action.payload.outgoing[i].status,
+            status: channels.outgoing[i].status,
             isClosing: areClosingOutgoing.includes(channelId),
           };
         } else {
-          state.channels.parsed.outgoing[channelId].balance = action.payload.outgoing[i].balance;
+          state.channels.parsed.outgoing[channelId].balance = channels.outgoing[i].balance;
           state.channels.parsed.outgoing[channelId].peerAddress = nodeAddress;
-          state.channels.parsed.outgoing[channelId].status = action.payload.outgoing[i].status;
+          state.channels.parsed.outgoing[channelId].status = channels.outgoing[i].status;
           state.channels.parsed.outgoing[channelId].isClosing = areClosingOutgoing.includes(channelId);
         }
       }
 
       state.channels.parsed.incoming = {};
-      for (let i = 0; i < action.payload.incoming.length; i++) {
-        const channelId = action.payload.incoming[i].id;
-        const nodeAddress = action.payload.incoming[i].peerAddress;
+      for (let i = 0; i < channels.incoming.length; i++) {
+        const channelId = channels.incoming[i].id;
+        const nodeAddress = channels.incoming[i].peerAddress;
         state.links.nodeAddressToIncomingChannel[nodeAddress] = channelId;
         state.links.incomingChannelToNodeAddress[channelId] = nodeAddress;
 
         if (!state.channels.parsed.incoming[channelId]) {
           state.channels.parsed.incoming[channelId] = {
-            balance: action.payload.incoming[i].balance,
+            balance: channels.incoming[i].balance,
             peerAddress: nodeAddress,
-            status: action.payload.incoming[i].status,
+            status: channels.incoming[i].status,
             tickets: 0,
             ticketBalance: '0',
             isClosing: areClosingIncoming.includes(channelId),
           };
         } else {
-          state.channels.parsed.incoming[channelId].balance = action.payload.incoming[i].balance;
+          state.channels.parsed.incoming[channelId].balance = channels.incoming[i].balance;
           state.channels.parsed.incoming[channelId].peerAddress = nodeAddress;
-          state.channels.parsed.incoming[channelId].status = action.payload.incoming[i].status;
+          state.channels.parsed.incoming[channelId].status = channels.incoming[i].status;
           state.channels.parsed.incoming[channelId].isClosing = areClosingIncoming.includes(channelId);
         }
       }
@@ -1039,8 +1069,20 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
     if (!state.channels.alreadyFetched) state.channels.alreadyFetched = true;
     state.channels.isFetching = false;
   });
-  builder.addCase(getChannelsThunk.rejected, (state) => {
+  builder.addCase(getChannelsThunk.rejected, (state, action) => {
     state.channels.isFetching = false;
+  });
+  //getChannelsCorrupted
+  builder.addCase(getChannelsCorruptedThunk.pending, (state) => {
+    state.channels.corrupted.isFetching = true;
+  });
+  builder.addCase(getChannelsCorruptedThunk.fulfilled, (state, action) => {
+    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
+    state.channels.corrupted.data = action.payload?.channelIds || [];
+    state.channels.corrupted.isFetching = false;
+  });
+  builder.addCase(getChannelsCorruptedThunk.rejected, (state, action) => {
+    state.channels.corrupted.isFetching = false;
   });
   //openChannel
   builder.addCase(openChannelThunk.pending, (state, action) => {
@@ -1055,7 +1097,6 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
     state.channels.parsed.outgoingOpening[peerAddress] = false;
   });
   builder.addCase(openChannelThunk.rejected, (state, action) => {
-    if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
     const peerAddress = action.meta.arg.destination;
     if (!peerAddress) return;
     state.channels.parsed.outgoingOpening[peerAddress] = false;
@@ -1385,6 +1426,7 @@ export const actionsAsync = {
   getAddressesThunk,
   getBalancesThunk,
   getChannelsThunk,
+  getChannelsCorruptedThunk,
   getConfigurationThunk,
   getPeersThunk,
   getPeerInfoThunk,
