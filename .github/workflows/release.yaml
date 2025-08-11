@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node.js
         uses: hoprnet/hopr-workflows/actions/setup-node-js@master
         with:
-          node-version: ${{ vars.NODE_VERSION }}
+          node-version: 22.x
 
       - name: Setup GCP
         id: gcp

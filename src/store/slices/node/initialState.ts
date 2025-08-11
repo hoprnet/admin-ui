@@ -109,9 +109,9 @@ type InitialState = {
       };
     };
     corrupted: {
-      data: String[],
-      isFetching: boolean,
-    },
+      data: String[];
+      isFetching: boolean;
+    };
     isFetching: boolean;
     alreadyFetched: boolean;
   };

@@ -34,10 +34,7 @@ const TdActionIcons = styled.td`
   align-items: center;
 `;
 
-const TD = styled.td`
-
-`;
-
+const TD = styled.td``;
 
 function InfoPage() {
   const dispatch = useAppDispatch();
@@ -303,13 +300,11 @@ function InfoPage() {
                 </Tooltip>
               </th>
               <td>
-                {
-                  channelsCorrupted ?
-                    <span style={{ color: 'red', fontWeight: 'bold' }}>
-                      Faulty RPC | {info?.provider}
-                    </span> :
-                    info?.provider
-                }
+                {channelsCorrupted ? (
+                  <span style={{ color: 'red', fontWeight: 'bold' }}>Faulty RPC | {info?.provider}</span>
+                ) : (
+                  info?.provider
+                )}
               </td>
             </tr>
             <tr>

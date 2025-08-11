@@ -169,11 +169,7 @@ function SettingsPage() {
 
   const handleExport = () => {
     if (strategiesString) {
-      exportToFile(
-        strategiesString,
-        `strategies-${myNodeAddress}.yaml`,
-        'text/yaml'
-      );
+      exportToFile(strategiesString, `strategies-${myNodeAddress}.yaml`, 'text/yaml');
     }
   };
 

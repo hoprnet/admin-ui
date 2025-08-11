@@ -41,7 +41,7 @@ import {
   type GetMinimumNetworkProbabilityResponseType,
   type OpenSessionPayloadType,
   type CloseSessionPayloadType,
-  type GetChannelsCorruptedResponseType
+  type GetChannelsCorruptedResponseType,
 } from '@hoprnet/hopr-sdk';
 import { parseMetrics } from '../../../utils/metrics';
 import { RootState } from '../..';
@@ -258,7 +258,11 @@ const getChannelsThunk = createAsyncThunk<GetChannelsResponseType | undefined, B
   },
 );
 
-const getChannelsCorruptedThunk = createAsyncThunk<GetChannelsCorruptedResponseType | undefined, BasePayloadType, { state: RootState }>(
+const getChannelsCorruptedThunk = createAsyncThunk<
+  GetChannelsCorruptedResponseType | undefined,
+  BasePayloadType,
+  { state: RootState }
+>(
   'node/getChannelsCorrupted',
   async (payload, { rejectWithValue, dispatch }) => {
     try {
