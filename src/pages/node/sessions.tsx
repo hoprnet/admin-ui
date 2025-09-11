@@ -151,7 +151,7 @@ function SessionsPage() {
       port: session.port,
       protocol: session.protocol,
       target: session.target,
-      mtu: session.mtu,
+      mtu: session.hoprMtu,
       path: (
         <>
           <strong>Forward path:</strong>
