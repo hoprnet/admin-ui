@@ -184,14 +184,6 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   useEffect(setPropPeerId, [props.destination]);
 
   useEffect(() => {
-    console.log('intermediateForwardPathError', intermediateForwardPathError);
-  }, [intermediateForwardPathError]);
-
-  useEffect(() => {
-    console.log('intermediateReturnPathError', intermediateReturnPathError);
-  }, [intermediateReturnPathError]);
-
-  useEffect(() => {
     window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);

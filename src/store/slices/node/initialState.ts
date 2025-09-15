@@ -162,8 +162,7 @@ type InitialState = {
       connected: {
         //TODO: add ConnectedPeerType to SDK
         [peerId: string]: {
-          peerId: string;
-          peerAddress: string;
+          address: string;
           quality: number;
           multiaddr: string | null;
           heartbeats: {

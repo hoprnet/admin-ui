@@ -1148,6 +1148,9 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
       const sortedAnnouncedPeers = action.payload?.announced.map((peer) => peer.address).sort();
       state.peers.parsed.connectedSorted = sortedConnectedPeers || [];
       state.peers.parsed.announcedSorted = sortedAnnouncedPeers || [];
+      action.payload?.connected.forEach((peer) => {
+        state.peers.parsed.connected[peer.address] = peer;
+      });
     }
 
     if (!state.peers.alreadyFetched) state.peers.alreadyFetched = true;
