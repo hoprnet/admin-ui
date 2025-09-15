@@ -89,7 +89,7 @@ function InfoPage() {
       set_providerShort(providerShort || '');
     } catch (e) {
       console.error('Error parsing provider URL', e);
-      set_providerShort('')
+      set_providerShort('***Invalid URL***');
     }
   }, [provider]);
 
