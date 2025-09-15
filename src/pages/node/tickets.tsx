@@ -23,15 +23,27 @@ function TicketsPage() {
   const statistics = useAppSelector((store) => store.node.statistics.data);
   const statisticsFetching = useAppSelector((store) => store.node.statistics.isFetching);
   const redeemAllTicketsFetching = useAppSelector((store) => store.node.redeemAllTickets.isFetching);
+  const resettingTicketStatistics = useAppSelector((store) => store.node.resetTicketStatistics.isFetching);
   const redeemAllTicketsErrors = useAppSelector((store) => store.node.redeemAllTickets.error);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const info = useAppSelector((store) => store.node.info.data);
   const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
   const minimumNetworkProbability = useAppSelector((store) => store.node.probability.data);
+  const [resettingStats, set_resettingStats] = useState(false);
 
   useEffect(() => {
     handleRefresh();
   }, [loginData, dispatch]);
+
+  useEffect(() => {
+    if (resettingTicketStatistics) {
+      set_resettingStats(true);
+    } else {
+      setTimeout(() => {
+        set_resettingStats(false);
+      }, 2000);
+    }
+  }, [resettingTicketStatistics]);
 
   const handleRefresh = () => {
     if (loginData.apiEndpoint) {
@@ -104,7 +116,7 @@ function TicketsPage() {
                   ticket statistics
                 </span>
               }
-              reloading={redeemAllTicketsFetching}
+              reloading={resettingStats}
               onClick={handleResetTicketsStatistics}
             />
           </>
