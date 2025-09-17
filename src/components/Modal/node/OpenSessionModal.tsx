@@ -129,8 +129,8 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const aliases = useAppSelector((store) => store.node.aliases);
 
   const [destination, set_destination] = useState<string | null>(props.destination ? props.destination : null);
-  const [listenHost, set_listenHost] = useState<string>('127.0.0.1:10000');
-  const [sessionTarget, set_sessionTarget] = useState<string>('127.0.0.1:8080');
+  const [listenHost, set_listenHost] = useState<string>('');//('127.0.0.1:10000');
+  const [sessionTarget, set_sessionTarget] = useState<string>('');//('127.0.0.1:8080');
   const [intermediateForwardPath, set_intermediateForwardPath] = useState<(string | null)[]>([null]);
   const [intermediateReturnPath, set_intermediateReturnPath] = useState<(string | null)[]>([null]);
   const fullForwardPath = [...intermediateForwardPath, destination];
@@ -341,9 +341,9 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   };
 
   const handleCloseModal = () => {
-    set_sendForwardMode('numberOfHops');
-    set_numberOfForwardHops(0);
-    set_destination(props.destination ? props.destination : null);
+    // set_sendForwardMode('numberOfHops');
+    // set_numberOfForwardHops(0);
+    // set_destination(props.destination ? props.destination : null);
     set_openModal(false);
     set_error(null);
   };
