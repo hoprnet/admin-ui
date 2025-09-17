@@ -83,7 +83,7 @@ function InfoPage() {
         return;
       }
       const providerObject = new URL(provider);
-      const providerContainsSecret = providerObject.pathname !== '/' || providerObject.search !== "";
+      const providerContainsSecret = providerObject.pathname !== '/' || providerObject.search !== '';
       set_providerContainsSecret(providerContainsSecret);
       const providerShort = providerContainsSecret ? providerObject.origin + '/************' : provider;
       set_providerShort(providerShort || '');
@@ -92,7 +92,6 @@ function InfoPage() {
       set_providerShort('***Invalid URL***');
     }
   }, [provider]);
-
 
   useEffect(() => {
     const watchSync = setInterval(() => {
@@ -323,10 +322,9 @@ function InfoPage() {
                   >
                     <span style={{ display: 'flex', alignItems: 'center' }}>Provider address</span>
                   </Tooltip>
-                  {
-                    providerContainsSecret &&
+                  {providerContainsSecret && (
                     <>
-                      {showWholeProvider ?
+                      {showWholeProvider ? (
                         <IconButton
                           iconComponent={<Visibility />}
                           tooltipText={
@@ -339,9 +337,8 @@ function InfoPage() {
                           onClick={() => {
                             set_showWholeProvider(false);
                           }}
-
                         />
-                        :
+                      ) : (
                         <IconButton
                           iconComponent={<VisibilityOff />}
                           tooltipText={
@@ -355,16 +352,20 @@ function InfoPage() {
                             set_showWholeProvider(true);
                           }}
                         />
-                      }
+                      )}
                     </>
-                  }
+                  )}
                 </div>
               </th>
               <td>
                 {channelsCorrupted ? (
-                  <span style={{ color: 'red', fontWeight: 'bold' }}>Faulty RPC | {showWholeProvider ? provider : providerShort}</span>
+                  <span style={{ color: 'red', fontWeight: 'bold' }}>
+                    Faulty RPC | {showWholeProvider ? provider : providerShort}
+                  </span>
+                ) : showWholeProvider ? (
+                  provider
                 ) : (
-                  showWholeProvider ? provider : providerShort
+                  providerShort
                 )}
               </td>
             </tr>

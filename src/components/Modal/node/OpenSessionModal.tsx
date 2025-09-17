@@ -129,8 +129,8 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const aliases = useAppSelector((store) => store.node.aliases);
 
   const [destination, set_destination] = useState<string | null>(props.destination ? props.destination : null);
-  const [listenHost, set_listenHost] = useState<string>('');//('127.0.0.1:10000');
-  const [sessionTarget, set_sessionTarget] = useState<string>('');//('127.0.0.1:8080');
+  const [listenHost, set_listenHost] = useState<string>(''); //('127.0.0.1:10000');
+  const [sessionTarget, set_sessionTarget] = useState<string>(''); //('127.0.0.1:8080');
   const [intermediateForwardPath, set_intermediateForwardPath] = useState<(string | null)[]>([null]);
   const [intermediateReturnPath, set_intermediateReturnPath] = useState<(string | null)[]>([null]);
   const fullForwardPath = [...intermediateForwardPath, destination];
@@ -443,7 +443,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                 max: 10000,
                 step: 1,
               }}
-              type='number'
+              type="number"
               style={{
                 width: '97px',
               }}
@@ -530,7 +530,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                   label="Retransmission"
                   onChange={() => {
                     set_retransmission((retransmission) => {
-                      if(!retransmission) {
+                      if (!retransmission) {
                         set_segmentation(true);
                       }
                       return !retransmission;
@@ -542,7 +542,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                   label="RetransmissionAckOnly"
                   onChange={() => {
                     set_retransmissionAckOnly((retransmissionAckOnly) => {
-                      if(!retransmissionAckOnly) {
+                      if (!retransmissionAckOnly) {
                         set_segmentation(true);
                       }
                       return !retransmissionAckOnly;
@@ -554,13 +554,14 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                   label="Segmentation"
                   disabled={noDelay || retransmission || retransmissionAckOnly}
                   title={
-                    retransmission ?
-                    'Segmentation is required when Retransmission is enabled' :
-                      retransmissionAckOnly ?
-                      'Segmentation is required when RetransmissionAckOnly is enabled' :
-                      noDelay ?
-                      'Segmentation is required when NoDelay is enabled' :
-                      ''}
+                    retransmission
+                      ? 'Segmentation is required when Retransmission is enabled'
+                      : retransmissionAckOnly
+                      ? 'Segmentation is required when RetransmissionAckOnly is enabled'
+                      : noDelay
+                      ? 'Segmentation is required when NoDelay is enabled'
+                      : ''
+                  }
                   onChange={() => {
                     set_segmentation((segmentation) => {
                       return !segmentation;
@@ -572,7 +573,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                   label="NoDelay"
                   onChange={() => {
                     set_noDelay((noDelay) => {
-                      if(!noDelay) {
+                      if (!noDelay) {
                         set_segmentation(true);
                       }
                       return !noDelay;

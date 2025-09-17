@@ -26,7 +26,7 @@ const Hop = styled.div`
   align-items: center;
   margin: 2px;
   height: 18px;
-`
+`;
 
 function SessionsPage() {
   const dispatch = useAppDispatch();
@@ -166,53 +166,47 @@ function SessionsPage() {
           <strong>Forward path:</strong>
           <br />
           <span style={{ whiteSpace: 'break-spaces' }}>
-            {
-              JSON.stringify(session.forwardPath).includes('Hops') ?
+            {JSON.stringify(session.forwardPath).includes('Hops') ? (
               JSON.stringify(session.forwardPath)
-              .replace(/{|}|\[|\]|"/g, '')
-              .replace('IntermediatePath:', 'IntermediatePath:\n')
-              .replace(/,/g, ' ')
-              :
+                .replace(/{|}|\[|\]|"/g, '')
+                .replace('IntermediatePath:', 'IntermediatePath:\n')
+                .replace(/,/g, ' ')
+            ) : (
               <>
-                {
-                  session?.forwardPath?.IntermediatePath?.map((hop: string, i: number) => (
-                    <Hop
-                      className="hop"
-                      key={`hop-f-${i}`}
-                    >
-                      {hop}
-                      {i === 0 && <PingModal address={hop} />}
-                    </Hop>
-                  ))
-                }
+                {session?.forwardPath?.IntermediatePath?.map((hop: string, i: number) => (
+                  <Hop
+                    className="hop"
+                    key={`hop-f-${i}`}
+                  >
+                    {hop}
+                    {i === 0 && <PingModal address={hop} />}
+                  </Hop>
+                ))}
               </>
-            }
+            )}
           </span>
           <br />
           <strong>Return path:</strong>
           <br />
           <span style={{ whiteSpace: 'break-spaces' }}>
-            {
-              JSON.stringify(session.returnPath).includes('Hops') ?
+            {JSON.stringify(session.returnPath).includes('Hops') ? (
               JSON.stringify(session.returnPath)
-              .replace(/{|}|\[|\]|"/g, '')
-              .replace('IntermediatePath:', 'IntermediatePath:\n')
-              .replace(/,/g, ' ')
-              :
+                .replace(/{|}|\[|\]|"/g, '')
+                .replace('IntermediatePath:', 'IntermediatePath:\n')
+                .replace(/,/g, ' ')
+            ) : (
               <>
-                {
-                  session?.returnPath?.IntermediatePath?.map((hop: string, i: number) => (
-                    <Hop
-                      className="hop"
-                      key={`hop-r-${i}`}
-                    >
-                      {hop}
-                      {i === (session?.returnPath?.IntermediatePath?.length ?? 0) - 1 && <PingModal address={hop} />}
-                    </Hop>
-                  ))
-                }
+                {session?.returnPath?.IntermediatePath?.map((hop: string, i: number) => (
+                  <Hop
+                    className="hop"
+                    key={`hop-r-${i}`}
+                  >
+                    {hop}
+                    {i === (session?.returnPath?.IntermediatePath?.length ?? 0) - 1 && <PingModal address={hop} />}
+                  </Hop>
+                ))}
               </>
-            }
+            )}
           </span>
         </>
       ),
