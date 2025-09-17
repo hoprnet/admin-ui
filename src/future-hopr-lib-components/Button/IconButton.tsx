@@ -70,7 +70,7 @@ export const IconButton = ({
     >
       <span>
         <SIconButton
-          disabled={disabled || pending}
+          disabled={disabled || pending || reloading}
           className={`${reloading ? 'reloading' : ''}`}
           onClick={onClick}
         >

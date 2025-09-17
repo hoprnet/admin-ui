@@ -233,22 +233,7 @@ function ChannelsPage() {
                 ) : undefined
               }
             />
-            {/* <CreateAliasModal
-              handleRefresh={handleRefresh}
-              peerId={peerId}
-              disabled={!peerId}
-              tooltip={
-                !peerId ? (
-                  <span>
-                    DISABLED
-                    <br />
-                    Unable to find
-                    <br />
-                    peerId
-                  </span>
-                ) : undefined
-              }
-            /> */}
+            <CreateAliasModal address={peerAddress} />
             <FundChannelModal channelId={id} />
             <IconButton
               iconComponent={<CloseChannelIcon />}

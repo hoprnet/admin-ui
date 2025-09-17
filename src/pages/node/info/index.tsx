@@ -7,6 +7,8 @@ import { formatEther } from 'viem';
 
 // Mui
 import { Paper } from '@mui/material';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility';
 
 // HOPR Components
 import Section from '../../../future-hopr-lib-components/Section';
@@ -65,10 +67,31 @@ function InfoPage() {
   const ticketPrice = useAppSelector((store) => store.node.ticketPrice.data);
   const minimumNetworkProbability = useAppSelector((store) => store.node.probability.data);
   const channelsCorrupted = useAppSelector((store) => store.node.channels.corrupted.data.length > 0);
+  const [showWholeProvider, set_showWholeProvider] = useState(false);
+  const [providerShort, set_providerShort] = useState('');
+  const [providerContainsSecret, set_providerContainsSecret] = useState(true);
+  const provider = info?.provider;
 
   useEffect(() => {
     fetchInfoData();
   }, [apiEndpoint, apiToken]);
+
+  useEffect(() => {
+    try {
+      if (!provider) {
+        set_providerShort('');
+        return;
+      }
+      const providerObject = new URL(provider);
+      const providerContainsSecret = providerObject.pathname !== '/' || providerObject.search !== '';
+      set_providerContainsSecret(providerContainsSecret);
+      const providerShort = providerContainsSecret ? providerObject.origin + '/************' : provider;
+      set_providerShort(providerShort || '');
+    } catch (e) {
+      console.error('Error parsing provider URL', e);
+      set_providerShort('***Invalid URL***');
+    }
+  }, [provider]);
 
   useEffect(() => {
     const watchSync = setInterval(() => {
@@ -291,19 +314,58 @@ function InfoPage() {
               <td>{indexerDataSource || '-'}</td>
             </tr>
             <tr>
-              <th>
-                <Tooltip
-                  title="The RPC provider address your node uses sync"
-                  notWide
-                >
-                  <span>Provider address</span>
-                </Tooltip>
+              <th style={providerContainsSecret ? { padding: '3px 8px' } : {}}>
+                <div style={{ display: 'flex' }}>
+                  <Tooltip
+                    title="The RPC provider address your node uses sync"
+                    notWide
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center' }}>Provider address</span>
+                  </Tooltip>
+                  {providerContainsSecret && (
+                    <>
+                      {showWholeProvider ? (
+                        <IconButton
+                          iconComponent={<Visibility />}
+                          tooltipText={
+                            <span>
+                              HIDE
+                              <br />
+                              full URL
+                            </span>
+                          }
+                          onClick={() => {
+                            set_showWholeProvider(false);
+                          }}
+                        />
+                      ) : (
+                        <IconButton
+                          iconComponent={<VisibilityOff />}
+                          tooltipText={
+                            <span>
+                              SHOW
+                              <br />
+                              full URL
+                            </span>
+                          }
+                          onClick={() => {
+                            set_showWholeProvider(true);
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
+                </div>
               </th>
               <td>
                 {channelsCorrupted ? (
-                  <span style={{ color: 'red', fontWeight: 'bold' }}>Faulty RPC | {info?.provider}</span>
+                  <span style={{ color: 'red', fontWeight: 'bold' }}>
+                    Faulty RPC | {showWholeProvider ? provider : providerShort}
+                  </span>
+                ) : showWholeProvider ? (
+                  provider
                 ) : (
-                  info?.provider
+                  providerShort
                 )}
               </td>
             </tr>

@@ -117,15 +117,20 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   const [sendReturnMode, set_sendReturnMode] = useState<'path' | 'numberOfHops'>('numberOfHops');
   const [protocol, set_protocol] = useState<'udp' | 'tcp'>('udp');
   const [responseBuffer, set_responseBuffer] = useState<number>(2048);
+  const [maxSurbUpstream, set_maxSurbUpstream] = useState<number>(2000);
+  const [maxClientSessions, set_maxClientSessions] = useState<number>(5);
   const [retransmission, set_retransmission] = useState<boolean>(true);
+  const [retransmissionAckOnly, set_retransmissionAckOnly] = useState<boolean>(false);
+  const [noDelay, set_noDelay] = useState<boolean>(false);
+  const [noRateControl, set_noRateControl] = useState<boolean>(false);
   const [segmentation, set_segmentation] = useState<boolean>(true);
   const [openModal, set_openModal] = useState<boolean>(false);
   const loginData = useAppSelector((store) => store.auth.loginData);
   const aliases = useAppSelector((store) => store.node.aliases);
 
   const [destination, set_destination] = useState<string | null>(props.destination ? props.destination : null);
-  const [listenHost, set_listenHost] = useState<string>('');
-  const [sessionTarget, set_sessionTarget] = useState<string>('');
+  const [listenHost, set_listenHost] = useState<string>(''); //('127.0.0.1:10000');
+  const [sessionTarget, set_sessionTarget] = useState<string>(''); //('127.0.0.1:8080');
   const [intermediateForwardPath, set_intermediateForwardPath] = useState<(string | null)[]>([null]);
   const [intermediateReturnPath, set_intermediateReturnPath] = useState<(string | null)[]>([null]);
   const fullForwardPath = [...intermediateForwardPath, destination];
@@ -184,14 +189,6 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   useEffect(setPropPeerId, [props.destination]);
 
   useEffect(() => {
-    console.log('intermediateForwardPathError', intermediateForwardPathError);
-  }, [intermediateForwardPathError]);
-
-  useEffect(() => {
-    console.log('intermediateReturnPathError', intermediateReturnPathError);
-  }, [intermediateReturnPathError]);
-
-  useEffect(() => {
     window.addEventListener('keydown', handleEnter as EventListener);
     return () => {
       window.removeEventListener('keydown', handleEnter as EventListener);
@@ -237,6 +234,8 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
       forwardPath: {},
       returnPath: {},
       responseBuffer: `${responseBuffer} kB`,
+      maxSurbUpstream: `${maxSurbUpstream} kb/s`,
+      maxClientSessions: maxClientSessions,
     };
 
     if (sendForwardMode === 'numberOfHops') {
@@ -263,8 +262,17 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
     if (retransmission) {
       sessionPayload.capabilities.push('Retransmission');
     }
+    if (retransmissionAckOnly) {
+      sessionPayload.capabilities.push('RetransmissionAckOnly');
+    }
     if (segmentation) {
       sessionPayload.capabilities.push('Segmentation');
+    }
+    if (noDelay) {
+      sessionPayload.capabilities.push('NoDelay');
+    }
+    if (noRateControl) {
+      sessionPayload.capabilities.push('NoRateControl');
     }
 
     dispatch(actionsAsync.openSessionThunk(sessionPayload))
@@ -333,9 +341,9 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
   };
 
   const handleCloseModal = () => {
-    set_sendForwardMode('numberOfHops');
-    set_numberOfForwardHops(0);
-    set_destination(props.destination ? props.destination : null);
+    // set_sendForwardMode('numberOfHops');
+    // set_numberOfForwardHops(0);
+    // set_destination(props.destination ? props.destination : null);
     set_openModal(false);
     set_error(null);
   };
@@ -372,7 +380,7 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
             <span>
               OPEN
               <br />
-              session
+              session listener
             </span>
           )
         }
@@ -384,10 +392,10 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
         open={openModal}
         onClose={handleCloseModal}
         disableScrollLock={true}
-        maxWidth={'800px'}
+        maxWidth={'750px'}
       >
         <TopBar>
-          <DialogTitle>Open session</DialogTitle>
+          <DialogTitle>Open session listener</DialogTitle>
           <SIconButton
             aria-label="close modal"
             onClick={handleCloseModal}
@@ -396,39 +404,87 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
           </SIconButton>
         </TopBar>
         <SDialogContent>
-          <Autocomplete
-            value={destination}
-            onChange={(event, newValue) => {
-              set_destination(newValue);
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: '8px',
             }}
-            options={addressBook}
-            getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
-            autoSelect
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Destination"
-                placeholder="Select Destination"
-                fullWidth
-              />
-            )}
-            // renderOption={(option)=>{
-            //   return (
-            //     <span>
-            //       {JSON.stringify(option)}
-            //     </span>
-            //   )
-            // }}
-          />
-          <TextField
-            label="Listen host"
-            placeholder={'127.0.0.1:10000'}
-            value={listenHost}
-            onChange={(event) => {
-              set_listenHost(event?.target?.value);
+          >
+            <Autocomplete
+              value={destination}
+              onChange={(event, newValue) => {
+                set_destination(newValue);
+              }}
+              options={addressBook}
+              getOptionLabel={(address) => (aliases[address] ? `${aliases[address]} (${address})` : address)}
+              autoSelect
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Destination"
+                  placeholder="Select Destination"
+                  fullWidth
+                />
+              )}
+              style={{
+                flex: 1,
+              }}
+            />
+            <TextField
+              label="Max client"
+              value={maxClientSessions}
+              onChange={(event) => {
+                set_maxClientSessions(Number(event?.target?.value));
+              }}
+              inputProps={{
+                type: 'number',
+                min: 1,
+                max: 10000,
+                step: 1,
+              }}
+              type="number"
+              style={{
+                width: '97px',
+              }}
+            />
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: '8px',
             }}
-            fullWidth
-          />
+          >
+            <TextField
+              label="Listen host"
+              placeholder={'127.0.0.1:10000'}
+              value={listenHost}
+              onChange={(event) => {
+                set_listenHost(event?.target?.value);
+              }}
+              fullWidth
+            />
+            <TextField
+              label="Max surb upstream"
+              value={maxSurbUpstream}
+              onChange={(event) => {
+                set_maxSurbUpstream(Number(event?.target?.value));
+              }}
+              inputProps={{
+                type: 'number',
+                min: 1,
+                max: 10000,
+                step: 1,
+              }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">kb/s</InputAdornment>,
+              }}
+              style={{
+                width: '170px',
+              }}
+            />
+          </div>
           <div
             style={{
               display: 'flex',
@@ -474,16 +530,63 @@ export const OpenSessionModal = (props: OpenSessionModalProps) => {
                   label="Retransmission"
                   onChange={() => {
                     set_retransmission((retransmission) => {
+                      if (!retransmission) {
+                        set_segmentation(true);
+                      }
                       return !retransmission;
+                    });
+                  }}
+                />
+                <FormControlLabel
+                  control={<Checkbox checked={retransmissionAckOnly} />}
+                  label="RetransmissionAckOnly"
+                  onChange={() => {
+                    set_retransmissionAckOnly((retransmissionAckOnly) => {
+                      if (!retransmissionAckOnly) {
+                        set_segmentation(true);
+                      }
+                      return !retransmissionAckOnly;
                     });
                   }}
                 />
                 <FormControlLabel
                   control={<Checkbox checked={segmentation} />}
                   label="Segmentation"
+                  disabled={noDelay || retransmission || retransmissionAckOnly}
+                  title={
+                    retransmission
+                      ? 'Segmentation is required when Retransmission is enabled'
+                      : retransmissionAckOnly
+                      ? 'Segmentation is required when RetransmissionAckOnly is enabled'
+                      : noDelay
+                      ? 'Segmentation is required when NoDelay is enabled'
+                      : ''
+                  }
                   onChange={() => {
                     set_segmentation((segmentation) => {
                       return !segmentation;
+                    });
+                  }}
+                />
+                <FormControlLabel
+                  control={<Checkbox checked={noDelay} />}
+                  label="NoDelay"
+                  onChange={() => {
+                    set_noDelay((noDelay) => {
+                      if (!noDelay) {
+                        set_segmentation(true);
+                      }
+                      return !noDelay;
+                    });
+                  }}
+                />
+
+                <FormControlLabel
+                  control={<Checkbox checked={noRateControl} />}
+                  label="NoRateControl"
+                  onChange={() => {
+                    set_noRateControl((noRateControl) => {
+                      return !noRateControl;
                     });
                   }}
                 />
