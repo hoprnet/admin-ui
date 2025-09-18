@@ -1078,7 +1078,7 @@ export const createAsyncReducer = (builder: ActionReducerMapBuilder<typeof initi
   });
   builder.addCase(getChannelsCorruptedThunk.fulfilled, (state, action) => {
     if (action.meta.arg.apiEndpoint !== state.apiEndpoint) return;
-    state.channels.corrupted.data = action.payload || [];
+    state.channels.corrupted.data = action.payload?.channelIds || [];
     state.channels.corrupted.isFetching = false;
   });
   builder.addCase(getChannelsCorruptedThunk.rejected, (state, action) => {
